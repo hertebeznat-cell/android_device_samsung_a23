@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mixer paths for bengal IDP (Samsung A23) -->
+<mixer>
+    <ctl name="RX_CDC_DMA_RX_0 Audio Mixer MultiMedia1" value="0" />
+    <ctl name="RX_CDC_DMA_RX_0 Audio Mixer MultiMedia2" value="0" />
+    <ctl name="RX_CDC_DMA_RX_0 Audio Mixer MultiMedia3" value="0" />
+    <ctl name="RX_CDC_DMA_RX_0 Audio Mixer MultiMedia4" value="0" />
+    <ctl name="MultiMedia1 Mixer TX_CDC_DMA_TX_3" value="0" />
+    <ctl name="MultiMedia1 Mixer TX_CDC_DMA_TX_4" value="0" />
+    <ctl name="RX_CDC_DMA_RX_0 Channels" value="Two" />
+    <ctl name="TX_CDC_DMA_TX_3 Channels" value="One" />
+    <ctl name="RX_MACRO RX0 MUX" value="AIF1_PB" />
+    <ctl name="RX_MACRO RX1 MUX" value="AIF1_PB" />
+    <ctl name="RX INT0_1 MIX1 INP0" value="RX0" />
+    <ctl name="RX INT1_1 MIX1 INP0" value="RX1" />
+    <ctl name="HPHL Volume" value="20" />
+    <ctl name="HPHR Volume" value="20" />
+    <ctl name="RX0 Digital Volume" value="84" />
+    <ctl name="RX1 Digital Volume" value="84" />
+    <ctl name="ADC1 Volume" value="12" />
+    <ctl name="ADC2 Volume" value="12" />
+    <ctl name="ADC3 Volume" value="12" />
+    <ctl name="DEC0 Volume" value="84" />
+    <ctl name="DEC1 Volume" value="84" />
+    <ctl name="TX_DEC0 Volume" value="84" />
+    <ctl name="TX_DEC1 Volume" value="84" />
+    <ctl name="EAR SPKR PA Gain" value="G_6_DB" />
+    <ctl name="WSA_SPK1 OUT Volume" value="10" />
+
+    <path name="deep-buffer-playback">
+        <ctl name="RX_CDC_DMA_RX_0 Audio Mixer MultiMedia1" value="1" />
+    </path>
+    <path name="low-latency-playback">
+        <ctl name="RX_CDC_DMA_RX_0 Audio Mixer MultiMedia5" value="1" />
+    </path>
+    <path name="compress-offload-playback">
+        <ctl name="RX_CDC_DMA_RX_0 Audio Mixer MultiMedia4" value="1" />
+    </path>
+    <path name="audio-record">
+        <ctl name="MultiMedia1 Mixer TX_CDC_DMA_TX_3" value="1" />
+    </path>
+    <path name="speaker">
+        <ctl name="WSA_SPK1 OUT Volume" value="10" />
+    </path>
+    <path name="headphones">
+        <ctl name="HPHL Volume" value="20" />
+        <ctl name="HPHR Volume" value="20" />
+        <ctl name="RX INT0_1 MIX1 INP0" value="RX0" />
+        <ctl name="RX INT1_1 MIX1 INP0" value="RX1" />
+    </path>
+    <path name="handset">
+        <ctl name="EAR SPKR PA Gain" value="G_6_DB" />
+    </path>
+</mixer>

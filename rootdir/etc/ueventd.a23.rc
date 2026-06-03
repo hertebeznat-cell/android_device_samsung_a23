@@ -1,0 +1,58 @@
+# Copyright (C) 2024-2026 The Evolution X Project
+# SPDX-License-Identifier: Apache-2.0
+
+# Samsung Galaxy A23 ueventd rules
+
+# Qualcomm
+/dev/kgsl-3d0         0666   system     system
+/dev/ion              0664   system     system
+/dev/dma_heap/qcom,qseecom          0664   system     system
+/dev/dma_heap/qcom,qseecom-ta       0664   system     system
+
+# Graphics
+/dev/graphics/fb0     0660   system     graphics
+
+# Diag
+/dev/diag             0660   system     oem_2901
+
+# Camera
+/dev/media*           0660   system     camera
+/dev/video*           0660   system     camera
+/dev/v4l-subdev*      0660   system     camera
+
+# Fingerprint
+/dev/goodix_fp        0660   system     system
+
+# Sensors
+/dev/input/event*     0660   system     input
+
+# NFC
+/dev/pn547            0660   nfc        nfc
+
+# Qualcomm Secure Execution Environment Communicator (QSEECOM)
+/dev/qseecom          0660   system     drmrpc
+
+# USB
+/dev/usb_accessory    0660   system     system
+
+# Vibrator
+/dev/aw8624_haptic    0660   system     system
+
+# Radio
+/dev/smd*             0660   system     radio
+/dev/smdcntl*         0640   radio      radio
+
+# Samsung
+/dev/sec-nfc          0660   nfc        nfc
+/dev/sec_fp           0660   system     system
+
+# Qualcomm Audio
+/dev/msm_qcelp        0660   system     audio
+/dev/msm_evrc         0660   system     audio
+/dev/msm_wma          0660   system     audio
+/dev/msm_wmapro       0660   system     audio
+/dev/msm_alac         0660   system     audio
+/dev/msm_ape          0660   system     audio
+/dev/msm_aac          0660   system     audio
+/dev/msm_rtac         0660   system     audio
+/dev/msm_cirrus_playback 0660 system    audio

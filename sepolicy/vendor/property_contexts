@@ -1,0 +1,9 @@
+# Samsung Galaxy A23 property_contexts
+# SPDX-License-Identifier: Apache-2.0
+
+vendor.display.            u:object_r:vendor_display_prop:s0
+vendor.audio.              u:object_r:vendor_audio_prop:s0
+ro.hardware.chipname       u:object_r:vendor_default_prop:s0
+persist.vendor.sensors.    u:object_r:vendor_sensors_prop:s0
+vendor.camera.             u:object_r:vendor_camera_prop:s0
+vendor.bluetooth.          u:object_r:vendor_bluetooth_prop:s0

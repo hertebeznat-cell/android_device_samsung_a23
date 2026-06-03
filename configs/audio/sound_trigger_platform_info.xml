@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sound trigger platform info for bengal -->
+<sound_trigger_platform_info>
+    <param version="0x0103" />
+    <common_config>
+        <param max_cpe_sessions="1" />
+        <param max_ape_sessions="8" />
+        <param enable_failure_detection="false" />
+        <param support_device_switch="true" />
+        <param transit_to_non_lpi_on_battery_charging="false" />
+    </common_config>
+    <acdb_ids>
+        <param DEVICE_HANDSET_MIC_APE="100" />
+        <param DEVICE_HANDSET_MIC_CPE="128" />
+        <param DEVICE_HANDSET_DMIC_APE="149" />
+        <param DEVICE_HANDSET_DMIC_CPE="149" />
+    </acdb_ids>
+</sound_trigger_platform_info>

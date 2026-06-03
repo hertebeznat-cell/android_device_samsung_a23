@@ -1,0 +1,51 @@
+# Copyright (C) 2024-2026 The Evolution X Project
+# SPDX-License-Identifier: Apache-2.0
+
+# Device-specific init for Samsung Galaxy A23
+
+on init
+    # Fingerprint sensor (side-mounted)
+    chown system system /dev/goodix_fp
+    chmod 0660 /dev/goodix_fp
+
+on boot
+    # Display
+    chown system system /sys/class/backlight/panel0-backlight/brightness
+    chmod 0660 /sys/class/backlight/panel0-backlight/brightness
+    chown system system /sys/class/backlight/panel0-backlight/max_brightness
+    chmod 0644 /sys/class/backlight/panel0-backlight/max_brightness
+
+    # USB
+    chown system system /sys/class/android_usb/android0/enable
+    chmod 0660 /sys/class/android_usb/android0/enable
+    chown system system /sys/class/android_usb/android0/idVendor
+    chmod 0660 /sys/class/android_usb/android0/idVendor
+    chown system system /sys/class/android_usb/android0/idProduct
+    chmod 0660 /sys/class/android_usb/android0/idProduct
+    chown system system /sys/class/android_usb/android0/f_diag/clients
+    chmod 0660 /sys/class/android_usb/android0/f_diag/clients
+
+    # Sensors
+    chown system system /sys/class/sensors/sensor_dev/enable
+    chmod 0660 /sys/class/sensors/sensor_dev/enable
+
+    # LED
+    chown system system /sys/class/leds/led:torch_0/brightness
+    chmod 0660 /sys/class/leds/led:torch_0/brightness
+    chown system system /sys/class/leds/led:torch_1/brightness
+    chmod 0660 /sys/class/leds/led:torch_1/brightness
+
+on property:sys.boot_completed=1
+    # Set I/O scheduler
+    write /sys/block/sda/queue/scheduler "cfq"
+    write /sys/block/sda/queue/read_ahead_kb 512
+    write /sys/block/sda/queue/nr_requests 256
+
+    # Set GPU power level
+    write /sys/class/kgsl/kgsl-3d0/default_pwrlevel 6
+    write /sys/class/kgsl/kgsl-3d0/devfreq/governor "msm-adreno-tz"
+
+service vendor.fps_hal /vendor/bin/hw/android.hardware.biometrics.fingerprint@2.1-service.samsung
+    class late_start
+    user system
+    group system input uhid

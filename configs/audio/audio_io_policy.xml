@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Audio I/O policy for bengal -->
+<audioPolicyIoConfiguration version="1.0">
+    <ioPolicy>
+        <output name="voip_rx" flags="AUDIO_OUTPUT_FLAG_DIRECT|AUDIO_OUTPUT_FLAG_VOIP_RX"
+                format1="AUDIO_FORMAT_PCM_16_BIT" sampling_rate="48000" bit_width="16"/>
+    </ioPolicy>
+</audioPolicyIoConfiguration>

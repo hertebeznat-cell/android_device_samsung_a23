@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sound trigger mixer paths for bengal -->
+<mixer>
+    <ctl name="LSM1 Mixer TX_CDC_DMA_TX_3" value="0" />
+    <ctl name="LSM1 Port" value="None" />
+    <path name="listen-voice-wakeup-1">
+        <ctl name="LSM1 Mixer TX_CDC_DMA_TX_3" value="1" />
+        <ctl name="LSM1 Port" value="TX_CDC_DMA_TX_3" />
+    </path>
+</mixer>

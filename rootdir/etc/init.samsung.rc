@@ -1,0 +1,38 @@
+# Copyright (C) 2024-2026 The Evolution X Project
+# SPDX-License-Identifier: Apache-2.0
+
+# Samsung-specific init
+on init
+    # Samsung-specific sysfs permissions
+    chown system system /sys/class/sec/tsp/cmd
+    chmod 0660 /sys/class/sec/tsp/cmd
+    chown system system /sys/class/sec/tsp/cmd_result
+    chmod 0660 /sys/class/sec/tsp/cmd_result
+
+    # Set Samsung specific properties
+    setprop ro.hardware.chipname SM6225
+
+on boot
+    # Samsung touchscreen permissions
+    chown system system /sys/class/sec/tsp/input/enabled
+    chmod 0660 /sys/class/sec/tsp/input/enabled
+
+    # Samsung key disable
+    chown system system /sys/class/sec/sec_key/wakeup_keys
+    chmod 0660 /sys/class/sec/sec_key/wakeup_keys
+
+    # Samsung multi-user
+    chown system system /sys/class/sec/switch/afc_disable
+    chmod 0664 /sys/class/sec/switch/afc_disable
+
+on post-fs-data
+    # Samsung RIL
+    mkdir /data/vendor/radio 0770 system radio
+    mkdir /data/vendor/radio/shmbus 0770 system radio
+
+    # Samsung camera
+    mkdir /data/vendor/camera 0770 system camera
+
+    # Samsung fingerprint
+    mkdir /data/vendor/biometrics 0770 system system
+    mkdir /data/vendor/fpSnrTest 0770 system system

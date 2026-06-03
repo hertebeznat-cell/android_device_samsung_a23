@@ -1,0 +1,4 @@
+# Samsung GPIO Keys layout
+key 114   VOLUME_DOWN
+key 115   VOLUME_UP
+key 116   POWER

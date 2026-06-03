@@ -1,0 +1,125 @@
+# Samsung Galaxy A23 (SM-A235F) Proprietary Files List
+# SPDX-License-Identifier: Apache-2.0
+#
+# NOTE: These files must be extracted from a running device or stock firmware
+# Run extract-files.sh to populate vendor/samsung/a235f/proprietary/
+
+# Audio
+vendor/lib/hw/audio.primary.bengal.so
+vendor/lib64/hw/audio.primary.bengal.so
+vendor/lib/libacdb-fts.so
+vendor/lib64/libacdb-fts.so
+vendor/lib/libacdbloader.so
+vendor/lib64/libacdbloader.so
+vendor/lib/libacdbrtac.so
+vendor/lib64/libacdbrtac.so
+vendor/lib/libaudioalsa.so
+vendor/lib64/libaudioalsa.so
+vendor/lib/libaudioroute.so
+vendor/lib64/libaudioroute.so
+vendor/lib/soundfx/libqcompostprocbundle.so
+vendor/lib64/soundfx/libqcompostprocbundle.so
+vendor/lib/soundfx/libqcomvisualizer.so
+vendor/lib64/soundfx/libqcomvisualizer.so
+vendor/lib/soundfx/libvolumelistener.so
+vendor/lib64/soundfx/libvolumelistener.so
+
+# Bluetooth
+vendor/lib64/libbluetooth_qti.so
+vendor/lib64/libbt-logClient.so
+vendor/lib64/libbtconfigstore.so
+
+# Camera
+vendor/lib/libmmcamera2_sensor_modules.so
+vendor/lib/libmmcamera2_stats_modules.so
+vendor/lib/libmmcamera_dbg.so
+vendor/lib64/libmmcamera_dbg.so
+vendor/lib/libsensor1.so
+vendor/lib64/libsensor1.so
+
+# Display / GPU (Adreno 610)
+vendor/lib/egl/eglSubDriverAndroid.so
+vendor/lib/egl/libEGL_adreno.so
+vendor/lib/egl/libGLESv1_CM_adreno.so
+vendor/lib/egl/libGLESv2_adreno.so
+vendor/lib64/egl/eglSubDriverAndroid.so
+vendor/lib64/egl/libEGL_adreno.so
+vendor/lib64/egl/libGLESv1_CM_adreno.so
+vendor/lib64/egl/libGLESv2_adreno.so
+vendor/lib/hw/gralloc.bengal.so
+vendor/lib64/hw/gralloc.bengal.so
+vendor/lib/hw/hwcomposer.bengal.so
+vendor/lib64/hw/hwcomposer.bengal.so
+vendor/lib/hw/memtrack.bengal.so
+vendor/lib64/hw/memtrack.bengal.so
+vendor/lib/libadreno_utils.so
+vendor/lib64/libadreno_utils.so
+vendor/lib/libC2D2.so
+vendor/lib64/libC2D2.so
+vendor/lib/libgsl.so
+vendor/lib64/libgsl.so
+vendor/lib/libllvm-qcom.so
+vendor/lib64/libllvm-qcom.so
+vendor/lib/libOpenCL.so
+vendor/lib64/libOpenCL.so
+
+# DRM
+vendor/bin/qseecomd
+vendor/lib64/libQSEEComAPI.so
+vendor/lib64/libdrmfs.so
+vendor/lib64/libdrmtime.so
+vendor/lib64/librpmb.so
+
+# Fingerprint
+vendor/lib64/libbauthserver.so
+vendor/lib64/libbauthtzcommon.so
+vendor/lib64/libegisfingerprint.so
+vendor/lib64/libgf_hal.so
+
+# Firmware
+vendor/firmware/a615_zap.mdt
+vendor/firmware/a615_zap.b00
+vendor/firmware/a615_zap.b01
+vendor/firmware/a615_zap.b02
+vendor/firmware/venus.mdt
+vendor/firmware/venus.b00
+vendor/firmware/venus.b01
+vendor/firmware/venus.b02
+vendor/firmware/venus.b03
+vendor/firmware/venus.b04
+vendor/firmware/wlanmdsp.mbn
+
+# GPS
+vendor/lib64/libloc_api_v02.so
+vendor/lib64/libloc_core.so
+vendor/lib64/libloc_ds_api.so
+vendor/lib64/libgnss.so
+
+# Media
+vendor/lib/libOmxCore.so
+vendor/lib64/libOmxCore.so
+vendor/lib/libOmxVdec.so
+vendor/lib64/libOmxVdec.so
+vendor/lib/libOmxVenc.so
+vendor/lib64/libOmxVenc.so
+vendor/lib/libmm-omxcore.so
+vendor/lib64/libmm-omxcore.so
+
+# NFC
+vendor/lib64/libnfc-nci.so
+vendor/lib64/libnfc_nci_jni.so
+
+# RIL / Telephony
+vendor/lib64/libril-qc-hal-qmi.so
+vendor/lib64/libril-qcril-hook-oem.so
+vendor/lib64/librilutils.so
+vendor/lib64/libsec-ril.so
+vendor/lib64/libsec-ril-dsds.so
+
+# Sensors
+vendor/lib64/hw/sensors.bengal.so
+vendor/lib64/libsnsdiaglog.so
+vendor/lib64/libssc.so
+
+# WiFi
+vendor/lib64/libwpa_client.so

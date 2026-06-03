@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Media codecs performance v1 data for bengal -->
+<MediaCodecs>
+    <Decoders>
+        <MediaCodec name="OMX.qcom.video.decoder.avc" type="video/avc" update="true">
+            <Limit name="measured-frame-rate-320x240" range="400-600" />
+            <Limit name="measured-frame-rate-720x480" range="300-500" />
+            <Limit name="measured-frame-rate-1280x720" range="200-400" />
+            <Limit name="measured-frame-rate-1920x1080" range="100-200" />
+        </MediaCodec>
+    </Decoders>
+</MediaCodecs>

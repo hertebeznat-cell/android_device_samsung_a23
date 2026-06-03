@@ -1,0 +1,2 @@
+add_lunch_combo evolution_a23-userdebug
+add_lunch_combo evolution_a23-eng

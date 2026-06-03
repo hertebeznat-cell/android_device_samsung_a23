@@ -1,0 +1,14 @@
+[
+    {
+        "repository": "android_kernel_samsung_a23",
+        "target_path": "kernel/samsung/a23",
+        "remote": "hertebeznat-cell",
+        "branch": "main"
+    },
+    {
+        "repository": "android_vendor_samsung_a235f",
+        "target_path": "vendor/samsung/a235f",
+        "remote": "hertebeznat-cell",
+        "branch": "main"
+    }
+]

@@ -1,0 +1,104 @@
+# Samsung Galaxy A23 vendor.prop
+# SPDX-License-Identifier: Apache-2.0
+
+# Audio
+persist.vendor.audio.fluence.voicecall=true
+persist.vendor.audio.fluence.voicerec=false
+persist.vendor.audio.fluence.speaker=true
+vendor.audio.tunnel.encode=false
+persist.vendor.audio.ras.enabled=false
+vendor.audio.offload.buffer.size.kb=256
+vendor.audio.offload.track.enable=true
+vendor.voice.path.for.pcm.voip=true
+vendor.audio.offload.multiaac.enable=true
+vendor.audio.dolby.ds2.enabled=false
+vendor.audio.dolby.ds2.hardbypass=false
+vendor.audio.offload.multiple.enabled=false
+vendor.audio.offload.passthrough=false
+ro.vendor.audio.sdk.fluencetype=none
+persist.vendor.audio.voicecall.speaker.stereo=true
+vendor.audio.feature.a2dp_offload.enable=true
+vendor.audio.feature.compress_meta_data.enable=true
+vendor.audio.feature.compr_voip.enable=false
+vendor.audio.feature.deepbuffer_as_primary.enable=false
+vendor.audio.feature.display_port.enable=false
+vendor.audio.feature.fm.enable=true
+vendor.audio.feature.hdmi_edid.enable=false
+vendor.audio.feature.hfp.enable=true
+vendor.audio.feature.incall_music.enable=true
+vendor.audio.feature.kpi_optimize.enable=true
+vendor.audio.feature.multi_voice_session.enable=true
+vendor.audio.feature.snd_mon.enable=true
+vendor.audio.feature.spkr_prot.enable=false
+vendor.audio.feature.src_trkn.enable=true
+vendor.audio.feature.ssrec.enable=true
+vendor.audio.feature.usb_offload.enable=true
+vendor.audio.feature.vbat.enable=true
+vendor.audio.feature.wsa.enable=true
+
+# Bluetooth
+persist.vendor.bt.aac_frm_ctl.enabled=true
+persist.vendor.bt.a2dp.aac_whitelist=false
+persist.vendor.qcom.bluetooth.a2dp_offload_cap=sbc-aptx-aptxtws-aptxhd-aac-ldac
+persist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=false
+persist.vendor.qcom.bluetooth.enable.splita2dp=true
+persist.vendor.qcom.bluetooth.soc=cherokee
+vendor.qcom.bluetooth.soc=cherokee
+
+# Camera
+persist.vendor.camera.preview.ubwc=0
+vendor.camera.aux.packagelist=org.codeaurora.snapcam,com.android.camera
+
+# Display
+vendor.display.disable_scaler=0
+vendor.display.disable_excl_rect=0
+vendor.display.disable_excl_rect_partial_fb=1
+vendor.display.comp_mask=0
+vendor.display.enable_posted_start_dyn=1
+vendor.display.enable_optimize_refresh=1
+vendor.display.use_smooth_motion=1
+vendor.gralloc.disable_ubwc=0
+debug.sf.hw=0
+debug.egl.hw=0
+debug.sf.latch_unsignaled=1
+debug.sf.high_fps_late_app_phase_offset_ns=1000000
+debug.sf.high_fps_late_sf_phase_offset_ns=-4000000
+debug.sf.high_fps_early_phase_offset_ns=-4000000
+debug.sf.high_fps_early_gl_phase_offset_ns=-4000000
+debug.sf.disable_client_composition_cache=1
+debug.sf.enable_gl_backpressure=1
+debug.sf.enable_hwc_vds=0
+
+# DRM
+drm.service.enabled=true
+
+# FRP
+ro.frp.pst=/dev/block/persistent
+
+# GPS
+persist.vendor.overlay.izat.optin=rro
+
+# Media
+debug.stagefright.omx_default_rank.sw-audio=1
+debug.stagefright.omx_default_rank=0
+debug.stagefright.ccodec=1
+
+# NFC
+ro.nfc.port=I2C
+
+# Perf
+ro.vendor.extension_library=libqti-perfd-client.so
+
+# Radio (RIL)
+persist.vendor.radio.apm_sim_not_pwdn=1
+persist.vendor.radio.custom_ecc=1
+persist.vendor.radio.procedure_bytes=SKIP
+persist.vendor.radio.rat_on=combine
+persist.vendor.radio.sib16_support=1
+
+# Sensors
+persist.vendor.sensors.enable.mag_filter=true
+
+# USB
+vendor.usb.diag.func.name=diag
+vendor.usb.use_ffs_mtp=0

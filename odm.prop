@@ -1,0 +1,6 @@
+# Samsung Galaxy A23 odm.prop
+# SPDX-License-Identifier: Apache-2.0
+
+# Samsung
+ro.soc.manufacturer=Qualcomm
+ro.soc.model=SM6225

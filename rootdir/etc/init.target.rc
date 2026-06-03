@@ -1,0 +1,71 @@
+# Copyright (C) 2024-2026 The Evolution X Project
+# SPDX-License-Identifier: Apache-2.0
+
+# Qualcomm bengal target init
+
+on early-init
+    write /proc/sys/kernel/sched_boost 1
+
+on init
+    # Setup cpusets
+    mkdir /dev/cpuset/foreground/boost
+    write /dev/cpuset/foreground/boost/cpus 0-7
+    write /dev/cpuset/foreground/boost/mems 0
+
+    # Configure memory
+    write /proc/sys/vm/swappiness 100
+    write /proc/sys/vm/watermark_scale_factor 200
+    write /proc/sys/vm/dirty_ratio 20
+    write /proc/sys/vm/dirty_background_ratio 5
+
+on boot
+    # Set thermal governor
+    write /sys/class/thermal/thermal_zone0/mode "enabled"
+
+on property:vendor.post_boot.parsed=1
+    # CPUFreq
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/up_rate_limit_us 500
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/down_rate_limit_us 20000
+    write /sys/devices/system/cpu/cpu6/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu6/cpufreq/schedutil/up_rate_limit_us 500
+    write /sys/devices/system/cpu/cpu6/cpufreq/schedutil/down_rate_limit_us 10000
+
+    # I/O scheduler
+    write /sys/block/sda/queue/scheduler "bfq"
+    write /sys/block/sda/queue/iosched/slice_idle 0
+    write /sys/block/sda/queue/read_ahead_kb 128
+    write /sys/block/sda/queue/nr_requests 128
+
+on charger
+    # Offline CPUs for charging mode
+    write /sys/devices/system/cpu/cpu1/online 0
+    write /sys/devices/system/cpu/cpu2/online 0
+    write /sys/devices/system/cpu/cpu3/online 0
+    write /sys/devices/system/cpu/cpu4/online 0
+    write /sys/devices/system/cpu/cpu5/online 0
+    write /sys/devices/system/cpu/cpu6/online 0
+    write /sys/devices/system/cpu/cpu7/online 0
+
+    # Set CPU frequency for charger mode
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 300000
+
+service vendor.thermal-engine /vendor/bin/thermal-engine
+    class main
+    user root
+    socket thermal-send-client stream 0666 system system
+    socket thermal-recv-client stream 0660 system system
+    socket thermal-recv-passive-client stream 0666 system system
+    socket thermal-send-rule stream 0660 system system
+    group root
+
+service vendor.adsprpcd /vendor/bin/adsprpcd
+    class main
+    user media
+    group media
+
+service vendor.cdsprpcd /vendor/bin/cdsprpcd
+    class main
+    user system
+    group system
