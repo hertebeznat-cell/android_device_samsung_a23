@@ -29,12 +29,22 @@ rm -rf device/samsung/a23 vendor/samsung/a235f kernel/samsung/a23
 echo "🔄 5. Синхронизация исходников..."
 repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags --optimized-fetch --prune
 
-echo "🛠 6. Настраиваем окружение сборки..."
+echo "🔑 5.5. Генерация приватных ключей подписи (Play Integrity)..."
+rm -rf vendor/evolution-priv/keys
+git clone https://github.com/Evolution-X/vendor_evolution-priv_keys-template vendor/evolution-priv/keys
+cd vendor/evolution-priv/keys
+./keys.sh
+cd ../../../
+
+echo "🛠 6. Настраиваем окружение и кастомные флаги..."
 source build/envsetup.sh
 export EVOX_BUILD_TYPE=Unofficial
+export TARGET_ENABLE_BLUR=false      # Отключаем размытие для плавности
+export TARGET_INCLUDE_VIPERFX=true   # Вшиваем эквалайзер ViperFX
+export BUILD_BCR=true                # Нативная запись звонков
 
-echo "🎯 7. Выбираем таргет (lunch)..."
-lunch evolution_a23-userdebug
+echo "🎯 7. Выбираем таргет (по правилам Android 15/16)..."
+lunch lineage_a23-bp4a-userdebug
 
 echo "🔥 8. Запуск компиляции..."
 mka evolution -j$(nproc --all)
@@ -44,25 +54,26 @@ ZIP_PATH=$(ls -S out/target/product/a23/*.zip 2>/dev/null | head -n 1)
 
 if [ -n "$ZIP_PATH" ]; then
     echo "✅ Архив найден: $ZIP_PATH"
+    echo "☁️ Устанавливаем утилиту jq для работы с API..."
     sudo apt update && sudo apt install jq -y
     
-    echo "🚀 Получаем свободный сервер GoFile..."
-    SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+    echo "🚀 Загружаем прошивку в глобальный балансировщик GoFile..."
+    RESPONSE=$(curl -s -F "file=@$ZIP_PATH" "https://upload.gofile.io/uploadfile")
+    DOWNLOAD_LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
     
-    if [ -n "$SERVER" ] && [ "$SERVER" != "null" ]; then
-        echo "☁️ Загружаем прошивку на сервер $SERVER..."
+    # План Б, если балансировщик перегружен
+    if [ "$DOWNLOAD_LINK" == "null" ] || [ -z "$DOWNLOAD_LINK" ]; then
+        echo "⚠️ Балансировщик занят. Ищем свободный сервер вручную..."
+        SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
         RESPONSE=$(curl -s -F "file=@$ZIP_PATH" "https://${SERVER}.gofile.io/contents/uploadfile")
         DOWNLOAD_LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
-        
-        echo "======================================================"
-        echo "🎉 ПРОШИВКА ГОТОВА И ЗАГРУЖЕНА!"
-        echo "👉 Твоя прямая ссылка на скачивание:"
-        echo "🔗 $DOWNLOAD_LINK"
-        echo "======================================================"
-    else
-        echo "❌ Ошибка получения сервера GoFile."
-        exit 1
     fi
+    
+    echo "======================================================"
+    echo "🎉 УРА! ПРОШИВКА ГОТОВА И ЗАГРУЖЕНА!"
+    echo "👉 Твоя прямая ссылка на скачивание:"
+    echo "🔗 $DOWNLOAD_LINK"
+    echo "======================================================"
 else
     echo "❌ ОШИБКА: ZIP-архив не найден. Сборка упала."
     exit 1
