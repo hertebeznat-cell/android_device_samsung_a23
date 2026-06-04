@@ -23,8 +23,9 @@ EOF
 echo "🧹 3. Жесткая очистка Git от старых косяков (решаем проблему с Clang)..."
 repo forall -c 'git reset --hard HEAD && git clean -fdx' || true
 
-echo "🗑 4. Удаление старых папок устройства..."
+echo "🗑 4. Удаление старых папок устройства и забагованного кэша компилятора..."
 rm -rf device/samsung/a23 vendor/samsung/a235f kernel/samsung/a23
+rm -rf prebuilts/clang/host/linux-x86
 
 echo "🔄 5. Синхронизация исходников..."
 repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags --optimized-fetch --prune
