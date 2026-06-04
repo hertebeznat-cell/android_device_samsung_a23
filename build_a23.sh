@@ -5,10 +5,10 @@ echo "⚙️ Настройка профиля Git..."
 git config --global user.name "CraveBuilder"
 git config --global user.email "crave@example.com"
 
-echo "1. Инициализация репозитория Evolution X (ветка bq2)..."
+echo "🚀 1. Инициализация репозитория Evolution X (ветка bq2)..."
 repo init -u https://github.com/Evolution-X/manifest -b bq2 --depth=1 --git-lfs
 
-echo "📝 2. Создаем правильный local_manifest.xml..."
+echo "📝 2. Создаем local_manifest.xml..."
 rm -rf .repo/local_manifests
 mkdir -p .repo/local_manifests
 cat << 'EOF' > .repo/local_manifests/a23.xml
@@ -20,57 +20,50 @@ cat << 'EOF' > .repo/local_manifests/a23.xml
 </manifest>
 EOF
 
-echo "🧹 3. Жесткая очистка Git от старых косяков и мусора..."
+echo "🧹 3. Жесткая очистка Git от старых косяков (решаем проблему с Clang)..."
 repo forall -c 'git reset --hard HEAD && git clean -fdx' || true
 
-echo "🗑 4. Удаление старых папок устройства для чистого синка..."
-rm -rf device/samsung/a23
-rm -rf vendor/samsung/a235f
-rm -rf kernel/samsung/a23
+echo "🗑 4. Удаление старых папок устройства..."
+rm -rf device/samsung/a23 vendor/samsung/a235f kernel/samsung/a23
 
-echo "🔄 5. Синхронизация исходников (repo sync)..."
+echo "🔄 5. Синхронизация исходников..."
 repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags --optimized-fetch --prune
 
 echo "🛠 6. Настраиваем окружение сборки..."
 source build/envsetup.sh
 export EVOX_BUILD_TYPE=Unofficial
 
-echo "🎯 7. Выбираем таргет сборки (lunch)..."
+echo "🎯 7. Выбираем таргет (lunch)..."
 lunch evolution_a23-userdebug
 
-echo "🔥 8. Запуск компиляции прошивки..."
+echo "🔥 8. Запуск компиляции..."
 mka evolution -j$(nproc --all)
 
-echo "📦 9. Сборка завершена! Ищем готовый ZIP-архив..."
+echo "📦 9. Поиск и загрузка готового ZIP на GoFile..."
 ZIP_PATH=$(ls -S out/target/product/a23/*.zip 2>/dev/null | head -n 1)
 
 if [ -n "$ZIP_PATH" ]; then
     echo "✅ Архив найден: $ZIP_PATH"
-    echo "☁️ Устанавливаем утилиту jq для работы с API..."
     sudo apt update && sudo apt install jq -y
     
-    echo "🚀 Загружаем прошивку на GoFile (это займет пару минут)..."
+    echo "🚀 Получаем свободный сервер GoFile..."
+    SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
     
-    # Кидаем файл напрямую в глобальный балансировщик (новое API)
-    RESPONSE=$(curl -s -F "file=@$ZIP_PATH" "https://upload.gofile.io/uploadfile")
-    
-    # Парсим JSON ответ и вытаскиваем заветную ссылку
-    DOWNLOAD_LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
-    
-    # Если балансировщик вдруг лег, включаем План Б (ручной поиск сервера)
-    if [ "$DOWNLOAD_LINK" == "null" ] || [ -z "$DOWNLOAD_LINK" ]; then
-        echo "⚠️ Балансировщик занят. Ищем свободный сервер вручную..."
-        SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+    if [ -n "$SERVER" ] && [ "$SERVER" != "null" ]; then
+        echo "☁️ Загружаем прошивку на сервер $SERVER..."
         RESPONSE=$(curl -s -F "file=@$ZIP_PATH" "https://${SERVER}.gofile.io/contents/uploadfile")
         DOWNLOAD_LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
+        
+        echo "======================================================"
+        echo "🎉 ПРОШИВКА ГОТОВА И ЗАГРУЖЕНА!"
+        echo "👉 Твоя прямая ссылка на скачивание:"
+        echo "🔗 $DOWNLOAD_LINK"
+        echo "======================================================"
+    else
+        echo "❌ Ошибка получения сервера GoFile."
+        exit 1
     fi
-    
-    echo "======================================================"
-    echo "🎉 УРА! Прошивка успешно скомпилирована и загружена!"
-    echo "👉 Твоя прямая ссылка на скачивание:"
-    echo "🔗 $DOWNLOAD_LINK"
-    echo "======================================================"
 else
-    echo "❌ ОШИБКА: ZIP-архив не найден. Сборка упала, чекни логи выше."
+    echo "❌ ОШИБКА: ZIP-архив не найден. Сборка упала."
     exit 1
 fi
