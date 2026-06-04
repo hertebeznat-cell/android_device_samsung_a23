@@ -21,11 +21,9 @@ cat << 'EOF' > .repo/local_manifests/a23.xml
 EOF
 
 echo "🧹 3. Жесткая очистка Git от старых косяков и мусора..."
-# Эта команда сбрасывает локальные изменения абсолютно во ВСЕХ репозиториях базы (включая clang)
 repo forall -c 'git reset --hard HEAD && git clean -fdx' || true
 
 echo "🗑 4. Удаление старых папок устройства для чистого синка..."
-# Принудительно сносим старые папки а23, чтобы repo sync выкачал их с твоего Гита с нуля
 rm -rf device/samsung/a23
 rm -rf vendor/samsung/a235f
 rm -rf kernel/samsung/a23
@@ -37,33 +35,41 @@ echo "🛠 6. Настраиваем окружение сборки..."
 source build/envsetup.sh
 export EVOX_BUILD_TYPE=Unofficial
 
-echo "🎯 7. Выбираем тагер сборки (lunch)..."
+echo "🎯 7. Выбираем таргет сборки (lunch)..."
 lunch evolution_a23-userdebug
 
 echo "🔥 8. Запуск компиляции прошивки..."
 mka evolution -j$(nproc --all)
 
 echo "📦 9. Сборка завершена! Ищем готовый ZIP-архив..."
-# Ищем самый большой zip-файл в папке устройства
+# Находим самый большой zip-файл в папке устройства
 ZIP_PATH=$(ls -S out/target/product/a23/*.zip 2>/dev/null | head -n 1)
 
 if [ -n "$ZIP_PATH" ]; then
     echo "✅ Архив найден: $ZIP_PATH"
-    echo "☁️ Устанавливаем GitHub CLI и заливаем в Releases..."
+    echo "☁️ Устанавливаем jq и запрашиваем свободный сервер GoFile..."
     
-    sudo apt update && sudo apt install gh -y
+    sudo apt update && sudo apt install jq -y
     
-    echo "🔑 Авторизация на GitHub..."
-    # ВСТАВЬ СЮДА СВОЙ ТОКЕН НА 7 ДНЕЙ
-    export GITHUB_TOKEN="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" 
+    # Шаг 1: Узнаем у API GoFile, какой сервер сейчас готов принять файл
+    SERVER=$(curl -s https://api.gofile.io/getServer | jq -r '.data.server')
     
-    TAG_NAME="build-$(date +%Y%m%d%H%M)"
+    # Резервный вариант проверки сервера на случай изменения API
+    if [ -z "$SERVER" ] || [ "$SERVER" == "null" ]; then
+        SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+    fi
     
-    echo "🚀 Отправка файла в приватный репозиторий..."
-    # ЗАМЕНИ НА СВОЙ ЛОГИН И НАЗВАНИЕ ПРИВАТНОГО РЕПО-ХРАНИЛИЩА
-    gh release create "$TAG_NAME" "$ZIP_PATH" --repo hertebeznat-cell/A23-Builds --title "EvoX A23 - $TAG_NAME" --notes "Автоматическая сборка через Crave CI/CD"
+    echo "🚀 Используем сервер: $SERVER. Начинаем загрузку прошивки..."
     
-    echo "🎉 ИДЕАЛЬНО! Прошивка лежит в твоих релизах на GitHub!"
+    # Шаг 2: Пушим сам файл на распределенный сервер и вытаскиваем ссылку
+    RESPONSE=$(curl -F "file=@$ZIP_PATH" "https://${SERVER}.gofile.io/uploadFile")
+    DOWNLOAD_LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
+    
+    echo "======================================================"
+    echo "🎉 УРА! Прошивка успешно скомпилирована и загружена!"
+    echo "👉 Скачать твой билд Evolution X можно тут:"
+    echo "🔗 $DOWNLOAD_LINK"
+    echo "======================================================"
 else
     echo "❌ ОШИБКА: ZIP-архив не найден. Сборка упала, чекни логи выше."
     exit 1
