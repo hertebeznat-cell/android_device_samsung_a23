@@ -40,13 +40,13 @@ cd ../../../
 echo "🛠 6. Настраиваем окружение и кастомные флаги..."
 source build/envsetup.sh
 export EVOX_BUILD_TYPE=Unofficial
-export TARGET_ENABLE_BLUR=true    # Отключаем размытие для плавности
-export TARGET_INCLUDE_VIPERFX=true   # Вшиваем эквалайзер ViperFX
-export BUILD_BCR=true # Нативная запись звонков
+export TARGET_ENABLE_BLUR=false    # Отключаем размытие для плавности
+export TARGET_INCLUDE_VIPERFX=false   # Вшиваем эквалайзер ViperFX
+export BUILD_BCR=false # Нативная запись звонков
 export WITH_GMS=false
 
 echo "🎯 7. Выбираем таргет (по правилам Android 15/16)..."
-lunch lineage_a23-bp4a-userdebug
+lunch lineage_a23-userdebug
 
 echo "🔥 8. Запуск компиляции..."
 mka evolution -j$(nproc --all)
