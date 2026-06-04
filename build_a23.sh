@@ -42,32 +42,32 @@ echo "🔥 8. Запуск компиляции прошивки..."
 mka evolution -j$(nproc --all)
 
 echo "📦 9. Сборка завершена! Ищем готовый ZIP-архив..."
-# Находим самый большой zip-файл в папке устройства
 ZIP_PATH=$(ls -S out/target/product/a23/*.zip 2>/dev/null | head -n 1)
 
 if [ -n "$ZIP_PATH" ]; then
     echo "✅ Архив найден: $ZIP_PATH"
-    echo "☁️ Устанавливаем jq и запрашиваем свободный сервер GoFile..."
-    
+    echo "☁️ Устанавливаем утилиту jq для работы с API..."
     sudo apt update && sudo apt install jq -y
     
-    # Шаг 1: Узнаем у API GoFile, какой сервер сейчас готов принять файл
-    SERVER=$(curl -s https://api.gofile.io/getServer | jq -r '.data.server')
+    echo "🚀 Загружаем прошивку на GoFile (это займет пару минут)..."
     
-    # Резервный вариант проверки сервера на случай изменения API
-    if [ -z "$SERVER" ] || [ "$SERVER" == "null" ]; then
-        SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
-    fi
+    # Кидаем файл напрямую в глобальный балансировщик (новое API)
+    RESPONSE=$(curl -s -F "file=@$ZIP_PATH" "https://upload.gofile.io/uploadfile")
     
-    echo "🚀 Используем сервер: $SERVER. Начинаем загрузку прошивки..."
-    
-    # Шаг 2: Пушим сам файл на распределенный сервер и вытаскиваем ссылку
-    RESPONSE=$(curl -F "file=@$ZIP_PATH" "https://${SERVER}.gofile.io/uploadFile")
+    # Парсим JSON ответ и вытаскиваем заветную ссылку
     DOWNLOAD_LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
+    
+    # Если балансировщик вдруг лег, включаем План Б (ручной поиск сервера)
+    if [ "$DOWNLOAD_LINK" == "null" ] || [ -z "$DOWNLOAD_LINK" ]; then
+        echo "⚠️ Балансировщик занят. Ищем свободный сервер вручную..."
+        SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+        RESPONSE=$(curl -s -F "file=@$ZIP_PATH" "https://${SERVER}.gofile.io/contents/uploadfile")
+        DOWNLOAD_LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
+    fi
     
     echo "======================================================"
     echo "🎉 УРА! Прошивка успешно скомпилирована и загружена!"
-    echo "👉 Скачать твой билд Evolution X можно тут:"
+    echo "👉 Твоя прямая ссылка на скачивание:"
     echo "🔗 $DOWNLOAD_LINK"
     echo "======================================================"
 else
