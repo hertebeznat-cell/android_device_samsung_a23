@@ -10,11 +10,11 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 # Inherit from a23 device
 $(call inherit-product, device/samsung/a23/device.mk)
 
-# Inherit Evolution X common configuration
-$(call inherit-product, vendor/evolution/config/common_full_phone.mk)
+# Inherit Lineage common configuration
+$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
 
 # Device identifier
-PRODUCT_NAME := evolution_a23
+PRODUCT_NAME := lineage_a23
 PRODUCT_DEVICE := a23
 PRODUCT_BRAND := samsung
 PRODUCT_MODEL := SM-A235F
