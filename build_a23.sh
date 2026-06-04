@@ -41,7 +41,8 @@ source build/envsetup.sh
 export EVOX_BUILD_TYPE=Unofficial
 export TARGET_ENABLE_BLUR=true    # Отключаем размытие для плавности
 export TARGET_INCLUDE_VIPERFX=true   # Вшиваем эквалайзер ViperFX
-export BUILD_BCR=true                # Нативная запись звонков
+export BUILD_BCR=true
+export WITH_GMS=false # Нативная запись звонков
 
 echo "🎯 7. Выбираем таргет (по правилам Android 15/16)..."
 lunch lineage_a23-bp4a-userdebug
