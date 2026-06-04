@@ -39,7 +39,7 @@ cd ../../../
 echo "🛠 6. Настраиваем окружение и кастомные флаги..."
 source build/envsetup.sh
 export EVOX_BUILD_TYPE=Unofficial
-export TARGET_ENABLE_BLUR=false      # Отключаем размытие для плавности
+export TARGET_ENABLE_BLUR=true    # Отключаем размытие для плавности
 export TARGET_INCLUDE_VIPERFX=true   # Вшиваем эквалайзер ViperFX
 export BUILD_BCR=true                # Нативная запись звонков
 
