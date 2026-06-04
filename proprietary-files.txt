@@ -1,125 +1,265 @@
 # Samsung Galaxy A23 (SM-A235F) Proprietary Files List
 # SPDX-License-Identifier: Apache-2.0
+# Auto-generated from stock vendor.img extraction
 #
-# NOTE: These files must be extracted from a running device or stock firmware
-# Run extract-files.sh to populate vendor/samsung/a235f/proprietary/
 
 # Audio
+vendor/lib/hw/audio.bluetooth.default.so
 vendor/lib/hw/audio.primary.bengal.so
-vendor/lib64/hw/audio.primary.bengal.so
+vendor/lib/hw/audio.primary.default.so
+vendor/lib/hw/audio.r_submix.default.so
+vendor/lib/hw/audio.sec_primary.default.so
+vendor/lib/hw/audio.usb.default.so
 vendor/lib/libacdb-fts.so
-vendor/lib64/libacdb-fts.so
 vendor/lib/libacdbloader.so
-vendor/lib64/libacdbloader.so
 vendor/lib/libacdbrtac.so
-vendor/lib64/libacdbrtac.so
+vendor/lib/libaudio_log_utils.so
+vendor/lib/libaudio_soundtrigger.so
 vendor/lib/libaudioalsa.so
-vendor/lib64/libaudioalsa.so
-vendor/lib/libaudioroute.so
-vendor/lib64/libaudioroute.so
+vendor/lib/libaudioconfigstore.so
+vendor/lib/libaudiofoundation.so
+vendor/lib/libaudioparsers.so
+vendor/lib/soundfx/libasphere.so
+vendor/lib/soundfx/libaudioeffectoffload.so
+vendor/lib/soundfx/libaudiopreprocessing.so
+vendor/lib/soundfx/libaudiosaplus_sec.so
+vendor/lib/soundfx/libbundlewrapper.so
+vendor/lib/soundfx/libdownmix.so
+vendor/lib/soundfx/libdynproc.so
+vendor/lib/soundfx/libeffectproxy.so
+vendor/lib/soundfx/libldnhncr.so
+vendor/lib/soundfx/libmyspace.so
+vendor/lib/soundfx/libplaybackrecorder.so
+vendor/lib/soundfx/libqcbassboost.so
 vendor/lib/soundfx/libqcompostprocbundle.so
-vendor/lib64/soundfx/libqcompostprocbundle.so
 vendor/lib/soundfx/libqcomvisualizer.so
+vendor/lib/soundfx/libqcomvoiceprocessing.so
+vendor/lib/soundfx/libqcreverb.so
+vendor/lib/soundfx/libqcvirt.so
+vendor/lib/soundfx/libreverbwrapper.so
+vendor/lib/soundfx/libsamsungSoundbooster_plus.so
+vendor/lib/soundfx/libshoebox.so
+vendor/lib/soundfx/libswdap.so
+vendor/lib/soundfx/libswspatializer.so
+vendor/lib/soundfx/libvisualizer.so
+vendor/lib64/hw/audio.bluetooth.default.so
+vendor/lib64/hw/audio.primary.default.so
+vendor/lib64/hw/audio.r_submix.default.so
+vendor/lib64/hw/audio.sec_primary.default.so
+vendor/lib64/hw/audio.usb.default.so
+vendor/lib64/libacdb-fts.so
+vendor/lib64/libacdbloader.so
+vendor/lib64/libacdbrtac.so
+vendor/lib64/libaudioalsa.so
+vendor/lib64/libaudioconfigstore.so
+vendor/lib64/libaudiofoundation.so
+vendor/lib64/libaudioparsers.so
+vendor/lib64/soundfx/libasphere.so
+vendor/lib64/soundfx/libaudioeffectoffload.so
+vendor/lib64/soundfx/libaudiopreprocessing.so
+vendor/lib64/soundfx/libaudiosaplus_sec.so
+vendor/lib64/soundfx/libbundlewrapper.so
+vendor/lib64/soundfx/libdownmix.so
+vendor/lib64/soundfx/libdynproc.so
+vendor/lib64/soundfx/libeffectproxy.so
+vendor/lib64/soundfx/libldnhncr.so
+vendor/lib64/soundfx/libmyspace.so
+vendor/lib64/soundfx/libplaybackrecorder.so
+vendor/lib64/soundfx/libqcbassboost.so
+vendor/lib64/soundfx/libqcompostprocbundle.so
 vendor/lib64/soundfx/libqcomvisualizer.so
-vendor/lib/soundfx/libvolumelistener.so
-vendor/lib64/soundfx/libvolumelistener.so
+vendor/lib64/soundfx/libqcomvoiceprocessing.so
+vendor/lib64/soundfx/libqcreverb.so
+vendor/lib64/soundfx/libqcvirt.so
+vendor/lib64/soundfx/libreverbwrapper.so
+vendor/lib64/soundfx/libsamsungSoundbooster_plus.so
+vendor/lib64/soundfx/libshoebox.so
+vendor/lib64/soundfx/libswdap.so
+vendor/lib64/soundfx/libswspatializer.so
+vendor/lib64/soundfx/libvisualizer.so
 
 # Bluetooth
-vendor/lib64/libbluetooth_qti.so
-vendor/lib64/libbt-logClient.so
-vendor/lib64/libbtconfigstore.so
+vendor/lib/libbthost_if.so
+vendor/lib64/libbthost_if.so
 
 # Camera
-vendor/lib/libmmcamera2_sensor_modules.so
-vendor/lib/libmmcamera2_stats_modules.so
-vendor/lib/libmmcamera_dbg.so
-vendor/lib64/libmmcamera_dbg.so
-vendor/lib/libsensor1.so
-vendor/lib64/libsensor1.so
+vendor/bin/hw/vendor.samsung.hardware.camera.provider@4.0-service_64
+vendor/lib/hw/android.hardware.camera.provider@2.4-impl.so
+vendor/lib/hw/camera.qcom.so
+vendor/lib/hw/camera.unihal.default.so
+vendor/lib/libmmcamera_cac3.so
+vendor/lib/libmmcamera_faceproc.so
+vendor/lib/libmmcamera_faceproc2.so
+vendor/lib/libmmcamera_lscv35.so
+vendor/lib/libmmcamera_mfnr.so
+vendor/lib/libmmcamera_mfnr_t4.so
+vendor/lib64/hw/android.hardware.camera.provider@2.4-impl.so
+vendor/lib64/hw/camera.qcom.so
+vendor/lib64/hw/camera.unihal.default.so
+vendor/lib64/libmmcamera_cac3.so
+vendor/lib64/libmmcamera_faceproc.so
+vendor/lib64/libmmcamera_faceproc2.so
+vendor/lib64/libmmcamera_lscv35.so
+vendor/lib64/libmmcamera_mfnr.so
+vendor/lib64/libmmcamera_mfnr_t4.so
 
-# Display / GPU (Adreno 610)
+# Display / GPU (Adreno)
 vendor/lib/egl/eglSubDriverAndroid.so
 vendor/lib/egl/libEGL_adreno.so
 vendor/lib/egl/libGLESv1_CM_adreno.so
 vendor/lib/egl/libGLESv2_adreno.so
+vendor/lib/egl/libq3dtools_adreno.so
+vendor/lib/egl/libq3dtools_esx.so
+vendor/lib/hw/gralloc.bengal.so
+vendor/lib/hw/gralloc.default.so
+vendor/lib/hw/memtrack.bengal.so
+vendor/lib/libC2D2.so
+vendor/lib/libOpenCL.so
+vendor/lib/libadreno_utils.so
+vendor/lib/libgsl.so
+vendor/lib/libllvm-qcom.so
 vendor/lib64/egl/eglSubDriverAndroid.so
 vendor/lib64/egl/libEGL_adreno.so
 vendor/lib64/egl/libGLESv1_CM_adreno.so
 vendor/lib64/egl/libGLESv2_adreno.so
-vendor/lib/hw/gralloc.bengal.so
+vendor/lib64/egl/libq3dtools_adreno.so
+vendor/lib64/egl/libq3dtools_esx.so
 vendor/lib64/hw/gralloc.bengal.so
-vendor/lib/hw/hwcomposer.bengal.so
-vendor/lib64/hw/hwcomposer.bengal.so
-vendor/lib/hw/memtrack.bengal.so
+vendor/lib64/hw/gralloc.default.so
 vendor/lib64/hw/memtrack.bengal.so
-vendor/lib/libadreno_utils.so
-vendor/lib64/libadreno_utils.so
-vendor/lib/libC2D2.so
 vendor/lib64/libC2D2.so
-vendor/lib/libgsl.so
-vendor/lib64/libgsl.so
-vendor/lib/libllvm-qcom.so
-vendor/lib64/libllvm-qcom.so
-vendor/lib/libOpenCL.so
 vendor/lib64/libOpenCL.so
+vendor/lib64/libadreno_utils.so
+vendor/lib64/libgsl.so
+vendor/lib64/libllvm-qcom.so
 
 # DRM
 vendor/bin/qseecomd
+vendor/lib/libQSEEComAPI.so
+vendor/lib/libdrmfs.so
+vendor/lib/libdrmtime.so
+vendor/lib/librpmb.so
 vendor/lib64/libQSEEComAPI.so
 vendor/lib64/libdrmfs.so
 vendor/lib64/libdrmtime.so
 vendor/lib64/librpmb.so
 
 # Fingerprint
+vendor/lib/libbauthserver.so
+vendor/lib/libbauthtzcommon.so
+vendor/lib/libegis_fp_normal_sensor_test.so
 vendor/lib64/libbauthserver.so
 vendor/lib64/libbauthtzcommon.so
-vendor/lib64/libegisfingerprint.so
-vendor/lib64/libgf_hal.so
+vendor/lib64/libegis_fp_normal_sensor_test.so
 
 # Firmware
-vendor/firmware/a615_zap.mdt
-vendor/firmware/a615_zap.b00
-vendor/firmware/a615_zap.b01
-vendor/firmware/a615_zap.b02
-vendor/firmware/venus.mdt
-vendor/firmware/venus.b00
-vendor/firmware/venus.b01
-vendor/firmware/venus.b02
-vendor/firmware/venus.b03
-vendor/firmware/venus.b04
-vendor/firmware/wlanmdsp.mbn
+vendor/firmware/Data.msc
+vendor/firmware/a630_sqe.fw
+vendor/firmware/a650_gmu.bin
+vendor/firmware/a650_sqe.fw
+vendor/firmware/a702_sqe.fw
+vendor/firmware/apbtfw11.tlv
+vendor/firmware/apnv11.bin
+vendor/firmware/crbtfw21.tlv
+vendor/firmware/crnv21.b71
+vendor/firmware/crnv21.bin
+vendor/firmware/dax_param.bin
+vendor/firmware/ipa_fws.b00
+vendor/firmware/ipa_fws.b01
+vendor/firmware/ipa_fws.b02
+vendor/firmware/ipa_fws.b03
+vendor/firmware/ipa_fws.b04
+vendor/firmware/ipa_fws.elf
+vendor/firmware/ipa_fws.mdt
+vendor/firmware/multical.bin
+vendor/firmware/nfc/libpn557_fw.so
+vendor/firmware/nfc/sec_s3nrn4v_firmware.bin
+vendor/firmware/ois_mcu_stm32g_fw.bin
+vendor/firmware/scuba_ipa_fws.b00
+vendor/firmware/scuba_ipa_fws.b01
+vendor/firmware/scuba_ipa_fws.b02
+vendor/firmware/scuba_ipa_fws.b03
+vendor/firmware/scuba_ipa_fws.b04
+vendor/firmware/scuba_ipa_fws.elf
+vendor/firmware/scuba_ipa_fws.mdt
+vendor/firmware/tfa98xx.cnt
+# ... (truncated, full firmware directory is copied via find-copy-subdir-files)
 
 # GPS
-vendor/lib64/libloc_api_v02.so
-vendor/lib64/libloc_core.so
-vendor/lib64/libloc_ds_api.so
+vendor/lib/libgnss.so
+vendor/lib/libgnsspps.so
+vendor/lib/libloc_api_v02.so
+vendor/lib/libloc_api_wds.so
+vendor/lib/libloc_core.so
+vendor/lib/libloc_socket.so
 vendor/lib64/libgnss.so
+vendor/lib64/libgnsspps.so
+vendor/lib64/libloc_api_v02.so
+vendor/lib64/libloc_api_wds.so
+vendor/lib64/libloc_core.so
+vendor/lib64/libloc_socket.so
 
 # Media
+vendor/lib/libOmxAacDec.so
+vendor/lib/libOmxAacEnc.so
+vendor/lib/libOmxAlacDec.so
+vendor/lib/libOmxAlacDecSw.so
+vendor/lib/libOmxAmrDec.so
+vendor/lib/libOmxAmrEnc.so
+vendor/lib/libOmxAmrwbplusDec.so
+vendor/lib/libOmxApeDec.so
+vendor/lib/libOmxApeDecSw.so
 vendor/lib/libOmxCore.so
-vendor/lib64/libOmxCore.so
+vendor/lib/libOmxDsdDec.so
+vendor/lib/libOmxEvrcDec.so
+vendor/lib/libOmxEvrcEnc.so
+vendor/lib/libOmxG711Dec.so
+vendor/lib/libOmxG711Enc.so
+vendor/lib/libOmxMpeghDecSw.so
+vendor/lib/libOmxMpeghEncSw.so
+vendor/lib/libOmxQcelp13Dec.so
+vendor/lib/libOmxQcelp13Enc.so
+vendor/lib/libOmxSwVdec.so
+vendor/lib/libOmxSwVencMpeg4.so
 vendor/lib/libOmxVdec.so
-vendor/lib64/libOmxVdec.so
 vendor/lib/libOmxVenc.so
-vendor/lib64/libOmxVenc.so
+vendor/lib/libOmxWmaDec.so
 vendor/lib/libmm-omxcore.so
+vendor/lib64/libOmxAacDec.so
+vendor/lib64/libOmxAacEnc.so
+vendor/lib64/libOmxAlacDec.so
+vendor/lib64/libOmxAlacDecSw.so
+vendor/lib64/libOmxAmrDec.so
+vendor/lib64/libOmxAmrEnc.so
+vendor/lib64/libOmxAmrwbplusDec.so
+vendor/lib64/libOmxApeDec.so
+vendor/lib64/libOmxApeDecSw.so
+vendor/lib64/libOmxCore.so
+vendor/lib64/libOmxEvrcDec.so
+vendor/lib64/libOmxEvrcEnc.so
+vendor/lib64/libOmxG711Dec.so
+vendor/lib64/libOmxG711Enc.so
+vendor/lib64/libOmxMpeghEncSw.so
+vendor/lib64/libOmxQcelp13Dec.so
+vendor/lib64/libOmxQcelp13Enc.so
+vendor/lib64/libOmxSwVdec.so
+vendor/lib64/libOmxSwVencMpeg4.so
+vendor/lib64/libOmxVdec.so
+vendor/lib64/libOmxVenc.so
+vendor/lib64/libOmxWmaDec.so
 vendor/lib64/libmm-omxcore.so
 
-# NFC
-vendor/lib64/libnfc-nci.so
-vendor/lib64/libnfc_nci_jni.so
-
 # RIL / Telephony
-vendor/lib64/libril-qc-hal-qmi.so
-vendor/lib64/libril-qcril-hook-oem.so
+vendor/lib64/libril_sem.so
 vendor/lib64/librilutils.so
 vendor/lib64/libsec-ril.so
-vendor/lib64/libsec-ril-dsds.so
 
 # Sensors
-vendor/lib64/hw/sensors.bengal.so
+vendor/lib/libsnsdiaglog.so
+vendor/lib/libssc.so
+vendor/lib/libssc_default_listener.so
 vendor/lib64/libsnsdiaglog.so
 vendor/lib64/libssc.so
+vendor/lib64/libssc_default_listener.so
 
 # WiFi
-vendor/lib64/libwpa_client.so
