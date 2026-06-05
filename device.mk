@@ -38,7 +38,7 @@ PRODUCT_PACKAGES += \
     libqcomvisualizer \
     libqcomvoiceprocessing \
     libtinycompress \
-    libtinycompress.vendor \
+#     libtinycompress.vendor \
     libvolumelistener \
     tinymix \
     libaudiopreprocessing
@@ -81,10 +81,10 @@ PRODUCT_PACKAGES += \
 
 # Display
 PRODUCT_PACKAGES += \
-    android.hardware.graphics.allocator@4.0-service \
+#     android.hardware.graphics.allocator@4.0-service \
     android.hardware.graphics.composer@2.4-service \
     android.hardware.graphics.mapper@4.0-impl-qti-display \
-    android.hardware.memtrack-service.qti \
+#     android.hardware.memtrack-service.qti \
     libdisplayconfig.qti \
     libdisplayconfig.system.qti \
     libqdMetaData \
@@ -119,7 +119,7 @@ PRODUCT_PACKAGES += \
 
 # Fingerprint
 PRODUCT_PACKAGES += \
-    android.hardware.biometrics.fingerprint@2.1-service.samsung
+#     android.hardware.biometrics.fingerprint@2.1-service.samsung
 
 # FM Radio
 PRODUCT_PACKAGES += \
@@ -174,7 +174,7 @@ PRODUCT_PACKAGES += \
 
 # Lights
 PRODUCT_PACKAGES += \
-    android.hardware.light-service.samsung
+#     android.hardware.light-service.samsung
 
 # Media
 PRODUCT_COPY_FILES += \
@@ -240,19 +240,19 @@ PRODUCT_COPY_FILES += \
 
 # Power
 PRODUCT_PACKAGES += \
-    android.hardware.power-service.samsung-libperfmgr \
+#     android.hardware.power-service.samsung-libperfmgr \
     android.hardware.power@1.3.vendor
 
 # Rootdir
 PRODUCT_PACKAGES += \
-    init.class_main.sh \
-    init.qcom.early_boot.sh \
-    init.qcom.post_boot.sh \
-    init.qcom.sh
+#     init.class_main.sh \
+#     init.qcom.early_boot.sh \
+#     init.qcom.post_boot.sh \
+#     init.qcom.sh
 
 # Sensors
 PRODUCT_PACKAGES += \
-    android.hardware.sensors@2.1-service.samsung-multihal \
+#     android.hardware.sensors@2.1-service.samsung-multihal \
     libsensorndkbridge
 
 # Soong namespaces
@@ -275,12 +275,12 @@ PRODUCT_BOOT_JARS += \
 
 # USB
 PRODUCT_PACKAGES += \
-    android.hardware.usb@1.3-service.samsung \
-    android.hardware.usb.gadget@1.1-service.samsung
+#     android.hardware.usb@1.3-service.samsung \
+#     android.hardware.usb.gadget@1.1-service.samsung
 
 # Vibrator
 PRODUCT_PACKAGES += \
-    android.hardware.vibrator-service.samsung
+#     android.hardware.vibrator-service.samsung
 
 # WiFi
 PRODUCT_PACKAGES += \
@@ -289,7 +289,7 @@ PRODUCT_PACKAGES += \
     libwpa_client \
     wpa_supplicant \
     wpa_supplicant.conf \
-    WifiOverlay \
+#     WifiOverlay \
     vendor.qti.hardware.wifi.hostapd@1.2.vendor \
     vendor.qti.hardware.wifi.supplicant@2.1.vendor
 
