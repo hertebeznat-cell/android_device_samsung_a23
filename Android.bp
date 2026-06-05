@@ -3,3 +3,8 @@
 
 soong_namespace {
 }
+
+java_library {
+    name: "com.google.android.dialer.support",
+    installable: false,
+}
