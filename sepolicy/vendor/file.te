@@ -1,0 +1,10 @@
+type sysfs_sec_touchscreen, sysfs_type, fs_type;
+type sysfs_sec_key, sysfs_type, fs_type;
+type sysfs_sec_switch, sysfs_type, fs_type;
+type sysfs_backlight, sysfs_type, fs_type;
+
+type efs_file, file_type;
+type sec_efs_file, file_type;
+type fingerprint_vendor_data_file, file_type, data_file_type;
+type radio_vendor_data_file, file_type, data_file_type;
+type camera_vendor_data_file, file_type, data_file_type;
