@@ -1,2 +1,1 @@
 type sec_efs_block_device, dev_type;
-type efs_block_device, dev_type;
