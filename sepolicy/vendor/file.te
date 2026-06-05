@@ -4,3 +4,6 @@ type sysfs_sec_switch, sysfs_type, fs_type;
 type sysfs_backlight, sysfs_type, fs_type;
 
 type sec_efs_file, file_type;
+
+type proc_vm_swappiness, fs_type, proc_type;
+type proc_dirty, fs_type, proc_type;
