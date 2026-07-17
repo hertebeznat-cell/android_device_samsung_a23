@@ -35,6 +35,14 @@ if [[ -f .repo/manifest.xml ]]; then
         git reset --hard HEAD >/dev/null 2>&1 || true
         git clean -ffdx >/dev/null 2>&1 || true
     ' || true
+
+    # repo forall only visits projects from the currently selected manifest.
+    # The LOS seed can leave this old Clang checkout outside that manifest, so
+    # repo cannot remove it while switching to Evolution X.
+    rm -rf -- \
+        prebuilts/clang/host/linux-x86 \
+        .repo/projects/prebuilts/clang/host/linux-x86.git \
+        .repo/project-objects/platform/prebuilts/clang/host/linux-x86.git
 fi
 
 repo init \
@@ -65,6 +73,8 @@ while ! repo sync \
     --no-tags \
     --optimized-fetch \
     --prune \
+    --force-checkout \
+    --force-remove-dirty \
     -j"$SYNC_JOBS"; do
     if (( sync_attempt >= 3 )); then
         fail "repo-sync"
@@ -74,6 +84,10 @@ while ! repo sync \
         git reset --hard HEAD >/dev/null 2>&1 || true
         git clean -ffdx >/dev/null 2>&1 || true
     ' || true
+    rm -rf -- \
+        prebuilts/clang/host/linux-x86 \
+        .repo/projects/prebuilts/clang/host/linux-x86.git \
+        .repo/project-objects/platform/prebuilts/clang/host/linux-x86.git
     sync_attempt=$((sync_attempt + 1))
     sleep 30
 done
