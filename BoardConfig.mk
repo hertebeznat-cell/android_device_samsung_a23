@@ -7,7 +7,7 @@ DEVICE_PATH := device/samsung/a23
 
 # Architecture
 TARGET_ARCH := arm64
-TARGET_ARCH_VARIANT := armv8-2a-dotprod
+TARGET_ARCH_VARIANT := armv8-a
 TARGET_CPU_ABI := arm64-v8a
 TARGET_CPU_ABI2 :=
 TARGET_CPU_VARIANT := cortex-a73
@@ -46,20 +46,19 @@ TARGET_SCREEN_DENSITY := 450
 BOARD_BOOT_HEADER_VERSION := 2
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_CMDLINE := \
-    console=ttyMSM0,115200n8 \
+    console=null \
     androidboot.hardware=qcom \
-    androidboot.console=ttyMSM0 \
     androidboot.memcg=1 \
     lpm_levels.sleep_disabled=1 \
+    video=vfb:640x400,bpp=32,memsize=3072000 \
     msm_rtb.filter=0x237 \
     service_locator.enable=1 \
     androidboot.usbcontroller=4e00000.dwc3 \
-    swiotlb=0 \
+    swiotlb=2048 \
     loop.max_part=7 \
     cgroup.memory=nokmem,nosocket \
     firmware_class.path=/vendor/firmware_mnt/image \
-    printk.devkmsg=on \
-    androidboot.init_fatal_reboot_target=recovery
+    printk.devkmsg=on
 
 BOARD_KERNEL_IMAGE_NAME := Image.gz
 BOARD_KERNEL_OFFSET := 0x00008000
@@ -75,26 +74,29 @@ BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
 
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
-BOARD_KERNEL_SEPARATED_DTBO := true
+BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtb
+BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 
 TARGET_KERNEL_SOURCE := kernel/samsung/a23
 TARGET_KERNEL_CONFIG := a23_eur_open_defconfig
 TARGET_KERNEL_CLANG_COMPILE := true
 TARGET_KERNEL_ADDITIONAL_FLAGS := \
-    HOSTCFLAGS="-fuse-ld=lld -Wno-unused-command-line-argument"
+    HOSTCFLAGS="-fuse-ld=lld -Wno-unused-command-line-argument" \
+    LOCALVERSION="-28692735-abA235FXXSBEYG1"
 
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
-BOARD_DTBOIMG_PARTITION_SIZE := 25165824
+BOARD_DTBOIMG_PARTITION_SIZE := 8388608
 BOARD_CACHEIMAGE_PARTITION_SIZE := 209715200
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 81788928
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 100663296
 BOARD_FLASH_BLOCK_SIZE := 262144
 
 # Dynamic Partitions
-BOARD_SUPER_PARTITION_SIZE := 9126805504
+AB_OTA_UPDATER := false
+BOARD_SUPER_PARTITION_SIZE := 9017753600
 BOARD_SUPER_PARTITION_GROUPS := samsung_dynamic_partitions
 BOARD_SAMSUNG_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product odm
-BOARD_SAMSUNG_DYNAMIC_PARTITIONS_SIZE := 9122611200
+BOARD_SAMSUNG_DYNAMIC_PARTITIONS_SIZE := 9013559296
 
 # Partition types
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
@@ -162,6 +164,7 @@ LOC_HIDL_VERSION := 4.0
 # HIDL
 DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/manifest.xml
 DEVICE_MATRIX_FILE := $(DEVICE_PATH)/compatibility_matrix.xml
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := $(DEVICE_PATH)/framework_compatibility_matrix.xml
 
 
 
@@ -182,10 +185,8 @@ TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 ENABLE_VENDOR_RIL_SERVICE := true
 
 # SELinux
-include device/qcom/sepolicy_vndr/SEPolicy.mk
+include device/qcom/sepolicy_vndr/legacy-um/SEPolicy.mk
 BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/vendor
-SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/private
-SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/public
 
 # Verified Boot
 BOARD_AVB_ENABLE := true

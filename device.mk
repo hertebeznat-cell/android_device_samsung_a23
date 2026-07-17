@@ -24,6 +24,13 @@ PRODUCT_AAPT_PREF_CONFIG := xxhdpi
 # API Level
 PRODUCT_SHIPPING_API_LEVEL := 31
 
+# Samsung ships this device with a 4.19.157 non-GKI kernel.  Current Android
+# framework matrices require a much newer 4.19 LTS point release for the
+# kernel-only OTA VINTF check, while the vendor image must keep the stock ABI.
+# Keep the normal manifest/HAL VINTF checks enabled and skip only the kernel
+# requirement passed to checkvintf.
+PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
+
 # Audio
 PRODUCT_PACKAGES += \
     android.hardware.audio@7.1-impl \

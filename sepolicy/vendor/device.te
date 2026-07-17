@@ -1,1 +1,4 @@
 type sec_efs_block_device, dev_type;
+type efs_block_device, dev_type;
+type persist_block_device, dev_type;
+type fingerprint_device, dev_type;

@@ -9,16 +9,10 @@
 /firmware(/.*)?                                                         u:object_r:firmware_file:s0
 /bt_firmware(/.*)?                                                      u:object_r:bt_firmware_file:s0
 
-# Graphics
-/dev/kgsl-3d0                                                           u:object_r:gpu_device:s0
-
 # Camera
-/dev/media([0-9])+                                                      u:object_r:camera_device:s0
-/dev/video([0-9])+                                                      u:object_r:camera_device:s0
 /dev/v4l-subdev([0-9])+                                                 u:object_r:camera_device:s0
 
 # Samsung
-/dev/sec-nfc                                                            u:object_r:nfc_device:s0
 /dev/sec_fp                                                             u:object_r:fingerprint_device:s0
 
 # Vibrator
@@ -35,11 +29,8 @@
 # Vendor data
 /data/vendor/biometrics(/.*)?                                           u:object_r:fingerprint_vendor_data_file:s0
 /data/vendor/fpSnrTest(/.*)?                                            u:object_r:fingerprint_vendor_data_file:s0
-/data/vendor/radio(/.*)?                                                u:object_r:radio_vendor_data_file:s0
-/data/vendor/camera(/.*)?                                               u:object_r:camera_vendor_data_file:s0
 
 # EFS
-/efs(/.*)?                                                              u:object_r:efs_file:s0
 /sec_efs(/.*)?                                                          u:object_r:sec_efs_file:s0
 /dev/block/by-name/efs                                                  u:object_r:efs_block_device:s0
 /dev/block/by-name/sec_efs                                              u:object_r:sec_efs_block_device:s0

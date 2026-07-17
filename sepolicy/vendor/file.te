@@ -6,4 +6,3 @@ type sysfs_backlight, sysfs_type, fs_type;
 type sec_efs_file, file_type;
 
 type persist_file, file_type;
-type radio_vendor_data_file, file_type, data_file_type;

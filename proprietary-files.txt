@@ -3,6 +3,55 @@
 # Auto-generated from stock vendor.img extraction
 #
 
+# EYG1 kernel modules and camera calibration/model data
++vendor/lib/camera/com.samsung.sensormodule.0_lsi_s5kjn1.bin
+vendor/lib/camera/com.samsung.sensormodule.1_0_lsi_gc08a3.bin
+vendor/lib/camera/com.samsung.sensormodule.1_1_lsi_sr846d.bin
+vendor/lib/camera/com.samsung.sensormodule.2_lsi_gc5035.bin
+vendor/lib/camera/com.samsung.sensormodule.3_lsi_gc02m1.bin
+vendor/lib/camera/com.samsung.sensormodule.4_lsi_gc02m1_macro.bin
+vendor/lib/camera/com.samsung.sensormodule.5_0_lsi_gc08a3_full.bin
+vendor/lib/camera/com.samsung.sensormodule.5_1_lsi_sr846d_full.bin
+vendor/lib/camera/com.samsung.tuned.lsi_gc02m1.bin
+vendor/lib/camera/com.samsung.tuned.lsi_gc02m1_macro.bin
+vendor/lib/camera/com.samsung.tuned.lsi_gc08a3.bin
+vendor/lib/camera/com.samsung.tuned.lsi_gc5035.bin
+vendor/lib/camera/com.samsung.tuned.lsi_s5kjn1.bin
+vendor/lib/camera/com.samsung.tuned.lsi_sr846d.bin
+vendor/lib/modules/modules.alias
+vendor/lib/modules/modules.dep
+vendor/lib/modules/modules.load
+vendor/lib/modules/modules.softdep
+vendor/lib/modules/qca_cld3_wlan.ko
+vendor/lib/modules/rdbg.ko
+vendor/lib64/camera/caldata/0_p24c128e_s5kjn1_SEC_Awb_before_convert.bin
+vendor/lib64/camera/caldata/0_p24c128e_s5kjn1_SEC_Lsc_before_convert.bin
+vendor/lib64/camera/caldata/2_gc5035_uw_SEC_Awb_before_convert.bin
+vendor/lib64/camera/caldata/2_gc5035_uw_SEC_Lsc_before_convert.bin
+vendor/lib64/camera/caldata/3_p24c64e_gc02m1_macro_SEC_Awb_before_convert.bin
+vendor/lib64/camera/caldata/3_p24c64e_gc02m1_macro_SEC_Lsc_before_convert.bin
+vendor/lib64/camera/caldata/4_gc08a3_front_SEC_Awb_before_convert.bin
+vendor/lib64/camera/caldata/4_gc08a3_front_SEC_Lsc_before_convert.bin
+vendor/lib64/camera/com.samsung.sensormodule.0_lsi_s5kjn1.bin
+vendor/lib64/camera/com.samsung.sensormodule.1_0_lsi_gc08a3.bin
+vendor/lib64/camera/com.samsung.sensormodule.1_1_lsi_sr846d.bin
+vendor/lib64/camera/com.samsung.sensormodule.2_lsi_gc5035.bin
+vendor/lib64/camera/com.samsung.sensormodule.3_lsi_gc02m1.bin
+vendor/lib64/camera/com.samsung.sensormodule.4_lsi_gc02m1_macro.bin
+vendor/lib64/camera/com.samsung.sensormodule.5_0_lsi_gc08a3_full.bin
+vendor/lib64/camera/com.samsung.sensormodule.5_1_lsi_sr846d_full.bin
+vendor/lib64/camera/com.samsung.tuned.lsi_gc02m1.bin
+vendor/lib64/camera/com.samsung.tuned.lsi_gc02m1_macro.bin
+vendor/lib64/camera/com.samsung.tuned.lsi_gc08a3.bin
+vendor/lib64/camera/com.samsung.tuned.lsi_gc5035.bin
+vendor/lib64/camera/com.samsung.tuned.lsi_s5kjn1.bin
+vendor/lib64/camera/com.samsung.tuned.lsi_sr846d.bin
+vendor/lib64/camera/w_dual_calibration.bin
+vendor/saiv/image_understanding/db/aig_classifier/aig_classifier_cnn.tf
+vendor/saiv/image_understanding/db/aig_detector/aig_detector_cnn.tflite
+vendor/saiv/image_understanding/db/sce_detector/sce_detector_cnn.tflite
+vendor/saiv/image_understanding/db/srr_interaction/srr_interaction_cnn.tflite
+
 # Audio
 vendor/lib/hw/audio.bluetooth.default.so
 vendor/lib/hw/audio.primary.bengal.so
