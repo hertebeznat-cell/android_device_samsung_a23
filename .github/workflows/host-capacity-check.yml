@@ -1,0 +1,53 @@
+name: A23 build host capacity check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  capacity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Show initial runner resources
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo "CPU_COUNT=$(nproc)"
+          free -h
+          df -hT /
+
+      - name: Reclaim preinstalled tool space
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo apt-get clean
+
+      - name: Check AOSP build capacity
+        shell: bash
+        run: |
+          set -euo pipefail
+          free_kb=$(df --output=avail -k / | tail -1 | tr -d ' ')
+          free_gb=$((free_kb / 1024 / 1024))
+          ram_kb=$(awk '/MemTotal:/ {print $2}' /proc/meminfo)
+          ram_gb=$((ram_kb / 1024 / 1024))
+          cpus=$(nproc)
+
+          echo "HOST_CPU_COUNT=${cpus}"
+          echo "HOST_RAM_GB=${ram_gb}"
+          echo "HOST_FREE_DISK_GB=${free_gb}"
+          df -hT /
+
+          if (( free_gb < 300 )); then
+            echo "::error::Only ${free_gb} GiB is free; an Evolution X source tree plus build output needs at least 300 GiB."
+            exit 1
+          fi
+
+          if (( ram_gb < 24 )); then
+            echo "::warning::Only ${ram_gb} GiB RAM is available; the build may be killed by the OOM killer."
+          fi
+
+          echo "BUILD_HOST_CAPACITY=PASS"
