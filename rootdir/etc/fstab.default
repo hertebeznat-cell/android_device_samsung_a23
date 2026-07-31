@@ -1,5 +1,5 @@
 # Android fstab for Samsung Galaxy A23 4G (SM-A235F).
-# Based on the EYG1 eMMC layout. Dynamic ROM partitions are generated as ext4.
+# Based on the SEZB1 eMMC layout. Dynamic ROM partitions are generated as ext4.
 #
 #<src>                                      <mnt_point>            <type>  <mnt_flags and options>                                                                                  <fs_mgr_flags>
 

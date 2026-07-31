@@ -22,7 +22,7 @@ PRODUCT_MANUFACTURER := samsung
 
 PRODUCT_GMS_CLIENTID_BASE := android-samsung
 
-BUILD_FINGERPRINT := samsung/a23nsxx/a23:14/UP1A.231005.007/A235FXXSBEYG1:user/release-keys
+BUILD_FINGERPRINT := samsung/a23nsxx/a23:14/UP1A.231005.007/A235FXXSEEZB1:user/release-keys
 
 # Evolution X build flags
 EVO_BUILD_TYPE := Unofficial

@@ -77,12 +77,10 @@ BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtb
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 
-TARGET_KERNEL_SOURCE := kernel/samsung/a23
-TARGET_KERNEL_CONFIG := a23_eur_open_defconfig
-TARGET_KERNEL_CLANG_COMPILE := true
-TARGET_KERNEL_ADDITIONAL_FLAGS := \
-    HOSTCFLAGS="-fuse-ld=lld -Wno-unused-command-line-argument" \
-    LOCALVERSION="-28692735-abA235FXXSBEYG1"
+# Use the kernel extracted from the matching SEZB1 stock boot image for the
+# first bootable bring-up. The older EYG1 kernel source produced a boot image
+# which rebooted back to recovery on an SEZB1 bootloader.
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
 
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296

@@ -3,7 +3,7 @@
 # Auto-generated from stock vendor.img extraction
 #
 
-# EYG1 kernel modules and camera calibration/model data
+# SEZB1-compatible kernel modules and camera calibration/model data
 +vendor/lib/camera/com.samsung.sensormodule.0_lsi_s5kjn1.bin
 vendor/lib/camera/com.samsung.sensormodule.1_0_lsi_gc08a3.bin
 vendor/lib/camera/com.samsung.sensormodule.1_1_lsi_sr846d.bin
