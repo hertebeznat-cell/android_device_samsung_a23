@@ -9,8 +9,8 @@ readonly EVO_BRANCH="cnb"
 readonly DEVICE_REMOTE="https://github.com/hertebeznat-cell/android_device_samsung_a23.git"
 readonly VENDOR_REMOTE="https://github.com/hertebeznat-cell/android_vendor_samsung_a235f.git"
 readonly KERNEL_REMOTE="https://github.com/hertebeznat-cell/android_kernel_samsung_a235f.git"
+readonly CRAVE_RESYNC="/opt/crave/resync.sh"
 
-SYNC_JOBS="${SYNC_JOBS:-8}"
 BUILD_JOBS="${BUILD_JOBS:-12}"
 
 fail() {
@@ -24,26 +24,10 @@ command -v repo >/dev/null || fail "repo-tool-missing"
 command -v git >/dev/null || fail "git-missing"
 command -v curl >/dev/null || fail "curl-missing"
 command -v python3 >/dev/null || fail "python3-missing"
+[[ -x "$CRAVE_RESYNC" ]] || fail "crave-resync-missing"
 
 git ls-remote --exit-code --heads "$EVO_MANIFEST" "refs/heads/$EVO_BRANCH" >/dev/null
 
-# Crave reuses the project workspace between jobs.  The LOS seed checkout can
-# contain generated or LFS-smudged files which block Evolution X from switching
-# revisions.  Reset only that remote build workspace before changing manifests.
-if [[ -f .repo/manifest.xml ]]; then
-    repo forall -c '
-        git reset --hard HEAD >/dev/null 2>&1 || true
-        git clean -ffdx >/dev/null 2>&1 || true
-    ' || true
-
-    # repo forall only visits projects from the currently selected manifest.
-    # The LOS seed can leave this old Clang checkout outside that manifest, so
-    # repo cannot remove it while switching to Evolution X.
-    rm -rf -- \
-        prebuilts/clang/host/linux-x86 \
-        .repo/projects/prebuilts/clang/host/linux-x86.git \
-        .repo/project-objects/platform/prebuilts/clang/host/linux-x86.git
-fi
 
 repo init \
     -u "$EVO_MANIFEST" \
@@ -65,32 +49,9 @@ cat > .repo/local_manifests/a23.xml <<MANIFEST
 </manifest>
 MANIFEST
 
-sync_attempt=1
-while ! repo sync \
-    -c \
-    --force-sync \
-    --no-clone-bundle \
-    --no-tags \
-    --optimized-fetch \
-    --prune \
-    --force-checkout \
-    --force-remove-dirty \
-    -j"$SYNC_JOBS"; do
-    if (( sync_attempt >= 3 )); then
-        fail "repo-sync"
-    fi
-    echo "repo sync attempt $sync_attempt failed; cleaning worktrees before retry" >&2
-    repo forall -c '
-        git reset --hard HEAD >/dev/null 2>&1 || true
-        git clean -ffdx >/dev/null 2>&1 || true
-    ' || true
-    rm -rf -- \
-        prebuilts/clang/host/linux-x86 \
-        .repo/projects/prebuilts/clang/host/linux-x86.git \
-        .repo/project-objects/platform/prebuilts/clang/host/linux-x86.git
-    sync_attempt=$((sync_attempt + 1))
-    sleep 30
-done
+# Crave's supported synchronizer resolves checkout conflicts in the seeded
+# workspace without manual deletion of platform projects.
+"$CRAVE_RESYNC"
 
 source build/envsetup.sh
 export EVO_BUILD_TYPE=Unofficial
