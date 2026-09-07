@@ -54,8 +54,8 @@ cat > .repo/local_manifests/a23.xml <<MANIFEST
 <manifest>
   <remote name="a23-github" fetch="https://github.com" />
   <project path="hardware/samsung" name="LineageOS/android_hardware_samsung" remote="a23-github" revision="lineage-23.2" clone-depth="1" />
-  <project path="device/samsung/a23" name="hertebeznat-cell/android_device_samsung_a23" remote="a23-github" revision="$DEVICE_REVISION" upstream="codex/evo-11.10-sezb1-gms" clone-depth="1" />
-  <project path="vendor/samsung/a235f" name="hertebeznat-cell/android_vendor_samsung_a235f" remote="a23-github" revision="$VENDOR_REVISION" upstream="codex/evo-11.10-sezb1-gms" clone-depth="1" />
+  <project path="device/samsung/a23" name="hertebeznat-cell/android_device_samsung_a23" remote="a23-github" revision="$DEVICE_REVISION" upstream="evo-11.10-sezb1-gms" clone-depth="1" />
+  <project path="vendor/samsung/a235f" name="hertebeznat-cell/android_vendor_samsung_a235f" remote="a23-github" revision="$VENDOR_REVISION" upstream="evo-11.10-sezb1-gms" clone-depth="1" />
   <project path="kernel/samsung/a23" name="blxyzY/android_kernel_samsung_sm6225" remote="a23-github" revision="8c34b1fc1e921fcac33e839f7d6e9f3ea732221b" upstream="master" clone-depth="1" />
 </manifest>
 MANIFEST
