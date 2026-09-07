@@ -51,21 +51,4 @@ on charger
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 300000
 
-service vendor.thermal-engine /vendor/bin/thermal-engine
-    class main
-    user root
-    socket thermal-send-client stream 0666 system system
-    socket thermal-recv-client stream 0660 system system
-    socket thermal-recv-passive-client stream 0666 system system
-    socket thermal-send-rule stream 0660 system system
-    group root
-
-service vendor.adsprpcd /vendor/bin/adsprpcd
-    class main
-    user media
-    group media
-
-service vendor.cdsprpcd /vendor/bin/cdsprpcd
-    class main
-    user system
-    group system
+# Thermal and DSP services are declared by the stock vendor rc files.

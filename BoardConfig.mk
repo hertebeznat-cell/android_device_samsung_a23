@@ -25,7 +25,7 @@ TARGET_SUPPORTS_32_BIT_APPS := true
 DEXPREOPT_GENERATE_APEX_IMAGE := true
 
 # Assert
-TARGET_OTA_ASSERT_DEVICE := a23,a23ns,a23nsxx,SM-A235F,SM-A235M,SM-A235N
+TARGET_OTA_ASSERT_DEVICE := a23,a23ns,a23nsxx,SM-A235F
 
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := bengal
@@ -77,10 +77,14 @@ BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtb
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 
-# Use the kernel extracted from the matching SEZB1 stock boot image for the
-# first bootable bring-up. The older EYG1 kernel source produced a boot image
-# which rebooted back to recovery on an SEZB1 bootloader.
-TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
+# Build the pinned SM6225 source and apply the AOSP fragment after its base
+# config. Stock SEZB1 DTB/DTBO remain a matched hardware-description pair.
+TARGET_KERNEL_SOURCE := kernel/samsung/a23
+TARGET_KERNEL_CONFIG := a23_eur_open_defconfig
+TARGET_KERNEL_CONFIG_EXT := $(DEVICE_PATH)/configs/kernel/a23_aosp.config
+TARGET_KERNEL_CLANG_COMPILE := true
+TARGET_KERNEL_NO_GCC := true
+TARGET_KERNEL_ADDITIONAL_FLAGS := LLVM=1 LLVM_IAS=1
 
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
@@ -160,8 +164,10 @@ BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := default
 LOC_HIDL_VERSION := 4.0
 
 # HIDL
-DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/manifest.xml
-DEVICE_MATRIX_FILE := $(DEVICE_PATH)/compatibility_matrix.xml
+# The installed stock HAL binaries must be described by their actual manifest,
+# not a second synthetic list advertising unimplemented AIDL/HIDL versions.
+DEVICE_MANIFEST_FILE := vendor/samsung/a235f/proprietary/vendor/etc/vintf/manifest.xml
+DEVICE_MATRIX_FILE := vendor/samsung/a235f/proprietary/vendor/etc/vintf/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := $(DEVICE_PATH)/framework_compatibility_matrix.xml
 
 

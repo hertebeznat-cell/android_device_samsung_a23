@@ -3,7 +3,7 @@
 # Auto-generated from stock vendor.img extraction
 #
 
-# SEZB1-compatible kernel modules and camera calibration/model data
+# Stock camera calibration/model data. Kernel modules come from our kernel build.
 +vendor/lib/camera/com.samsung.sensormodule.0_lsi_s5kjn1.bin
 vendor/lib/camera/com.samsung.sensormodule.1_0_lsi_gc08a3.bin
 vendor/lib/camera/com.samsung.sensormodule.1_1_lsi_sr846d.bin
@@ -18,12 +18,6 @@ vendor/lib/camera/com.samsung.tuned.lsi_gc08a3.bin
 vendor/lib/camera/com.samsung.tuned.lsi_gc5035.bin
 vendor/lib/camera/com.samsung.tuned.lsi_s5kjn1.bin
 vendor/lib/camera/com.samsung.tuned.lsi_sr846d.bin
-vendor/lib/modules/modules.alias
-vendor/lib/modules/modules.dep
-vendor/lib/modules/modules.load
-vendor/lib/modules/modules.softdep
-vendor/lib/modules/qca_cld3_wlan.ko
-vendor/lib/modules/rdbg.ko
 vendor/lib64/camera/caldata/0_p24c128e_s5kjn1_SEC_Awb_before_convert.bin
 vendor/lib64/camera/caldata/0_p24c128e_s5kjn1_SEC_Lsc_before_convert.bin
 vendor/lib64/camera/caldata/2_gc5035_uw_SEC_Awb_before_convert.bin

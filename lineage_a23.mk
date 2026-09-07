@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Select Google apps before inherited product files evaluate WITH_GMS.
+WITH_GMS := true
+
 # Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
@@ -26,7 +29,6 @@ BUILD_FINGERPRINT := samsung/a23nsxx/a23:14/UP1A.231005.007/A235FXXSEEZB1:user/r
 
 # Evolution X build flags
 EVO_BUILD_TYPE := Unofficial
-WITH_GMS := false
 BUILD_BCR := true
 TARGET_HAS_UDFPS := false
 TARGET_INCLUDE_BOOT_ANIMATIONS := true

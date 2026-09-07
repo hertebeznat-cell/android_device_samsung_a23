@@ -1,0 +1,18 @@
+{
+  "reviewed_on": "2026-09-07",
+  "evolution_version": "11.10",
+  "android_version": 16,
+  "manifest_branch": "bka",
+  "manifest_commit_reviewed": "e9d15030f67a1535aa0fb6340568e715253a3bbb",
+  "vendor_evolution_commit_reviewed": "14a0d74b0dc4a2c71e084efca444ea8b77dd1eb2",
+  "lunch": "lineage_a23-bp4a-userdebug",
+  "kernel_repository": "https://github.com/blxyzY/android_kernel_samsung_sm6225.git",
+  "kernel_revision": "8c34b1fc1e921fcac33e839f7d6e9f3ea732221b",
+  "kernel_version": "4.19.325",
+  "kernel_base_config": "a23_eur_open_defconfig",
+  "vendor_blob_baseline": "A235FXXSEEZB1",
+  "vendor_security_patch": "2026-02-05",
+  "stock_super_lz4_sha256": "71612d39388cdc3a6ea7483b83fb4490370d097b1c8f6b8777b3c93ab9bc2786",
+  "hardware_dtb_dtbo_baseline": "A235FXXSEEZB1",
+  "boot_tested": false
+}
