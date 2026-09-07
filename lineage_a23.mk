@@ -5,6 +5,8 @@
 
 # Select Google apps before inherited product files evaluate WITH_GMS.
 WITH_GMS := true
+# Must be set before common_full_phone.mk evaluates the optional audio package.
+TARGET_INCLUDE_VIPERFX := true
 
 # Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
