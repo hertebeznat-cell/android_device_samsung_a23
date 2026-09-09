@@ -1,10 +1,10 @@
 {
-  "reviewed_on": "2026-09-07",
-  "evolution_version": "11.10",
+  "reviewed_on": "2026-09-09",
+  "evolution_version": "11.11",
   "android_version": 16,
   "manifest_branch": "bka",
   "manifest_commit_reviewed": "e9d15030f67a1535aa0fb6340568e715253a3bbb",
-  "vendor_evolution_commit_reviewed": "14a0d74b0dc4a2c71e084efca444ea8b77dd1eb2",
+  "vendor_evolution_commit_reviewed": "a40a0f7359ac91af4b8f60f8f8c11353119e2b8c",
   "lunch": "lineage_a23-bp4a-userdebug",
   "kernel_repository": "https://github.com/blxyzY/android_kernel_samsung_sm6225.git",
   "kernel_revision": "8c34b1fc1e921fcac33e839f7d6e9f3ea732221b",

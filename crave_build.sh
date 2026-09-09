@@ -91,7 +91,7 @@ grep -Fq 'repo sync has finished successfully.' "$SYNC_LOG" || fail "repo-sync-i
 
 STAGE=preflight
 python3 device/samsung/a23/tools/preflight.py --root "$PWD" --server
-grep -Eq '^EVO_VERSION_BASE[[:space:]]*:=[[:space:]]*11\.10[[:space:]]*$' vendor/lineage/config/version.mk || fail "unexpected-evo-version"
+# preflight.py checks the exact version declared in source-lock.json.
 # Android's environment scripts are not guaranteed to be nounset-safe.
 STAGE=envsetup
 set +eu

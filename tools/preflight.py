@@ -120,7 +120,12 @@ if args.server:
     version_file = root / 'vendor/lineage/config/version.mk'
     check(version_file.exists(), 'Evolution X version.mk missing')
     if version_file.exists():
-        check(bool(re.search(r'^EVO_VERSION_BASE\s*:=\s*11\.10\s*$', read(version_file), re.M)), 'Expected Evolution X 11.10')
+        match = re.search(r'^EVO_VERSION_BASE[ \t]*:=[ \t]*([^\r\n]+)', read(version_file), re.M)
+        actual_version = match.group(1).strip() if match else '<missing>'
+        expected_version = lock['evolution_version']
+        print(f'Evolution X version: expected={expected_version}, actual={actual_version}')
+        check(actual_version == expected_version,
+              f'Expected Evolution X {expected_version}, found {actual_version}')
     kernel = root / 'kernel/samsung/a23'
     proc = subprocess.run(['git', '-C', str(kernel), 'rev-parse', 'HEAD'], capture_output=True, text=True)
     check(proc.returncode == 0 and proc.stdout.strip() == lock['kernel_revision'], 'Wrong kernel revision')
