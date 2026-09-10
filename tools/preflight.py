@@ -31,6 +31,9 @@ lock = json.loads(read(device / 'source-lock.json'))
 board = read(device / 'BoardConfig.mk')
 product = read(device / 'device.mk')
 vendor_mk = read(vendor / 'a235f-vendor.mk')
+for bp in device.rglob('Android.bp'):
+    check(not re.search(r'name\s*:\s*"com\.google\.android\.dialer\.support"', read(bp)),
+          f'{bp.relative_to(root)} duplicates the GMS dialer support library')
 check('TARGET_PREBUILT_KERNEL :=' not in board, 'Stock prebuilt kernel is still selected')
 check('TARGET_KERNEL_CONFIG_EXT :=' in board, 'AOSP kernel fragment is not connected')
 check('PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := true' in product, 'Kernel compatibility check is disabled')

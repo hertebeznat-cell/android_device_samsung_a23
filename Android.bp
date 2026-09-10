@@ -4,8 +4,3 @@
 soong_namespace {
 }
 
-java_library {
-    name: "com.google.android.dialer.support",
-    srcs: ["dummy.java"],
-    installable: true,
-}
