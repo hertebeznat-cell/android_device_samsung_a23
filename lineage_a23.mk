@@ -5,6 +5,9 @@
 
 # Select Google apps before inherited product files evaluate WITH_GMS.
 WITH_GMS := true
+# Keep standard GMS; exclude alternative Mosey modules from discovery.
+TARGET_INCLUDE_MOSEY := false
+PRODUCT_SOURCE_ROOT_DIRS += -vendor/gms-mosey
 
 # Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
