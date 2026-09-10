@@ -130,6 +130,10 @@ if args.server:
         check(actual_version == expected_version,
               f'Expected Evolution X {expected_version}, found {actual_version}')
     kernel = root / 'kernel/samsung/a23'
+    sched_header = kernel / 'include/uapi/linux/sched/types.h'
+    check(sched_header.exists() and
+          '#if defined(__ANDROID__) && !defined(__KERNEL__)\n#include <sched.h>\n#else' in read(sched_header),
+          'Android sched_param UAPI compatibility patch missing')
     proc = subprocess.run(['git', '-C', str(kernel), 'rev-parse', 'HEAD'], capture_output=True, text=True)
     check(proc.returncode == 0 and proc.stdout.strip() == lock['kernel_revision'], 'Wrong kernel revision')
     check((kernel / 'arch/arm64/configs/a23_eur_open_defconfig').is_file(), 'Incomplete kernel checkout')

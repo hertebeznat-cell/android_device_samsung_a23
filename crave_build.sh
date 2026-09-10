@@ -89,6 +89,15 @@ SYNC_LOG="$(mktemp /tmp/a23-resync.XXXXXX.log)"
 # Require repo's own final success message, not the wrapper's optimistic text.
 grep -Fq 'repo sync has finished successfully.' "$SYNC_LOG" || fail "repo-sync-incomplete-see-$SYNC_LOG"
 
+STAGE=kernel-uapi-patch
+KERNEL_UAPI_PATCH="$PWD/device/samsung/a23/patches/kernel/0001-android-sched-param.patch"
+if git -C kernel/samsung/a23 apply --reverse --check "$KERNEL_UAPI_PATCH" 2>/dev/null; then
+    echo "Android sched_param UAPI fix already applied"
+else
+    git -C kernel/samsung/a23 apply --check "$KERNEL_UAPI_PATCH"
+    git -C kernel/samsung/a23 apply "$KERNEL_UAPI_PATCH"
+fi
+
 STAGE=preflight
 python3 device/samsung/a23/tools/preflight.py --root "$PWD" --server
 # preflight.py checks the exact version declared in source-lock.json.
