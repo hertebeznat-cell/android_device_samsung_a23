@@ -36,6 +36,10 @@ for bp in device.rglob('Android.bp'):
           f'{bp.relative_to(root)} duplicates the GMS dialer support library')
 check('TARGET_PREBUILT_KERNEL :=' not in board, 'Stock prebuilt kernel is still selected')
 check('TARGET_KERNEL_CONFIG_EXT :=' in board, 'AOSP kernel fragment is not connected')
+check(bool(re.search(r'^TARGET_KERNEL_ADDITIONAL_FLAGS\s*:=.*\bCROSS_COMPILE=aarch64-linux-gnu-.*\bCLANG_TRIPLE=aarch64-linux-gnu-', board, re.M)),
+      'Kernel 4.19 needs explicit ARM64 CROSS_COMPILE and CLANG_TRIPLE in LLVM-only mode')
+check('CROSS_COMPILE_COMPAT=arm-linux-gnueabi-' in board,
+      'Compat vDSO needs an explicit ARM32 clang target')
 check('PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := true' in product, 'Kernel compatibility check is disabled')
 check(not product.rstrip().endswith('\\'), 'Dangling make continuation at end of device.mk')
 check('lineage_a23-bp4a-userdebug' in read(device / 'AndroidProducts.mk'), 'Wrong Android release lunch')

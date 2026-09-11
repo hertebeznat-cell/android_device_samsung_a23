@@ -84,7 +84,9 @@ TARGET_KERNEL_CONFIG := a23_eur_open_defconfig
 TARGET_KERNEL_CONFIG_EXT := $(DEVICE_PATH)/configs/kernel/a23_aosp.config
 TARGET_KERNEL_CLANG_COMPILE := true
 TARGET_KERNEL_NO_GCC := true
-TARGET_KERNEL_ADDITIONAL_FLAGS := LLVM=1 LLVM_IAS=1
+# This 4.19 tree derives clang --target from CROSS_COMPILE even with LLVM=1.
+# Evo omits its automatic cross prefix in NO_GCC mode; provide it explicitly.
+TARGET_KERNEL_ADDITIONAL_FLAGS := LLVM=1 LLVM_IAS=1 CROSS_COMPILE=aarch64-linux-gnu- CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi-
 
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
