@@ -9,6 +9,8 @@ import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from check_kernel_source import audit as audit_kernel_source
+from check_fs_config import audit as audit_fs_config
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[4])
@@ -31,6 +33,18 @@ lock = json.loads(read(device / 'source-lock.json'))
 board = read(device / 'BoardConfig.mk')
 product = read(device / 'device.mk')
 vendor_mk = read(vendor / 'a235f-vendor.mk')
+vendor_bp = read(vendor / 'Android.bp')
+# The base documents must pass through assemble_vintf, not an independent
+# prebuilt installer. Fragment modules under vintf/manifest remain necessary.
+for filename, variable in (('manifest.xml', 'DEVICE_MANIFEST_FILE'),
+                           ('compatibility_matrix.xml', 'DEVICE_MATRIX_FILE')):
+    source = 'vendor/samsung/a235f/proprietary/vendor/etc/vintf/' + filename
+    check(bool(re.search(r'^' + variable + r'\s*:=\s*' + re.escape(source) + r'\s*$', board, re.M)),
+          f'{filename} must be assembled through {variable}')
+    check(not re.search(r'src\s*:\s*"proprietary/vendor/etc/vintf/' + re.escape(filename) + r'"', vendor_bp),
+          f'Independent prebuilt installer collides with assembled VINTF {filename}')
+    check(source + ':' not in vendor_mk, f'Raw copy bypasses assembled VINTF {filename}')
+errors.extend(audit_fs_config(device, vendor))
 for bp in device.rglob('Android.bp'):
     check(not re.search(r'name\s*:\s*"com\.google\.android\.dialer\.support"', read(bp)),
           f'{bp.relative_to(root)} duplicates the GMS dialer support library')
@@ -44,6 +58,17 @@ check('PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := true' in product, 'Kerne
 check(not product.rstrip().endswith('\\'), 'Dangling make continuation at end of device.mk')
 check('lineage_a23-bp4a-userdebug' in read(device / 'AndroidProducts.mk'), 'Wrong Android release lunch')
 check('proprietary/vendor/etc/vintf/manifest.xml' in board, 'Actual vendor HAL manifest is not selected')
+vendor_manifest = ET.parse(vendor / 'proprietary/vendor/etc/vintf/manifest.xml').getroot()
+vendor_matrix = ET.parse(vendor / 'proprietary/vendor/etc/vintf/compatibility_matrix.xml').getroot()
+check(vendor_manifest.get('target-level') == str(lock['vendor_fcm_level']),
+      'Vendor FCM level must match the stock baseline, not the Android platform version')
+kernel_manifest = vendor_manifest.find('kernel')
+check(kernel_manifest is not None and kernel_manifest.get('target-level') == str(lock['vendor_fcm_level']),
+      'Kernel FCM declaration differs from stock baseline')
+check(vendor_matrix.findtext('vendor-ndk/version') == str(lock['vendor_vndk_version']),
+      'Stock VNDK requirement was removed or changed without a validated ABI migration')
+check(vendor_matrix.findtext('system-sdk/version') == str(lock['vendor_system_sdk_version']),
+      'Stock system SDK requirement was removed or changed')
 check(not re.search(r'^\s+(?:manifest_xml_vintf|compatibility_matrix_xml_vintf)\s*\\', vendor_mk, re.M),
       'VINTF base files have two install producers')
 check(not re.search(r'^\s+[^#\n]*lib/modules/[^\n]*:', vendor_mk, re.M), 'Stock kernel modules are still installed')
@@ -122,7 +147,15 @@ check('VENDOR_SECURITY_PATCH := ' + lock['vendor_security_patch'] in read(vendor
 check('bin/install-recovery.sh:' not in vendor_mk and 'init/vendor_flash_recovery.rc:' not in vendor_mk,
       'Stock recovery restoration is still installed')
 warnings.append('SEZB1 vendor/DTB baseline is matched; legacy VNDK 30 and source-kernel runtime ABI remain unverified.')
+if 'BOARD_VNDK_VERSION := current' in board and lock['vendor_vndk_version'] == 30:
+    warnings.append('Stock vendor requires VNDK 30 but BoardConfig uses current; a validated legacy runtime/ABI migration is still missing.')
 warnings.append('Full checkvintf, ELF dependency resolution, SELinux compilation and boot tests require the Linux server/device.')
+if '/etc/selinux/precompiled_sepolicy:' in vendor_mk:
+    warnings.append('Stock ODM precompiled SELinux policy is copied alongside generated policy; ownership/compatibility is unresolved.')
+if '/etc/passwd:' in vendor_mk or '/etc/group:' in vendor_mk:
+    warnings.append('Stock account databases are copied; migrate OEM IDs before removing duplicate generated passwd/group rules.')
+if 'BUILD_BROKEN_DUP_RULES := true' in board:
+    warnings.append('Duplicate install rules are tolerated by BoardConfig; this preflight does not resolve source-versus-blob output ownership.')
 if args.server:
     version_file = root / 'vendor/lineage/config/version.mk'
     check(version_file.exists(), 'Evolution X version.mk missing')
@@ -134,6 +167,7 @@ if args.server:
         check(actual_version == expected_version,
               f'Expected Evolution X {expected_version}, found {actual_version}')
     kernel = root / 'kernel/samsung/a23'
+    errors.extend(audit_kernel_source(kernel))
     sched_header = kernel / 'include/uapi/linux/sched/types.h'
     check(sched_header.exists() and
           '#if defined(__ANDROID__) && !defined(__KERNEL__)\n#include <sched.h>\n#else' in read(sched_header),

@@ -1,0 +1,31 @@
+From: A23 maintainers
+Subject: [PATCH] mm: complete the vmpressure accounting backport
+
+This tree's vmpressure API also requires the allocation order. The backport
+that moved subtree accounting before reclaimed_slab omitted that argument and
+left the old call in place. Pass sc->order and account the subtree only once,
+before adding slab pages whose scans are not included in nr_scanned.
+
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -5691,18 +5691,13 @@
+ 		 */
+ 		vmpressure(sc->gfp_mask, sc->target_mem_cgroup, true,
+ 			   sc->nr_scanned - nr_scanned,
+-			   sc->nr_reclaimed - nr_reclaimed);
++			   sc->nr_reclaimed - nr_reclaimed, sc->order);
+ 
+ 		if (reclaim_state) {
+ 			sc->nr_reclaimed += reclaim_state->reclaimed_slab;
+ 			reclaim_state->reclaimed_slab = 0;
+ 		}
+ 
+-		/* Record the subtree's reclaim efficiency */
+-		vmpressure(sc->gfp_mask, sc->target_mem_cgroup, true,
+-			   sc->nr_scanned - nr_scanned,
+-			   sc->nr_reclaimed - nr_reclaimed, sc->order);
+-
+ 		if (sc->nr_reclaimed - nr_reclaimed)
+ 			reclaimable = true;
+ 
