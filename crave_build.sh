@@ -21,6 +21,7 @@ readonly KERNEL_REMOTE="https://github.com/blxyzY/android_kernel_samsung_sm6225.
 readonly CRAVE_RESYNC="/opt/crave/resync.sh"
 
 BUILD_JOBS="${BUILD_JOBS:-12}"
+[[ "$BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || { echo 'BUILD_JOBS must be a positive integer' >&2; exit 2; }
 DEVICE_REVISION="${A23_DEVICE_REVISION:?Pass the published device commit}"
 VENDOR_REVISION="${A23_VENDOR_REVISION:?Pass the published vendor commit}"
 [[ "$DEVICE_REVISION" =~ ^[0-9a-f]{40}$ && "$VENDOR_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 2
@@ -100,6 +101,10 @@ for patch in "$PWD"/device/samsung/a23/patches/kernel/*.patch; do
 done
 
 STAGE=preflight
+[[ "$(git -C device/samsung/a23 rev-parse HEAD)" == "$DEVICE_REVISION" ]] || fail "device-revision-mismatch"
+[[ "$(git -C vendor/samsung/a235f rev-parse HEAD)" == "$VENDOR_REVISION" ]] || fail "vendor-revision-mismatch"
+echo "DEVICE_REVISION=$DEVICE_REVISION"
+echo "VENDOR_REVISION=$VENDOR_REVISION"
 python3 device/samsung/a23/tools/preflight.py --root "$PWD" --server
 # preflight.py checks the exact version declared in source-lock.json.
 # Android's environment scripts are not guaranteed to be nounset-safe.
@@ -116,6 +121,14 @@ export WITH_GMS=true
 STAGE=lunch
 lunch lineage_a23-bp4a-userdebug
 BUILD_START="$(date +%s)"
+# Use the same job and output directory throughout. Validate the resolved
+# Kconfig (not just the requested fragment), then build the kernel first so
+# Android userspace does not consume resources while a kernel failure is known.
+STAGE=kernel-config
+m -j"$BUILD_JOBS" kernelconfig
+python3 device/samsung/a23/tools/check_kernel_config.py out/target/product/a23/obj/KERNEL_OBJ/.config
+STAGE=kernel-compilation
+m -j"$BUILD_JOBS" kernel
 STAGE=compilation
 m -j"$BUILD_JOBS" evolution
 
