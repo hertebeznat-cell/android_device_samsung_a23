@@ -40,6 +40,18 @@ new queue entry or manual cache/platform deletion is introduced.
 
 ## Remaining findings — do not label this ROM ready to flash
 
+### Build 299628 follow-up — 2026-09-14
+
+The supplied log stops during kernel compilation. Its four compiler errors are
+TAS256x cleanup indentation, an implicit-int camera close callback, and two ST
+touchscreen definitions lacking void prototypes. Patch 0005 fixes all four
+without relaxing compiler diagnostics or changing cleanup control flow. The
+touchscreen header already declares both functions with void parameters.
+The exact pinned-source test now covers 17 files and all five patches, detects
+these regressions before application, and passes after application. This is a
+source regression test, not local compilation or proof of complete buildability.
+No new Crave job was submitted for this follow-up.
+
 ### Follow-up fixes on 2026-09-12
 
 - Migrated all 33 stock OEM identities into `config.fs`. The official Android 16

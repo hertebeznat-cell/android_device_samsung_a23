@@ -53,6 +53,16 @@ def audit(kernel):
     for path in ('scripts/sign-file.c', 'scripts/extract-cert.c'):
         if engine_guard not in read(path):
             errors.append(f'{path}: optional OpenSSL ENGINE guard missing')
+    touch = read('drivers/input/touchscreen/st/fts_lib/ftsIO.c')
+    for declaration in ('struct device *getDev(void)', 'struct i2c_client *getClient(void)'):
+        if declaration not in touch:
+            errors.append(f'Touchscreen definition must match header: {declaration}')
+    camera = read('techpack/camera/drivers/cam_ope/ope_hw_mgr/cam_ope_hw_mgr.c')
+    if 'static int cam_ope_mgr_hw_close_u(void *hw_priv, void *hw_close_args)' not in camera:
+        errors.append('Camera close callback needs explicit int return type')
+    audio = read('techpack/audio/asoc/codecs/tas256x/os_layer/src/tas256x-regmap.c')
+    if '\n\t\t\tkfree(p_tas256x->devs[i]);' in audio or '\n\t\tkfree(p_tas256x->devs);' in audio:
+        errors.append('TAS256x remove cleanup has misleading indentation')
     return errors
 
 
