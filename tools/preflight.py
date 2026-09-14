@@ -47,6 +47,12 @@ for filename, variable in (('manifest.xml', 'DEVICE_MANIFEST_FILE'),
     check(source + ':' not in vendor_mk, f'Raw copy bypasses assembled VINTF {filename}')
 errors.extend(audit_fs_config(device, vendor))
 errors.extend(audit_hal_labels(device, vendor))
+vndk_patch = device / 'patches/vndk/0001-restore-vndk30-apex.patch'
+check(vndk_patch.is_file(), 'VNDK 30 APEX restoration patch is missing')
+entrypoint = read(device / 'crave_build.sh')
+check('STAGE=vndk-compatibility-patches' in entrypoint and
+      entrypoint.index('STAGE=vndk-compatibility-patches') < entrypoint.index('STAGE=preflight'),
+      'VNDK APEX patch must be applied before server preflight')
 for bp in device.rglob('Android.bp'):
     check(not re.search(r'name\s*:\s*"com\.google\.android\.dialer\.support"', read(bp)),
           f'{bp.relative_to(root)} duplicates the GMS dialer support library')
