@@ -18,13 +18,15 @@
 # Vibrator
 /dev/aw8624_haptic                                                      u:object_r:input_device:s0
 
-# Vendor binaries
-/vendor/bin/hw/android\.hardware\.biometrics\.fingerprint@2\.1-service\.samsung  u:object_r:hal_fingerprint_default_exec:s0
-/vendor/bin/hw/android\.hardware\.light-service\.samsung                        u:object_r:hal_light_default_exec:s0
-/vendor/bin/hw/android\.hardware\.sensors@2\.1-service\.samsung-multihal        u:object_r:hal_sensors_default_exec:s0
-/vendor/bin/hw/android\.hardware\.vibrator-service\.samsung                     u:object_r:hal_vibrator_default_exec:s0
-/vendor/bin/hw/android\.hardware\.usb@1\.3-service\.samsung                     u:object_r:hal_usb_default_exec:s0
-/vendor/bin/hw/vendor\.samsung\.hardware\.health-service\.default               u:object_r:hal_health_default_exec:s0
+# SEZB1 HAL executables. Use actual installed names, not hypothetical
+# android.hardware.*-service.samsung wrappers. Stock policy currently carries
+# equivalent labels; these source rules preserve them during policy migration.
+/vendor/bin/hw/vendor\.samsung\.hardware\.biometrics\.fingerprint@3\.0-service u:object_r:hal_fingerprint_default_exec:s0
+/vendor/bin/hw/vendor\.samsung\.hardware\.light-service u:object_r:hal_light_default_exec:s0
+/vendor/bin/hw/android\.hardware\.sensors@2\.0-service\.multihal u:object_r:hal_sensors_default_exec:s0
+/vendor/bin/hw/vendor\.samsung\.hardware\.vibrator-service u:object_r:hal_vibrator_default_exec:s0
+/vendor/bin/hw/android\.hardware\.usb@1\.3-service\.coral u:object_r:hal_usb_default_exec:s0
+/vendor/bin/hw/android\.hardware\.health@2\.1-service-samsung u:object_r:hal_health_default_exec:s0
 
 # Vendor data
 /data/vendor/biometrics(/.*)?                                           u:object_r:fingerprint_vendor_data_file:s0

@@ -4,3 +4,17 @@
 soong_namespace {
 }
 
+// Test the actual copied vendor policy, not only the generated source policy.
+// Never install this test binary or turn off neverallow checks to make it pass.
+se_policy_binary {
+    name: "a23_stock_vendor_policy_compat_test",
+    srcs: [
+        ":precompiled_sepolicy_without_vendor_srcs",
+        ":plat_30.0.cil",
+        ":system_ext_30.0.cil",
+        ":product_30.0.cil",
+        "//vendor/samsung/a235f:a23_stock_vendor_policy_inputs",
+    ],
+    installable: false,
+}
+

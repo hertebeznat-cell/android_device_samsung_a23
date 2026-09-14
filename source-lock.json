@@ -13,6 +13,7 @@
   "vendor_blob_baseline": "A235FXXSEEZB1",
   "vendor_fcm_level": 5,
   "vendor_vndk_version": 30,
+  "vndk_snapshot_revision": "5f9884aa352825291757dfd6694b874ad8c1805e",
   "vendor_system_sdk_version": 30,
   "vendor_security_patch": "2026-02-05",
   "stock_super_lz4_sha256": "71612d39388cdc3a6ea7483b83fb4490370d097b1c8f6b8777b3c93ab9bc2786",

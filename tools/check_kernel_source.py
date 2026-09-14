@@ -63,6 +63,15 @@ def audit(kernel):
     audio = read('techpack/audio/asoc/codecs/tas256x/os_layer/src/tas256x-regmap.c')
     if '\n\t\t\tkfree(p_tas256x->devs[i]);' in audio or '\n\t\tkfree(p_tas256x->devs);' in audio:
         errors.append('TAS256x remove cleanup has misleading indentation')
+    for path, declaration in (
+        ('drivers/input/touchscreen/st/fts_lib/ftsTime.c', 'char *timestamp(void)'),
+        ('drivers/input/touchscreen/novatek/nt36523_spi/nt36xxx.c', 'bool nvt_ts_lcd_power_check(void)'),
+    ):
+        if declaration not in read(path):
+            errors.append(f'Touchscreen explicit prototype missing: {declaration}')
+    tfa = read('techpack/audio/asoc/codecs/tfa9878/tfa98xx.c')
+    if 'enum tfa98xx_error temp_ret;' not in tfa or 'temp_ret = tfa98xx_read_reference_temp(&temp_val);' not in tfa:
+        errors.append('Reference temperature result must retain enum tfa98xx_error')
     return errors
 
 
