@@ -11,6 +11,7 @@ import sys
 import xml.etree.ElementTree as ET
 from check_kernel_source import audit as audit_kernel_source
 from check_fs_config import audit as audit_fs_config
+from check_hal_labels import audit as audit_hal_labels
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[4])
@@ -45,6 +46,7 @@ for filename, variable in (('manifest.xml', 'DEVICE_MANIFEST_FILE'),
           f'Independent prebuilt installer collides with assembled VINTF {filename}')
     check(source + ':' not in vendor_mk, f'Raw copy bypasses assembled VINTF {filename}')
 errors.extend(audit_fs_config(device, vendor))
+errors.extend(audit_hal_labels(device, vendor))
 for bp in device.rglob('Android.bp'):
     check(not re.search(r'name\s*:\s*"com\.google\.android\.dialer\.support"', read(bp)),
           f'{bp.relative_to(root)} duplicates the GMS dialer support library')
@@ -157,6 +159,13 @@ if '/etc/passwd:' in vendor_mk or '/etc/group:' in vendor_mk:
 if 'BUILD_BROKEN_DUP_RULES := true' in board:
     warnings.append('Duplicate install rules are tolerated by BoardConfig; this preflight does not resolve source-versus-blob output ownership.')
 if args.server:
+    snapshot = root / 'prebuilts/vndk/v30'
+    proc = subprocess.run(['git', '-C', str(snapshot), 'rev-parse', 'HEAD'], capture_output=True, text=True)
+    check(proc.returncode == 0 and proc.stdout.strip() == lock['vndk_snapshot_revision'],
+          'Missing or wrong VNDK 30 snapshot revision')
+    apex_bp = root / 'packages/modules/vndk/apex/Android.bp'
+    check(apex_bp.exists() and '"com.android.vndk.v30"' in read(apex_bp),
+          'Current VNDK module tree does not define the requested VNDK 30 APEX')
     version_file = root / 'vendor/lineage/config/version.mk'
     check(version_file.exists(), 'Evolution X version.mk missing')
     if version_file.exists():

@@ -74,6 +74,8 @@ cat > .repo/local_manifests/a23.xml <<MANIFEST
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <remote name="a23-github" fetch="https://github.com" />
+  <remote name="a23-aosp" fetch="https://android.googlesource.com" />
+  <project path="prebuilts/vndk/v30" name="platform/prebuilts/vndk/v30" remote="a23-aosp" revision="5f9884aa352825291757dfd6694b874ad8c1805e" upstream="main" clone-depth="1" />
   <project path="hardware/samsung" name="LineageOS/android_hardware_samsung" remote="a23-github" revision="lineage-23.2" clone-depth="1" />
   <project path="device/samsung/a23" name="hertebeznat-cell/android_device_samsung_a23" remote="a23-github" revision="$DEVICE_REVISION" upstream="evo-11.10-sezb1-gms" clone-depth="1" />
   <project path="vendor/samsung/a235f" name="hertebeznat-cell/android_vendor_samsung_a235f" remote="a23-github" revision="$VENDOR_REVISION" upstream="evo-11.10-sezb1-gms" clone-depth="1" />
@@ -121,6 +123,14 @@ export WITH_GMS=true
 STAGE=lunch
 lunch lineage_a23-bp4a-userdebug
 BUILD_START="$(date +%s)"
+# Validate generated policy/context consistency and legacy APEX packaging before
+# spending time on kernel/userspace. This is not a runtime vendor ABI test.
+STAGE=selinux-validation
+m -j"$BUILD_JOBS" selinux_policy
+STAGE=stock-vendor-selinux-validation
+m -j"$BUILD_JOBS" a23_stock_vendor_policy_compat_test
+STAGE=vndk-snapshot-validation
+m -j"$BUILD_JOBS" com.android.vndk.v30
 # Use the same job and output directory throughout. Validate the resolved
 # Kconfig (not just the requested fragment), then build the kernel first so
 # Android userspace does not consume resources while a kernel failure is known.

@@ -33,6 +33,10 @@ PRODUCT_AAPT_PREF_CONFIG := xxhdpi
 # API Level
 PRODUCT_SHIPPING_API_LEVEL := 31
 
+# Supply the legacy library snapshot required by the SEZB1 vendor. Keep source
+# vendor modules on the current build ABI; this alone is not a blob ABI port.
+PRODUCT_EXTRA_VNDK_VERSIONS += 30
+
 # The source-built 4.19.325 kernel must pass the OTA compatibility checks.
 PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := true
 

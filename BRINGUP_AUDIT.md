@@ -40,6 +40,26 @@ new queue entry or manual cache/platform deletion is introduced.
 
 ## Remaining findings — do not label this ROM ready to flash
 
+### Validation workflow
+
+The local remote-entrypoint changes now build `selinux_policy`, the stock
+vendor policy compatibility target, and `com.android.vndk.v30` before the
+kernel and userspace, as stages of a normal complete ROM build. There is no
+validation-only mode. Passing generated policy tests does not prove that
+copied stock policy or mixed legacy/current ELF dependencies work at runtime.
+The stock policy ownership conflict is still unresolved; do not call this a
+completed SELinux migration.
+
+### Build 299833 follow-up
+
+The supplied log contains three new compiler diagnostics: TFA9878 reference
+temperature enum conversion and missing void prototypes in ST timestamp and
+Novatek LCD power checking. Patch 0006 retains the temperature function's own
+enum type in a separate local result and adds explicit prototypes. It does not
+suppress diagnostics. The six-patch test covers 20 exact pinned source files,
+detects all three regressions before patching and checks the corrected sources.
+Full compilation, VNDK and SELinux compatibility are still not established.
+
 ### Build 299628 follow-up — 2026-09-14
 
 The supplied log stops during kernel compilation. Its four compiler errors are
@@ -101,8 +121,12 @@ References: [AOSP OEM AIDs and filesystem configuration](https://source.android.
    stock policy or replacing it blindly is not a verified SELinux port.
 3. The vendor requires VNDK 30 (`vendor/default.prop` and the restored matrix),
    while BoardConfig selects `current`. The reviewed Evolution `bka/default.xml`
-   has VNDK snapshots 31–34, not 30, and this device does not request a VNDK 30
-   snapshot. A supported legacy runtime/ABI solution is still needed; changing
+   has VNDK snapshots 31–34, not 30. The local device changes now request the
+   official VNDK 30 snapshot at 5f9884aa352825291757dfd6694b874ad8c1805e and
+   PRODUCT_EXTRA_VNDK_VERSIONS += 30. Server preflight checks the exact snapshot
+   and that the platform defines com.android.vndk.v30. This has not yet been
+   synced or compiled on a server. Linker namespace selection and mixed
+   current/legacy blob ABI compatibility still need validation; changing
    the reported VNDK number alone cannot supply missing symbols/libraries.
 4. Legacy VNDK 30 ELF dependencies, full VINTF/kernel compatibility, image sizes,
    kernel/DTB ABI and actual boot remain unverified. Static checks cannot prove

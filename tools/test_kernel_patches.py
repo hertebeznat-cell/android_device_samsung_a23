@@ -38,6 +38,8 @@ with tempfile.TemporaryDirectory(prefix='a23-patch-test-') as directory:
     assert sum('Touchscreen definition' in error for error in before) == 2, before
     assert any('Camera close callback' in error for error in before), before
     assert any('misleading indentation' in error for error in before), before
+    assert sum('Touchscreen explicit prototype missing' in error for error in before) == 2, before
+    assert any('Reference temperature result' in error for error in before), before
     for patch in patches:
         for options in (['--check'], [], ['--reverse', '--check']):
             subprocess.run(['git', 'apply', *options, str(patch)], cwd=root, check=True, timeout=30)
