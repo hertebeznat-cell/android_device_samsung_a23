@@ -92,6 +92,16 @@ SYNC_LOG="$(mktemp /tmp/a23-resync.XXXXXX.log)"
 # Require repo's own final success message, not the wrapper's optimistic text.
 grep -Fq 'repo sync has finished successfully.' "$SYNC_LOG" || fail "repo-sync-incomplete-see-$SYNC_LOG"
 
+STAGE=vndk-compatibility-patches
+for patch in "$PWD"/device/samsung/a23/patches/vndk/*.patch; do
+    if git -C packages/modules/vndk apply --reverse --check "$patch" 2>/dev/null; then
+        echo "Already applied: $(basename "$patch")"
+    else
+        git -C packages/modules/vndk apply --check "$patch"
+        git -C packages/modules/vndk apply "$patch"
+    fi
+done
+
 STAGE=kernel-compatibility-patches
 for patch in "$PWD"/device/samsung/a23/patches/kernel/*.patch; do
     if git -C kernel/samsung/a23 apply --reverse --check "$patch" 2>/dev/null; then

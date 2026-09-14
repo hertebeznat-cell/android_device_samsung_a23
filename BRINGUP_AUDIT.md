@@ -40,6 +40,17 @@ new queue entry or manual cache/platform deletion is introduced.
 
 ## Remaining findings — do not label this ROM ready to flash
 
+### Build 299918 correction
+
+The build stopped before compilation because android-16.0.0_r4 defines VNDK
+APEX 31-34 only. Earlier inspection of main was not evidence for this tag.
+Patch patches/vndk/0001-restore-vndk30-apex.patch adds version 30 with the same
+platform defaults, signing inputs and system_ext placement. The entrypoint
+applies it before preflight. tools/test_vndk_patch.py verifies the patch against
+the exact tag commit f2caada6c9378ba37879c5b952fab07cf0f46e16, including signing
+input existence and unique modules 30-34. This fixes the observed missing-module
+setup error; it does not establish runtime ABI or SELinux compatibility.
+
 ### Validation workflow
 
 The local remote-entrypoint changes now build `selinux_policy`, the stock
