@@ -2,6 +2,7 @@
 """Apply patches to disposable exact git blobs, not the user's kernel checkout."""
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -25,6 +26,8 @@ for patch in patches:
 paths.update(git('ls-tree', '-r', '--name-only', revision, 'drivers/adsp_factory').decode().splitlines())
 with tempfile.TemporaryDirectory(prefix='a23-patch-test-') as directory:
     root = Path(directory)
+    environment = os.environ.copy()
+    environment['GIT_CEILING_DIRECTORIES'] = str(root.resolve().parent)
     for name in sorted(paths):
         path = root / name
         if not path.resolve().is_relative_to(root.resolve()):
@@ -42,7 +45,8 @@ with tempfile.TemporaryDirectory(prefix='a23-patch-test-') as directory:
     assert any('Reference temperature result' in error for error in before), before
     for patch in patches:
         for options in (['--check'], [], ['--reverse', '--check']):
-            subprocess.run(['git', 'apply', *options, str(patch)], cwd=root, check=True, timeout=30)
+            subprocess.run(['git', 'apply', *options, str(patch)], cwd=root,
+                           env=environment, check=True, timeout=30)
         print('PASS apply/reverse-check:', patch.name)
     after = audit(root)
     if after:

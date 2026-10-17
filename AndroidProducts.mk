@@ -7,5 +7,5 @@ PRODUCT_MAKEFILES := \
     $(LOCAL_DIR)/lineage_a23.mk
 
 COMMON_LUNCH_CHOICES := \
-    lineage_a23-bp4a-userdebug \
-    lineage_a23-bp4a-user
+    lineage_a23-cp2a-userdebug \
+    lineage_a23-cp2a-user

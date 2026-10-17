@@ -1,5 +1,9 @@
 # Galaxy A23 SM-A235F — Evolution X 11.10 preparation
 
+Historical Android 16 report. The current Android 17 target and outstanding
+work are documented in [BRINGUP-CNB.md](BRINGUP-CNB.md). Do not use the old
+branch, lunch or version instructions below for the current configuration.
+
 Reviewed 2026-09-07. **Prepared for a server bring-up build, not boot-tested.**
 No Android or kernel compilation was performed on the Windows PC.
 

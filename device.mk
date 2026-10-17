@@ -22,7 +22,7 @@ $(call inherit-product, vendor/samsung/a235f/a235f-vendor.mk)
 include $(DEVICE_PATH)/vendor-links/packages.mk
 PRODUCT_PACKAGES += toybox_vendor
 
-# Android 16's system ueventd.rc imports this canonical vendor path.
+# Android's system ueventd.rc imports this canonical vendor path.
 PRODUCT_COPY_FILES += \
     vendor/samsung/a235f/proprietary/vendor/ueventd.rc:$(TARGET_COPY_OUT_VENDOR)/etc/ueventd.rc
 
@@ -36,6 +36,16 @@ PRODUCT_SHIPPING_API_LEVEL := 31
 # Supply the legacy library snapshot required by the SEZB1 vendor. Keep source
 # vendor modules on the current build ABI; this alone is not a blob ABI port.
 PRODUCT_EXTRA_VNDK_VERSIONS += 30
+
+# cnb removed API 30 mappings from the platform defaults. The integration
+# patch restores their original chain to API 31; install them for SEZB1's
+# vendor policy 30.0 and keep the original compatibility permissions.
+PRODUCT_PACKAGES += \
+    plat_30.0.cil \
+    system_ext_30.0.cil \
+    product_30.0.cil \
+    30.0.compat.cil \
+    system_ext_30.0.compat.cil
 
 # The source-built 4.19.325 kernel must pass the OTA compatibility checks.
 PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := true
@@ -111,9 +121,9 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     android.hardware.gnss@2.1.vendor
 
-# Health
-PRODUCT_PACKAGES += \
-    vendor.lineage.health-service.default
+# Health uses the stock HIDL 2.1 service and its VINTF fragment from the vendor
+# tree. The framework supports this service; a second source HAL would compete
+# for battery monitoring and charger mode.
 
 # HIDL
 PRODUCT_PACKAGES += \
@@ -169,7 +179,7 @@ PRODUCT_PACKAGES += \
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
     $(DEVICE_PATH) \
-    hardware/samsung
+    vendor/qcom/opensource/commonsys/display
 
 # Telephony
 PRODUCT_PACKAGES += \

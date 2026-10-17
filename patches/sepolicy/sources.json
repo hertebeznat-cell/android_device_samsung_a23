@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-16",
+  "target_repository": "Evolution-X/system_sepolicy",
+  "target_revision": "c3997bf608b40a7217d0eb2257af887afa78617b",
+  "patches": [
+    {
+      "path": "0001-restore-api30-compatibility.patch",
+      "sha256": "2f93eeb9340b242fa2c5e1b1cabe6218768f221392ae1c7d297a8bd9e554cc1d",
+      "origin_repository": "LineageOS/android_system_sepolicy",
+      "origin_revision": "885cc500f6078a766d1f6def5ce4c06c55841773"
+    },
+    {
+      "path": "0002-select-stock-vendor-policy-owner.patch",
+      "sha256": "076aedb3c6472ff6034bf62f52bc56a582984fcdbb8022579ef191979cdb5d51",
+      "source_git_blobs": {
+        "Android.bp": "9ff4263ff6762a30d8ef84deb771bfbedc774290",
+        "contexts/Android.bp": "dcaf3b4adfbf7d653d244f8decd0250ae4a955e8",
+        "mac_permissions/Android.bp": "16132c6f63ec0ff291723d718ecfd8124470cb96",
+        "build/soong/compat_cil.go": "ea8e0647a4e59a487c94fb1bb273a8bd8f2aa6c6"
+      },
+      "mode": "a23.use_stock_vendor_policy",
+      "vendor_exports": [
+        "a23_stock_plat_pub_versioned_cil",
+        "a23_stock_vendor_sepolicy_cil",
+        "a23_stock_plat_sepolicy_vers_txt",
+        "a23_stock_vendor_file_contexts",
+        "a23_stock_vendor_hwservice_contexts",
+        "a23_stock_vendor_property_contexts",
+        "a23_stock_vendor_seapp_contexts",
+        "a23_stock_vendor_service_contexts",
+        "a23_stock_vndservice_contexts",
+        "a23_stock_vendor_mac_permissions_xml",
+        "a23_stock_vendor_bug_map"
+      ],
+      "source_access": "GitHub connector reads in memory; no upstream source files saved",
+      "verification": "All 27 hunks match exact upstream source and reconstruct intended files in memory; no Android policy compiler run",
+      "result_git_blobs": {
+        "Android.bp": "9e6dbb4a4bce7ffe0d79e9b8083229fe4426e139",
+        "contexts/Android.bp": "470e4b17c3f0cc0b14dcb8482214bddff426da3c",
+        "mac_permissions/Android.bp": "53ff7a8e3aba469a91c3bbc3e2680f3656247009",
+        "build/soong/compat_cil.go": "e74f79a22203683144a864cb0b216cb49e0fb963"
+      }
+    }
+  ]
+}

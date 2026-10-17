@@ -13,6 +13,8 @@ se_policy_binary {
         ":plat_30.0.cil",
         ":system_ext_30.0.cil",
         ":product_30.0.cil",
+        ":30.0.compat.cil",
+        ":system_ext_30.0.compat.cil",
         "//vendor/samsung/a235f:a23_stock_vendor_policy_inputs",
     ],
     installable: false,

@@ -2,6 +2,7 @@
 """Read-only bring-up checks. Does not invoke make, compilers, adb or git fetch."""
 import argparse
 import collections
+import hashlib
 import json
 import posixpath
 from pathlib import Path
@@ -12,6 +13,10 @@ import xml.etree.ElementTree as ET
 from check_kernel_source import audit as audit_kernel_source
 from check_fs_config import audit as audit_fs_config
 from check_hal_labels import audit as audit_hal_labels
+from check_build_config import audit as audit_build_config
+from test_sepolicy_patch import audit as audit_sepolicy_patch
+from apply_vintf_compat import audit as audit_vintf_compat
+from check_selinux_ownership import audit as audit_selinux_ownership
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[4])
@@ -35,6 +40,10 @@ board = read(device / 'BoardConfig.mk')
 product = read(device / 'device.mk')
 vendor_mk = read(vendor / 'a235f-vendor.mk')
 vendor_bp = read(vendor / 'Android.bp')
+errors.extend(audit_build_config(root, device, lock))
+errors.extend(audit_sepolicy_patch(root / 'system/sepolicy' if args.server else None))
+errors.extend(audit_vintf_compat(root, server=args.server))
+errors.extend(audit_selinux_ownership(root, device, server=args.server))
 # The base documents must pass through assemble_vintf, not an independent
 # prebuilt installer. Fragment modules under vintf/manifest remain necessary.
 for filename, variable in (('manifest.xml', 'DEVICE_MANIFEST_FILE'),
@@ -49,7 +58,19 @@ errors.extend(audit_fs_config(device, vendor))
 errors.extend(audit_hal_labels(device, vendor))
 vndk_patch = device / 'patches/vndk/0001-restore-vndk30-apex.patch'
 check(vndk_patch.is_file(), 'VNDK 30 APEX restoration patch is missing')
-entrypoint = read(device / 'crave_build.sh')
+sepolicy_patch = device / 'patches/sepolicy/0001-restore-api30-compatibility.patch'
+check(sepolicy_patch.is_file(), 'SELinux API 30 compatibility restoration patch is missing')
+if sepolicy_patch.is_file():
+    check(hashlib.sha256(sepolicy_patch.read_bytes()).hexdigest() == lock['sepolicy_compat_patch_sha256'],
+          'SELinux API 30 patch differs from the reviewed source-lock.json digest')
+check((device / 'patches/releasetools/0001-preserve-symlinks.patch').is_file(),
+      'Non-A/B OTA symlink preservation patch is missing')
+legacy_policy_modules = ('plat_30.0.cil', 'system_ext_30.0.cil', 'product_30.0.cil',
+                         '30.0.compat.cil', 'system_ext_30.0.compat.cil')
+for module in legacy_policy_modules:
+    check(bool(re.search(r'^\s+' + re.escape(module) + r'(?:\s*\\)?\s*$', product, re.M)),
+          f'Legacy runtime policy module is not selected: {module}')
+entrypoint = read(device / 'server_build.sh')
 check('STAGE=vndk-compatibility-patches' in entrypoint and
       entrypoint.index('STAGE=vndk-compatibility-patches') < entrypoint.index('STAGE=preflight'),
       'VNDK APEX patch must be applied before server preflight')
@@ -64,7 +85,7 @@ check('CROSS_COMPILE_COMPAT=arm-linux-gnueabi-' in board,
       'Compat vDSO needs an explicit ARM32 clang target')
 check('PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := true' in product, 'Kernel compatibility check is disabled')
 check(not product.rstrip().endswith('\\'), 'Dangling make continuation at end of device.mk')
-check('lineage_a23-bp4a-userdebug' in read(device / 'AndroidProducts.mk'), 'Wrong Android release lunch')
+check(lock['lunch'] in read(device / 'AndroidProducts.mk'), 'Wrong Android release lunch')
 check('proprietary/vendor/etc/vintf/manifest.xml' in board, 'Actual vendor HAL manifest is not selected')
 vendor_manifest = ET.parse(vendor / 'proprietary/vendor/etc/vintf/manifest.xml').getroot()
 vendor_matrix = ET.parse(vendor / 'proprietary/vendor/etc/vintf/compatibility_matrix.xml').getroot()
@@ -84,6 +105,9 @@ check(not re.search(r'^\s+[^#\n]*lib/modules/[^\n]*:', vendor_mk, re.M), 'Stock 
 copies = collections.defaultdict(list)
 variables = {'DEVICE_PATH': 'device/samsung/a23', 'TARGET_COPY_OUT_VENDOR': 'vendor',
              'TARGET_COPY_OUT_ODM': 'odm', 'TARGET_COPY_OUT_PRODUCT': 'product',
+             'TARGET_COPY_OUT_SYSTEM': 'system', 'TARGET_COPY_OUT_SYSTEM_EXT': 'system_ext',
+             'TARGET_COPY_OUT_VENDOR_DLKM': 'vendor_dlkm', 'TARGET_COPY_OUT_ODM_DLKM': 'odm_dlkm',
+             'TARGET_COPY_OUT_SYSTEM_DLKM': 'system_dlkm',
              'TARGET_COPY_OUT_RAMDISK': 'root', 'TARGET_COPY_OUT_VENDOR_RAMDISK': 'vendor_ramdisk'}
 for name, data in [('device.mk', product), ('a235f-vendor.mk', vendor_mk)]:
     for number, line in enumerate(data.splitlines(), 1):
@@ -98,6 +122,13 @@ for name, data in [('device.mk', product), ('a235f-vendor.mk', vendor_mk)]:
             check((root / source).exists(), f'Missing copied file: {source}')
 for dest, sources in copies.items():
     check(len(sources) == 1, f'Duplicate copy destination {dest}: {sources}')
+    check(not re.fullmatch(r'(?:system|system_ext|product|vendor|odm|vendor_dlkm|odm_dlkm|system_dlkm)/(?:etc/)?build\.prop', dest),
+          f'Raw partition build.prop copy competes with the property generator: {dest}')
+odm_input = read(device / 'odm.prop')
+odm_feature = re.findall(r'^\s*ro\.vendor\.qti\.va_odm\.support\s*=\s*([^\s#]+)\s*$', odm_input, re.M)
+check(odm_feature == ['1'], 'Generated ODM properties must retain exactly one SEZB1 VA ODM support feature')
+check(bool(re.search(r'^TARGET_ODM_PROP\s*\+=\s*\$\(DEVICE_PATH\)/odm\.prop\s*$', board, re.M)),
+      'Device ODM feature properties must be inputs to the platform property generator')
 
 links = json.loads(read(device / 'vendor-links/links.json'))
 seen_links = set()
@@ -156,15 +187,26 @@ check('bin/install-recovery.sh:' not in vendor_mk and 'init/vendor_flash_recover
       'Stock recovery restoration is still installed')
 warnings.append('SEZB1 vendor/DTB baseline is matched; legacy VNDK 30 and source-kernel runtime ABI remain unverified.')
 if 'BOARD_VNDK_VERSION := current' in board and lock['vendor_vndk_version'] == 30:
-    warnings.append('Stock vendor requires VNDK 30 but BoardConfig uses current; a validated legacy runtime/ABI migration is still missing.')
+    warnings.append('VNDK 30 is configured for stock blobs alongside current source modules; linker namespaces and mixed ABI still need server validation.')
 warnings.append('Full checkvintf, ELF dependency resolution, SELinux compilation and boot tests require the Linux server/device.')
-if '/etc/selinux/precompiled_sepolicy:' in vendor_mk:
-    warnings.append('Stock ODM precompiled SELinux policy is copied alongside generated policy; ownership/compatibility is unresolved.')
 if '/etc/passwd:' in vendor_mk or '/etc/group:' in vendor_mk:
     warnings.append('Stock account databases are copied; migrate OEM IDs before removing duplicate generated passwd/group rules.')
 if 'BUILD_BROKEN_DUP_RULES := true' in board:
     warnings.append('Duplicate install rules are tolerated by BoardConfig; this preflight does not resolve source-versus-blob output ownership.')
 if args.server:
+    policy = root / 'system/sepolicy'
+    compat_bp = policy / 'compat/Android.bp'
+    compat_text = read(compat_bp) if compat_bp.is_file() else ''
+    for module in legacy_policy_modules:
+        check(len(re.findall(r'name\s*:\s*"' + re.escape(module) + r'"', compat_text)) == 1,
+              f'Platform must define exactly one legacy policy module: {module}')
+    for filename in ('30.0.cil', '30.0.compat.cil', '30.0.ignore.cil'):
+        check((policy / 'private/compat/30.0' / filename).is_file(),
+              f'Legacy platform policy compatibility input is missing: {filename}')
+    releasetools = root / 'build/make/tools/releasetools/non_ab_ota.py'
+    check(releasetools.is_file() and
+          bool(re.search(r'"zip"\s*,\s*tmpfile\s*,\s*"-r"\s*,\s*"-y"', read(releasetools))),
+          'Non-A/B OTA releasetools must preserve symlinks with zip -y')
     snapshot = root / 'prebuilts/vndk/v30'
     proc = subprocess.run(['git', '-C', str(snapshot), 'rev-parse', 'HEAD'], capture_output=True, text=True)
     check(proc.returncode == 0 and proc.stdout.strip() == lock['vndk_snapshot_revision'],

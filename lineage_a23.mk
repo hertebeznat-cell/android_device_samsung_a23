@@ -41,5 +41,5 @@ TARGET_ENABLE_BLUR := true
 TARGET_BOOT_ANIMATION_RES := 1080
 TARGET_FACE_UNLOCK_SUPPORTED := true
 
-# Android 16 / Baklava specifics
+# Android 17 / Cinnamon Bun specifics
 TARGET_SUPPORTS_64_BIT_APPS := true

@@ -1,33 +1,6 @@
-#!/bin/bash
-#
-# Copyright (C) 2024-2026 The Evolution X Project
+#!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-#
-# Generate vendor makefiles from proprietary-files.txt
-
-set -e
-
-DEVICE=a23
-VENDOR=samsung
-
-MY_DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; fi
-
-ANDROID_ROOT="$MY_DIR/../../.."
-HELPER="${ANDROID_ROOT}/tools/extract-utils/extract_utils.sh"
-
-if [ ! -f "$HELPER" ]; then
-    echo "Unable to find helper script at $HELPER"
-    exit 1
-fi
-
-source "$HELPER"
-
-# Initialize the helper for our device
-setup_vendor "$DEVICE" "$VENDOR" "$ANDROID_ROOT" false false false
-
-# Generate vendor makefiles
-write_makefiles "$MY_DIR/proprietary-files.txt" true
-
-# Finish
-write_footers
+# Generic generation loses the reviewed VINTF/fs-config/symlink ownership.
+echo "Legacy vendor regeneration is disabled: the a235f makefiles contain reviewed installation rules that proprietary-files.txt does not reproduce." >&2
+echo "Preserve vendor/samsung/a235f and review changes against BRINGUP_AUDIT.md; do not run generic setup_vendor for a23." >&2
+exit 2
