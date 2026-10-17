@@ -191,6 +191,12 @@ TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 ENABLE_VENDOR_RIL_SERVICE := true
 
 # SELinux
+# Keep current platform policy and compile it with the actual SEZB1 vendor
+# policy. The integration patch makes standard SELinux modules the sole owners
+# of installed policy/contexts and regenerates ODM precompiled policy.
+$(call soong_config_set_bool,a23,use_stock_vendor_policy,true)
+# The QCOM policy defines firmware labels and vendor properties referenced by
+# the device contexts, and supplies the Bengal vendor domains.
 include device/qcom/sepolicy_vndr/legacy-um/SEPolicy.mk
 BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/vendor
 

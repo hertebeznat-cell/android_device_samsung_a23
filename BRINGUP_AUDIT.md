@@ -1,5 +1,8 @@
 # A23 build 299343 audit — 2026-09-12
 
+Historical Android 16 build audit. See [BRINGUP-CNB.md](BRINGUP-CNB.md) for the
+current Android 17 configuration; the logs below are not validation of cnb.
+
 Status: **not boot-validated; not all bring-up issues are resolved**.
 
 ## Confirmed build failure and fixes

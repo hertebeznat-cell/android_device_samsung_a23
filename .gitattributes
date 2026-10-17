@@ -1,0 +1,11 @@
+# Build scripts and hash-locked patches must survive Windows/Linux checkouts.
+*.patch text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.mk text eol=lf
+*.bp text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# Images, DTBs and other reviewed prebuilts retain their exact bytes.
+prebuilt/** -text

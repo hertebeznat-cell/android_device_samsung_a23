@@ -49,36 +49,13 @@
            that is loaded on demand. -->
     <bool name="config_enableWifiDisplay">true</bool>
 
-    <!-- Flag indicating whether the surface flinger is responsible
-         for the creation of the display's protected contents layer-->
-    <bool name="config_enableSurfaceFlingerForProtectedContent">true</bool>
-
-    <!-- Whether the device supports Smart Pixels -->
-    <bool name="config_enableSmartPixels">true</bool>
-
     <!-- Telephony -->
     <!-- Indicates whether the device supports single channel (No DSDS) -->
     <bool name="config_voice_capable">true</bool>
     <bool name="config_sms_capable">true</bool>
 
-    <!-- WiFi -->
-    <!-- Wifi driver supports IEEE80211AX for softap -->
-    <bool name="config_wifiSoftapIeee80211axSupported">false</bool>
-    <!-- Indicates that connected MAC randomization is supported on this device -->
-    <bool name="config_wifi_connected_mac_randomization_supported">true</bool>
-    <!-- Indicates that p2p MAC randomization is supported on this device -->
-    <bool name="config_wifi_p2p_mac_randomization_supported">true</bool>
-    <!-- Wifi driver supports WPA3-SAE for softap -->
-    <bool name="config_wifi_softap_sae_supported">false</bool>
-
     <!-- Whether device supports double tap to wake -->
     <bool name="config_supportDoubleTapWake">true</bool>
-
-    <!-- Whether the device allows finger print enrollment with screen off -->
-    <bool name="config_fingerprintWakeAndUnlock">true</bool>
-
-    <!-- Device supports LED flashlight -->
-    <bool name="config_hasFlashlight">true</bool>
 
     <!-- If true, the screen can be rotated via the accelerometer in all 4
          rotations as the default behavior. -->
