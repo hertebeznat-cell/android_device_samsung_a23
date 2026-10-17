@@ -26,7 +26,7 @@ resolved manifest and applied changes for each build.
 ## Public-source Crave entrypoint
 
 Publish the reviewed device and vendor trees to their public
-`codex/cnb-a23-bringup` branches and record each full 40-character commit SHA.
+`main` branches and record each full 40-character commit SHA.
 All integration patches, checks and build entrypoints are inside the device
 repository; the vendor repository contains its corresponding reviewed inputs.
 No source files need to be transferred from the PC during a build.
