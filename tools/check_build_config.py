@@ -42,6 +42,16 @@ def audit(root, device, lock):
     require('"--root", os.getcwd(), "--apply"' in crave and
             '"/tools/repair_repo_hooks.py"' in crave,
             'Crave must run the public hook helper against the existing Android root')
+    require('export REPO_SKIP_SELF_UPDATE=1' in crave and
+            crave.find('export REPO_SKIP_SELF_UPDATE=1') < crave.find('STAGE=repo-init'),
+            'Crave must preserve the existing repo runtime before init/sync')
+    require('repo sync -c -j"$BUILD_JOBS" --no-manifest-update --no-clone-bundle' in crave and
+            '"$CRAVE_RESYNC"' not in crave and
+            not re.search(r'^\s*(?:repo sync.*--force-sync|git\s+.*pull)', crave, re.M),
+            'Crave must use checked direct sync without runtime rebase or destructive force-sync')
+    require('changes.before.patch' in crave and 'changes.after.patch' in crave and
+            'repo-runtime-edits-changed' in crave,
+            'Crave must verify that dirty repo runtime edits remain unchanged')
     for name, script in (('build_a23.sh', read('build_a23.sh')), ('crave_build.sh', crave)):
         require('exec bash ' in script and '/server_build.sh' in script,
                 f'{name} must delegate to the shared guarded server pipeline')

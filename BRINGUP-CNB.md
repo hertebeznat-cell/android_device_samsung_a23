@@ -16,8 +16,11 @@ set as the rebuilt stock-vendor policy, preserving its host test comparisons.
 Paid job [306532](https://foss.crave.io/app/#/build/info/306532?team=14) was
 cancelled at the user's request during synchronization (exit 130), after
 showing mismatched shared hook directory references in the seeded cache.
-The public entrypoint now repairs those references before `/opt/crave/resync.sh`
-can respond by recreating otherwise intact project worktrees.
+The first repair missed uninitialized/remapped object stores: job 306534
+reported 948 checked, 317 skipped and zero repaired, then still logged hook
+mismatches for `external/cronet` and `external/freetype`. It was cancelled
+during synchronization. The correction now prepares these states explicitly
+and separates source synchronization from updating the repo runtime.
 
 ## Selected platform
 
@@ -60,8 +63,9 @@ A23_REMOTE_BUILD=1 A23_DEVICE_REVISION="$device_revision" \
 
 The Crave command uses `--no-patch --no-artifacts`; it must run from the
 project's existing Android root. The entrypoint initializes Evolution X `cnb`
-with `--depth=1`, writes its own root `.repo/local_manifests/a23.xml`, and uses
-`/opt/crave/resync.sh`. Its device/vendor projects select the published commits,
+with `--depth=1`, writes its own root `.repo/local_manifests/a23.xml`, and runs
+checked `repo sync` inside the ordinary queued build. The manifest is held
+fixed with `--no-manifest-update`. Its device/vendor projects select published commits,
 then verify both checked-out HEADs before applying the integration patches.
 Downloading the entrypoint to `/tmp` keeps synchronization from replacing the
 script while it runs. Neither private repositories nor a local archive,
@@ -73,15 +77,32 @@ helper reads exact Git/object paths from the installed repo manifest parser;
 it does not guess repository names. It backs up copied or stale hook paths
 under `.repo/a23-hook-backups`, preserves missing custom hooks and restores
 the canonical shared directory link. Conflicting active hooks stop the full
-plan before the first write. No objects, refs, index, sources or output caches
-are deleted. Uninitialized/remapped repositories remain repo's responsibility.
+plan before the first write. A missing/incomplete canonical object repository
+is fully initialized with ordinary `git init --bare --template= --object-format=sha1`;
+creating only a hooks directory would leave it invalid. Existing object files
+are retained. Custom hooks are restored before stale project metadata and its
+worktree are moved intact into `.repo/a23-project-backups` for normal repo
+initialization. The backup plan records original paths and shared references.
+Nested checkouts and protected output paths stop the plan for review. No
+objects, refs, index, source files or output caches are deleted by the helper.
 The helper's apply mode and the remote entrypoints reject local Windows/WSL use.
+
+The entrypoint preserves the installed repo tool with `REPO_SKIP_SELF_UPDATE=1`
+and does not run the wrapper's `git pull -r` against its dirty worktree. Runtime
+HEAD, status and binary diff are saved before and after synchronization; changes
+to HEAD or tracked edits stop the build. Self-update support is required.
+No `--repo-rev`, reset, stash or verification bypass is used. Source sync omits
+`--force-sync`, so an unknown metadata conflict cannot silently delete a checkout.
+Twenty metadata and twenty workflow/OTA regressions pass, including sync failure
+and runtime-change stop conditions. Static preflight reports zero errors.
 
 The implementation follows repo v2.69's shared directory/reference contract:
 https://gerrit.googlesource.com/git-repo/+/refs/tags/v2.69/project.py.
-The Crave synchronizer already supplies `--force-sync`; adding that flag alone
-would still print the hook mismatch before force-sync recreates a checkout:
+The stock Crave synchronizer supplies `--force-sync` and unconditionally pulls
+the runtime. Its behavior explains both diagnostics in the supplied screenshot:
 https://github.com/accupara/docker-images/blob/master/aosp/common/resync.sh.
+The supported runtime guard is in the official repo implementation:
+https://gerrit.googlesource.com/git-repo/+/refs/heads/stable/subcmds/sync.py.
 
 ## Corrections in this review
 

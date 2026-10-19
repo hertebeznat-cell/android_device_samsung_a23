@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Restore repo's shared hook directory links without resetting any checkout.
+"""Prepare cached repo projects without deleting source files or object stores.
 
-Only .repo metadata is changed. Old hook directories/links are backed up;
-missing custom hooks are retained, and conflicting active hooks stop the repair.
+Hook references are repaired with backups. Stale project metadata and its
+worktree are moved intact into backups for normal repo reinitialization.
+Missing custom hooks are retained; conflicts stop the full plan before writes.
 """
 import argparse
 from datetime import datetime, timezone
@@ -10,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import subprocess
 import sys
 import tempfile
 import uuid
@@ -21,7 +23,7 @@ def inside(path, parent):
     return path
 
 
-def plan(root, projects):
+def plan(root, projects, allow_uninitialized=False):
     root = Path(root).resolve()
     repo = inside(root / '.repo', root)
     if not (repo / 'manifest.xml').is_file():
@@ -40,7 +42,8 @@ def plan(root, projects):
         seen.add(gitdir)
         # New/remapped projects belong to repo's normal initialization. Never
         # create a partially initialized bare repository just to add hooks.
-        if not gitdir.is_dir() or not (objdir / 'config').is_file() or not (objdir / 'objects').is_dir():
+        if not gitdir.is_dir() or (not allow_uninitialized and
+                (not (objdir / 'config').is_file() or not (objdir / 'objects').is_dir())):
             skipped += 1
             continue
         checked += 1
@@ -125,6 +128,109 @@ def repair(root, projects, apply=False):
     return report
 
 
+def reinitialization_plan(root, projects):
+    """Preserve stale metadata/worktrees before repo initializes a remapped project."""
+    root = Path(root).resolve()
+    repo = inside(root / '.repo', root)
+    pending, seen = [], set()
+    for project in projects:
+        if project.use_git_worktrees:
+            continue
+        gitdir, objdir = inside(project.gitdir, repo), inside(project.objdir, repo)
+        if gitdir == objdir or gitdir in seen or not gitdir.is_dir():
+            continue
+        seen.add(gitdir)
+        reasons = []
+        if not (objdir / 'config').is_file() or not (objdir / 'objects').is_dir():
+            reasons.append('desired object repository is not initialized')
+        for name in getattr(project, 'shareable_dirs', ('hooks', 'objects', 'rr-cache')):
+            if name == 'hooks':
+                continue
+            current, expected = gitdir / name, objdir / name
+            if os.path.lexists(current.resolve()) and current.resolve() != expected.resolve():
+                reasons.append(name + ' references another object repository')
+        if not reasons:
+            continue
+        # Never stage an object database, the Android root, runtime or output.
+        relative = gitdir.relative_to(repo)
+        if 'projects' not in relative.parts or 'project-objects' in relative.parts or gitdir.suffix != '.git':
+            raise ValueError(f'Unexpected project metadata path: {gitdir}')
+        if 'project-objects' not in objdir.relative_to(repo).parts or objdir.suffix != '.git':
+            raise ValueError(f'Unexpected object repository path: {objdir}')
+        worktree = inside(project.worktree, root)
+        if worktree == root or worktree.is_relative_to(repo) or worktree.is_relative_to(root / 'out'):
+            raise ValueError(f'Protected project worktree path: {worktree}')
+        if worktree.exists() and not worktree.is_dir():
+            raise ValueError(f'Unexpected project worktree: {worktree}')
+        references = {name: str((gitdir / name).resolve())
+                      for name in getattr(project, 'shareable_dirs', ('hooks', 'objects', 'rr-cache'))}
+        pending.append({'gitdir': gitdir, 'objdir': objdir, 'worktree': worktree,
+                        'reasons': reasons, 'original_shared_references': references})
+    for item in pending:
+        for project in projects:
+            other = inside(project.worktree, root)
+            if other != item['worktree'] and other.is_relative_to(item['worktree']) and other.exists():
+                raise ValueError('Stale worktree contains another checkout; preserve and review it')
+    return pending
+
+
+def prepare(root, projects, apply=False):
+    projects = list(projects)
+    root = Path(root).resolve()
+    repo = inside(root / '.repo', root)
+    pending = reinitialization_plan(root, projects)
+    # Include stale projects in hook validation; do not silently skip them.
+    # Only a complete bare init may create their missing canonical directory.
+    plan(root, projects, allow_uninitialized=True)
+    initialized = []
+    if apply:
+        for item in pending:
+            objdir = item['objdir']
+            if (objdir / 'config').is_file() and (objdir / 'objects').is_dir():
+                continue
+            for name in ('config', 'HEAD', 'refs', 'objects'):
+                if os.path.lexists(objdir / name):
+                    inside(objdir / name, repo)
+            environment = os.environ.copy()
+            for name in ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE',
+                         'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES'):
+                environment.pop(name, None)
+            result = subprocess.run(['git', '-c', 'init.defaultBranch=main', 'init', '--bare',
+                                     '--template=', '--object-format=sha1', '--quiet', str(objdir)], env=environment,
+                                    capture_output=True, text=True)
+            if result.returncode:
+                raise RuntimeError(f'Bare repository initialization failed: {objdir}: {result.stderr}')
+            initialized.append(str(objdir.relative_to(repo)))
+    # Retain custom hooks in the canonical store before staging old metadata.
+    report = repair(root, projects, apply=apply)
+    backup = None
+    if apply and pending:
+        parent = inside(repo / 'a23-project-backups', repo)
+        parent.mkdir(exist_ok=True)
+        backup = Path(tempfile.mkdtemp(
+            prefix=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ-'), dir=parent))
+        (backup / 'plan.json').write_text(json.dumps([
+            {'gitdir': str(item['gitdir'].relative_to(root)),
+             'worktree': str(item['worktree'].relative_to(root)), 'reasons': item['reasons'],
+             'original_shared_references': item['original_shared_references']}
+            for item in pending], indent=2) + '\n', encoding='utf-8')
+        for item in pending:
+            for key, category in (('worktree', 'worktrees'), ('gitdir', 'metadata')):
+                original = item[key]
+                if not os.path.lexists(original):
+                    continue
+                saved = backup / category / original.relative_to(root)
+                saved.parent.mkdir(parents=True, exist_ok=True)
+                original.rename(saved)
+    report['object_repositories_initialized'] = initialized
+    report['project_backup_dir'] = str(backup) if backup else None
+    report['projects_staged_for_reinit'] = len(pending) if apply else 0
+    report['reinitialization_plan'] = [
+        {'path': str(item['worktree'].relative_to(root)), 'reasons': item['reasons']}
+        for item in pending]
+    return report
+
+
 def load_projects(root):
     root = Path(root).resolve()
     repo = inside(root / '.repo', root)
@@ -145,7 +251,7 @@ def main():
                        'microsoft' in platform.release().lower() or
                        os.environ.get('A23_REMOTE_BUILD') != '1'):
         parser.error('--apply is only for the designated Linux build server')
-    report = repair(args.root, load_projects(args.root), apply=args.apply)
+    report = prepare(args.root, load_projects(args.root), apply=args.apply)
     print('REPO_HOOK_REPAIR=' + json.dumps(report, sort_keys=True), flush=True)
 
 
