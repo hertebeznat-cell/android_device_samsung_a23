@@ -55,6 +55,8 @@ STAGE=vndk-compatibility-patches
 apply_series packages/modules/vndk "$device/patches/vndk"
 STAGE=sepolicy-compatibility-patches
 apply_series system/sepolicy "$device/patches/sepolicy"
+STAGE=cts-sepolicy-compatibility-patches
+apply_series cts "$device/patches/cts"
 STAGE=releasetools-compatibility-patches
 apply_series build/make "$device/patches/releasetools"
 STAGE=vintf-compatibility-patches
@@ -71,6 +73,7 @@ repo manifest -r -o "a23-logs/manifest-$stamp.xml"
 git -C kernel/samsung/a23 diff --binary > "a23-logs/kernel-$stamp.patch"
 git -C packages/modules/vndk diff --binary > "a23-logs/vndk-$stamp.patch"
 git -C system/sepolicy diff --binary > "a23-logs/sepolicy-$stamp.patch"
+git -C cts diff --binary > "a23-logs/cts-sepolicy-$stamp.patch"
 git -C build/make diff --binary > "a23-logs/releasetools-$stamp.patch"
 git -C hardware/interfaces diff --binary > "a23-logs/vintf-$stamp.patch"
 git -C kernel/configs diff --binary > "a23-logs/kernel-requirements-$stamp.patch"

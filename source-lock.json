@@ -14,6 +14,8 @@
   "sepolicy_compat_source_revision": "885cc500f6078a766d1f6def5ce4c06c55841773",
   "sepolicy_compat_patch_sha256": "2f93eeb9340b242fa2c5e1b1cabe6218768f221392ae1c7d297a8bd9e554cc1d",
   "sepolicy_owner_patch_sha256": "076aedb3c6472ff6034bf62f52bc56a582984fcdbb8022579ef191979cdb5d51",
+  "cts_sepolicy_revision": "refs/tags/android-17.0.0_r1",
+  "cts_sepolicy_patch_sha256": "bb841ea13d15d11dd455c32f5295ec2c7e1b6083d9024525ed97c6181fb9fd44",
   "kernel_repository": "https://github.com/blxyzY/android_kernel_samsung_sm6225.git",
   "kernel_revision": "8c34b1fc1e921fcac33e839f7d6e9f3ea732221b",
   "kernel_version": "4.19.325",
