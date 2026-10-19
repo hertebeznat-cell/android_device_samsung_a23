@@ -20,7 +20,8 @@ Evolution X Unofficial с GMS, загрузчик/прошивка **A235FXXSEEZ
 (исходник релиза ZestKernel 20261010, который ставит UN1CA). Оно 4.19.325, но
 сообщает `bpfloader`/`netbpfload`/`netd` версию 5.10.200 (`CONFIG_FAKE_UNAME_5_10`)
 и содержит бэкпорты BPF/userfaultfd. Собирается тем же clang `r563880c` и с
-`KCFLAGS=-w`, как в CI автора. В ROM-ядре отключён KernelSU.
+`KCFLAGS=-w`, как в CI автора. KernelSU оставлен как в релизе: SUSFS вызывает его
+функции, поэтому выключать нужно оба (`CONFIG_KSU` и `CONFIG_KSU_SUSFS`) — это не проверялось.
 
 Стоковые DTB и `dtbo.img` побайтово совпадают с теми, что в рабочем
 `boot.img`/`dtbo.img` релиза ядра.
