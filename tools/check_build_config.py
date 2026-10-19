@@ -1,4 +1,5 @@
 """Check that every build entrypoint selects the reviewed platform and sources."""
+import hashlib
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -30,6 +31,17 @@ def audit(root, device, lock):
             'Crave manifest branch differs from source-lock.json')
     require('A23_REMOTE_BUILD' in server and 'microsoft /proc/sys/kernel/osrelease' in server,
             'Server build must require remote opt-in and reject WSL')
+    helper = read('tools/repair_repo_hooks.py').encode('utf-8')
+    expected_helper = re.search(r'^readonly HOOK_REPAIR_SHA256="([0-9a-f]{64})"$', crave, re.M)
+    require(expected_helper is not None and expected_helper[1] == hashlib.sha256(helper).hexdigest(),
+            'Crave hook repair helper must match its published SHA256')
+    sync_stages = ('STAGE=repo-init', 'STAGE=repo-hook-repair', 'STAGE=repo-sync')
+    require(all(crave.count(stage + '\n') == 1 for stage in sync_stages) and
+            [crave.find(stage) for stage in sync_stages] == sorted(crave.find(stage) for stage in sync_stages),
+            'Crave must repair hook references after init and before source synchronization')
+    require('"--root", os.getcwd(), "--apply"' in crave and
+            '"/tools/repair_repo_hooks.py"' in crave,
+            'Crave must run the public hook helper against the existing Android root')
     for name, script in (('build_a23.sh', read('build_a23.sh')), ('crave_build.sh', crave)):
         require('exec bash ' in script and '/server_build.sh' in script,
                 f'{name} must delegate to the shared guarded server pipeline')

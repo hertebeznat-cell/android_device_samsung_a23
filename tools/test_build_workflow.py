@@ -26,7 +26,8 @@ class WorkflowTests(unittest.TestCase):
         self.device.mkdir(parents=True)
         for name in ('server_build.sh', 'crave_build.sh', 'build_a23.sh',
                      'AndroidProducts.mk', 'extract-files.sh', 'setup-makefiles.sh',
-                     'lineage.dependencies', 'source-lock.json'):
+                     'lineage.dependencies', 'source-lock.json', 'tools/repair_repo_hooks.py'):
+            (self.device / name).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(DEVICE / name, self.device / name)
         self.lock = json.loads((DEVICE / 'source-lock.json').read_text())
         (self.root / 'local_manifests').mkdir()
@@ -68,6 +69,22 @@ class WorkflowTests(unittest.TestCase):
                 self.assertTrue(any('CTS SELinux' in error or 'Compatibility patches' in error
                                     for error in audit(self.root, self.device, self.lock)))
         path.write_text(original)
+
+    def test_hook_repair_cannot_be_omitted_moved_or_changed(self):
+        path = self.device / 'crave_build.sh'
+        original = path.read_text()
+        for changed in (original.replace('STAGE=repo-hook-repair', 'STAGE=omitted'),
+                        original.replace('STAGE=repo-hook-repair', 'STAGE=swap')
+                        .replace('STAGE=repo-sync', 'STAGE=repo-hook-repair')
+                        .replace('STAGE=swap', 'STAGE=repo-sync')):
+            with self.subTest(mutation=changed != original):
+                path.write_text(changed)
+                self.assertTrue(any('repair hook references' in item
+                                    for item in audit(self.root, self.device, self.lock)))
+        path.write_text(original)
+        helper = self.device / 'tools/repair_repo_hooks.py'
+        helper.write_text(helper.read_text() + '\n# unexpected edit\n')
+        self.assertTrue(any('published SHA256' in item for item in audit(self.root, self.device, self.lock)))
 
     def test_old_platform_lunch_is_rejected(self):
         path = self.device / 'server_build.sh'
