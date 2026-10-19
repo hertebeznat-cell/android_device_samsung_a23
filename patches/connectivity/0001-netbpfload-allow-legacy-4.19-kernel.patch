@@ -1,0 +1,27 @@
+diff --git a/bpf/loader/NetBpfLoad.cpp b/bpf/loader/NetBpfLoad.cpp
+index d4853ba..62d5700 100644
+--- a/bpf/loader/NetBpfLoad.cpp
++++ b/bpf/loader/NetBpfLoad.cpp
+@@ -1568,9 +1568,10 @@ static int doLoad(char** argv, char * const envp[]) {
+ 
+     // 25Q2 bumps the kernel requirement up to 5.4
+     // see also: //system/netd/tests/kernel_test.cpp TestKernel54
++    // Samsung SM-A235F: the SEZB1 vendor only supports its 4.19 LTS kernel.
++    // The 4.19 BPF program variants remain in this tree; keep V's floor.
+     if (isAtLeast25Q2 && !isAtLeastKernelVersion(5, 4)) {
+-        ALOGE("Android 25Q2 requires kernel 5.4.");
+-        return 6;
++        ALOGW("Android 25Q2 requires kernel 5.4.");
+     }
+ 
+     // 25Q4 bumps the kernel requirement up to 5.10
+@@ -1581,8 +1582,7 @@ static int doLoad(char** argv, char * const envp[]) {
+ 
+     // 26Q4 bumps the kernel requirement up to 5.15
+     if (isAtLeast26Q4 && !isAtLeastKernelVersion(5, 15)) {
+-        ALOGE("Android 26Q4 requires kernel 5.15.");
+-        return 7;
++        ALOGW("Android 26Q4 requires kernel 5.15.");
+     }
+ 
+     // Technically already required by U, but only enforce on V+

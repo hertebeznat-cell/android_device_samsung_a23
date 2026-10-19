@@ -1,0 +1,9 @@
+# Graphics: the Android 11 Adreno 610 driver is safest with GL composition.
+# Product props load last, overriding the empty stock ro.hwui.use_vulkan.
+debug.renderengine.backend=skiaglthreaded
+debug.hwui.renderer=skiagl
+ro.hwui.use_vulkan=false
+
+# Samsung RIL
+ro.telephony.default_network=9,9
+persist.radio.multisim.config=dsds

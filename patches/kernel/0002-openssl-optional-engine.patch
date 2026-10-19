@@ -1,0 +1,32 @@
+diff --git a/scripts/sign-file.c b/scripts/sign-file.c
+--- a/scripts/sign-file.c
++++ b/scripts/sign-file.c
+@@ -146,3 +146,4 @@
+ 	if (!strncmp(private_key_name, "pkcs11:", 7)) {
++#if OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_DEPRECATED_3_0)
+ 		ENGINE *e;
+ 
+@@ -164,3 +165,7 @@
+ 		ERR(!private_key, "%s", private_key_name);
++#else
++		fprintf(stderr, "PKCS#11 requires OpenSSL ENGINE support; use a PEM key\n");
++		exit(1);
++#endif
+ 	} else {
+ 		BIO *b;
+diff --git a/scripts/extract-cert.c b/scripts/extract-cert.c
+--- a/scripts/extract-cert.c
++++ b/scripts/extract-cert.c
+@@ -119,3 +119,4 @@
+ 	} else if (!strncmp(cert_src, "pkcs11:", 7)) {
++#if OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_DEPRECATED_3_0)
+ 		ENGINE *e;
+ 		struct {
+@@ -144,3 +145,7 @@
+ 		write_cert(parms.cert);
++#else
++		fprintf(stderr, "PKCS#11 requires OpenSSL ENGINE support; use a PEM certificate\n");
++		exit(1);
++#endif
+ 	} else {
+ 		BIO *b;

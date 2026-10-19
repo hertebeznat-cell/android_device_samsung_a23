@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Qualcomm WCN3950: 802.11ac, no 6 GHz / 802.11ax. -->
+    <bool name="config_wifi5ghzSupport">true</bool>
+    <bool name="config_wifiSoftap5ghzSupported">true</bool>
+    <bool name="config_wifiSoftapIeee80211axSupported">false</bool>
+    <bool name="config_wifi_softap_sae_supported">false</bool>
+    <bool name="config_wifi_connected_mac_randomization_supported">true</bool>
+    <bool name="config_wifi_p2p_mac_randomization_supported">true</bool>
+</resources>
