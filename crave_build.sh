@@ -135,9 +135,33 @@ HOOK_REPAIR
 # instead of enabling repo's destructive --force-sync recovery.
 STAGE=repo-sync
 SYNC_LOG="$(mktemp /tmp/a23-sync.XXXXXX.log)"
-repo sync -c -j"$BUILD_JOBS" --no-manifest-update --no-clone-bundle \
+echo "REPO_SYNC_STATUS=started jobs=$BUILD_JOBS log=$SYNC_LOG"
+# Repo hides its interactive progress bar when Crave captures stdout. Verbose
+# fetch output plus a periodic heartbeat keeps long network waits visible.
+python3 -u - "$SYNC_LOG" <<'SYNC_PROGRESS' &
+from pathlib import Path
+import sys
+import time
+
+log = Path(sys.argv[1])
+started = time.monotonic()
+while True:
+    time.sleep(30)
+    print(f"REPO_SYNC_STATUS=running elapsed_seconds={int(time.monotonic() - started)} "
+          f"log_bytes={log.stat().st_size}")
+SYNC_PROGRESS
+SYNC_PROGRESS_PID=$!
+stop_sync_progress() {
+    kill "$SYNC_PROGRESS_PID" 2>/dev/null || true
+    wait "$SYNC_PROGRESS_PID" 2>/dev/null || true
+}
+trap stop_sync_progress EXIT
+PYTHONUNBUFFERED=1 repo sync -c -j"$BUILD_JOBS" --no-manifest-update --no-clone-bundle --verbose \
     --no-tags --prune --optimized-fetch --force-remove-dirty 2>&1 | tee "$SYNC_LOG"
+stop_sync_progress
+trap - EXIT
 grep -Fq 'repo sync has finished successfully.' "$SYNC_LOG" || fail "repo-sync-incomplete-see-$SYNC_LOG"
+echo "REPO_SYNC_STATUS=finished log=$SYNC_LOG"
 git -C .repo/repo rev-parse HEAD > "$RUNTIME_STATE/head.after"
 git -C .repo/repo status --porcelain=v1 > "$RUNTIME_STATE/status.after"
 git -C .repo/repo diff --binary HEAD > "$RUNTIME_STATE/changes.after.patch"

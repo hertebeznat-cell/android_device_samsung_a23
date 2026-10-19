@@ -64,8 +64,12 @@ A23_REMOTE_BUILD=1 A23_DEVICE_REVISION="$device_revision" \
 The Crave command uses `--no-patch --no-artifacts`; it must run from the
 project's existing Android root. The entrypoint initializes Evolution X `cnb`
 with `--depth=1`, writes its own root `.repo/local_manifests/a23.xml`, and runs
-checked `repo sync` inside the ordinary queued build. The manifest is held
-fixed with `--no-manifest-update`. Its device/vendor projects select published commits,
+checked `repo sync --verbose` inside the ordinary queued build. Unbuffered
+output shows each fetch as repo reports it; a heartbeat every 30 seconds shows
+elapsed sync time and log size during long waits without claiming a percentage.
+The heartbeat stops on success or failure, and the sync exit code is preserved.
+The manifest is held fixed with `--no-manifest-update`. Its device/vendor
+projects select published commits,
 then verify both checked-out HEADs before applying the integration patches.
 Downloading the entrypoint to `/tmp` keeps synchronization from replacing the
 script while it runs. Neither private repositories nor a local archive,

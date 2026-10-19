@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -185,7 +186,11 @@ sudo() { touch forbidden-operation; return 97; }
         bootstrap.write_text('''uname() { printf '%s\\n' Linux; }
 grep() { case "$*" in *microsoft*) return 1;; *) command grep "$@";; esac; }
 ccache() { printf '%s\\n' 'ccache fixture'; }
-python3() { touch helper-was-called; return 0; }
+python3() {
+  if [[ "$1" == -u ]]; then exec "$TEST_PYTHON" "$@";
+  else touch helper-was-called; fi
+  return 0
+}
 mktemp() {
   if [[ "$1" == -d ]]; then command mktemp -d "$PWD/${2##*/}";
   else command mktemp "$PWD/${1##*/}"; fi
@@ -216,6 +221,7 @@ repo() {
         environment = os.environ.copy()
         environment.update(A23_REMOTE_BUILD='1', BUILD_JOBS='12', BASH_ENV=bootstrap.as_posix(),
                            A23_DEVICE_REVISION=f'{1:040d}', A23_VENDOR_REVISION=f'{2:040d}',
+                           TEST_PYTHON=Path(sys.executable).as_posix(),
                            TEST_RUNTIME_CHANGED=str(int(runtime_changed)))
         result = subprocess.run([str(BASH), 'device/samsung/a23/crave_build.sh'], cwd=self.root,
                                 env=environment, capture_output=True, text=True, timeout=30)
@@ -228,12 +234,16 @@ repo() {
         self.assertTrue((self.root / 'server-was-called').exists())
         arguments = (self.root / 'repo-sync-was-called').read_text()
         self.assertIn('--no-manifest-update', arguments)
+        self.assertIn('--verbose', arguments)
         self.assertNotIn('--force-sync', arguments)
+        self.assertIn('REPO_SYNC_STATUS=started', result.stdout)
+        self.assertIn('REPO_SYNC_STATUS=finished', result.stdout)
 
     def test_crave_sync_failure_stops_before_server_build(self):
         result = self.crave_sync_stub(sync_status=37)
         self.assertEqual(result.returncode, 37, result.stdout + result.stderr)
         self.assertIn('stage=repo-sync', result.stdout + result.stderr)
+        self.assertNotIn('REPO_SYNC_STATUS=finished', result.stdout)
         self.assertFalse((self.root / 'server-was-called').exists())
 
     def test_unsupported_runtime_stops_before_init_or_sync(self):

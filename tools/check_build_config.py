@@ -47,8 +47,13 @@ def audit(root, device, lock):
             'Crave must preserve the existing repo runtime before init/sync')
     require('repo sync -c -j"$BUILD_JOBS" --no-manifest-update --no-clone-bundle' in crave and
             '"$CRAVE_RESYNC"' not in crave and
-            not re.search(r'^\s*(?:repo sync.*--force-sync|git\s+.*pull)', crave, re.M),
+            not re.search(r'^\s*(?:(?:PYTHONUNBUFFERED=1\s+)?repo sync.*--force-sync|git\s+.*pull)', crave, re.M),
             'Crave must use checked direct sync without runtime rebase or destructive force-sync')
+    require('--no-clone-bundle --verbose' in crave and
+            'PYTHONUNBUFFERED=1 repo sync' in crave and
+            all('REPO_SYNC_STATUS=' + status in crave for status in ('started', 'running', 'finished')) and
+            'trap stop_sync_progress EXIT' in crave,
+            'Crave must show verbose sync output and a stopped-on-exit progress heartbeat')
     require('changes.before.patch' in crave and 'changes.after.patch' in crave and
             'repo-runtime-edits-changed' in crave,
             'Crave must verify that dirty repo runtime edits remain unchanged')
