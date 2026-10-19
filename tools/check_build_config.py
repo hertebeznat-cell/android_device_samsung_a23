@@ -44,12 +44,16 @@ def audit(root, device, lock):
                    'check_build_artifacts.py'):
         require(marker in server, f'Shared server pipeline is missing {marker}')
     stages = ('STAGE=vndk-compatibility-patches', 'STAGE=sepolicy-compatibility-patches',
+              'STAGE=cts-sepolicy-compatibility-patches',
               'STAGE=releasetools-compatibility-patches',
               'STAGE=vintf-compatibility-patches',
               'STAGE=kernel-compatibility-patches', 'STAGE=preflight')
     require(all(stage in server for stage in stages) and
             [server.find(stage) for stage in stages] == sorted(server.find(stage) for stage in stages),
             'Compatibility patches must be applied before server preflight')
+    require(bool(re.search(r'^STAGE=cts-sepolicy-compatibility-patches\n' +
+                           re.escape('apply_series cts "$device/patches/cts"') + r'\s*$', server, re.M)),
+            'CTS SELinux compatibility stage must run its reviewed command against cts')
     build_stages = (
         ('selinux-validation', 'm -j"$BUILD_JOBS" selinux_policy'),
         ('stock-vendor-selinux-validation', 'm -j"$BUILD_JOBS" a23_stock_vendor_policy_compat_test'),

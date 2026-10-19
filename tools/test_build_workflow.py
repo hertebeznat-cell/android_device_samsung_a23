@@ -52,6 +52,23 @@ class WorkflowTests(unittest.TestCase):
                                     for error in audit(self.root, self.device, self.lock)))
         path.write_text(original)
 
+    def test_cts_policy_patch_must_apply_to_cts_before_preflight(self):
+        path = self.device / 'server_build.sh'
+        original = path.read_text()
+        command = 'apply_series cts "$device/patches/cts"'
+        block = 'STAGE=cts-sepolicy-compatibility-patches\n' + command + '\n'
+        mutations = (
+            original.replace(command, ''),
+            original.replace(command, 'apply_series system/sepolicy "$device/patches/cts"'),
+            original.replace(block, '').replace('STAGE=preflight\n', 'STAGE=preflight\n' + block),
+        )
+        for changed in mutations:
+            with self.subTest(mutation=changed != original):
+                path.write_text(changed)
+                self.assertTrue(any('CTS SELinux' in error or 'Compatibility patches' in error
+                                    for error in audit(self.root, self.device, self.lock)))
+        path.write_text(original)
+
     def test_old_platform_lunch_is_rejected(self):
         path = self.device / 'server_build.sh'
         path.write_text(path.read_text().replace(self.lock['lunch'], 'lineage_a23-bp4a-userdebug'))
@@ -90,7 +107,7 @@ class WorkflowTests(unittest.TestCase):
         (self.root / 'build/envsetup.sh').write_text(envsetup, encoding='utf-8')
         (self.root / '.repo').mkdir()
         (self.root / '.repo/manifest.xml').write_text('<manifest/>')
-        for kind in ('kernel', 'vndk', 'sepolicy', 'releasetools'):
+        for kind in ('kernel', 'vndk', 'sepolicy', 'cts', 'releasetools'):
             directory = self.device / 'patches' / kind
             directory.mkdir(parents=True)
             (directory / 'fixture.patch').write_text('stub: git never reads this')
@@ -110,7 +127,7 @@ python3() {{ if [[ "$1" == -c ]]; then printf '%s\\n' {revision}; fi; return 0; 
         snapshots = list((self.root / 'a23-logs').glob('integration-*'))
         self.assertEqual(len(snapshots), 1, result.stdout + result.stderr)
         self.assertEqual(json.loads((snapshots[0] / 'source-lock.json').read_text()), self.lock)
-        for kind in ('kernel', 'vndk', 'sepolicy', 'releasetools'):
+        for kind in ('kernel', 'vndk', 'sepolicy', 'cts', 'releasetools'):
             self.assertEqual((snapshots[0] / 'patches' / kind / 'fixture.patch').read_text(),
                              'stub: git never reads this')
         return result

@@ -50,13 +50,14 @@ def git_sha(content):
     return hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
 
 
-def patch_hunks(content):
+def patch_hunks(content, expected_targets=None):
     """Parse exact unified hunks; refuse unsupported targets and malformed counts."""
+    expected_targets = SOURCE_GIT_BLOBS if expected_targets is None else expected_targets
     result = {}
     for section in content.split('diff --git ')[1:]:
         lines = section.splitlines()
         match = re.fullmatch(r'a/(\S+) b/(\S+)', lines[0])
-        if not match or match[1] != match[2] or match[1] not in SOURCE_GIT_BLOBS:
+        if not match or match[1] != match[2] or match[1] not in expected_targets:
             raise ValueError('Unexpected SELinux ownership patch target')
         path = match[1]
         if path in result:
@@ -91,7 +92,7 @@ def patch_hunks(content):
         if not hunks:
             raise ValueError(f'No SELinux ownership patch hunks: {path}')
         result[path] = hunks
-    if set(result) != set(SOURCE_GIT_BLOBS):
+    if set(result) != set(expected_targets):
         raise ValueError('SELinux ownership patch is missing a reviewed source file')
     return result
 

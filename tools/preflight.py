@@ -17,6 +17,7 @@ from check_build_config import audit as audit_build_config
 from test_sepolicy_patch import audit as audit_sepolicy_patch
 from apply_vintf_compat import audit as audit_vintf_compat
 from check_selinux_ownership import audit as audit_selinux_ownership
+from check_cts_sepolicy import audit as audit_cts_sepolicy
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[4])
@@ -44,6 +45,7 @@ errors.extend(audit_build_config(root, device, lock))
 errors.extend(audit_sepolicy_patch(root / 'system/sepolicy' if args.server else None))
 errors.extend(audit_vintf_compat(root, server=args.server))
 errors.extend(audit_selinux_ownership(root, device, server=args.server))
+errors.extend(audit_cts_sepolicy(root, device, server=args.server))
 # The base documents must pass through assemble_vintf, not an independent
 # prebuilt installer. Fragment modules under vintf/manifest remain necessary.
 for filename, variable in (('manifest.xml', 'DEVICE_MANIFEST_FILE'),

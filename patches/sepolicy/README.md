@@ -25,6 +25,11 @@ entrypoint applies the patch before preflight and policy compilation.
 The device product explicitly installs the five runtime mapping/compatibility
 modules, and the stock policy compatibility target links the same inputs.
 
+CTS also consumes this selected policy. Apply the accompanying
+[`patches/cts` correction](../cts/README.md) to the separate `cts` repository;
+otherwise its filegroup still requires the disabled ODM CIL. That correction
+retains the host policy comparison and packages the actual complete input set.
+
 ## Single owner for stock vendor inputs
 
 Apply `0002-select-stock-vendor-policy-owner.patch` after `0001`. Enable its

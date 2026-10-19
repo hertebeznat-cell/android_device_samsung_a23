@@ -1,12 +1,18 @@
 # SM-A235F: Evolution X 12.3 / Android 17 bring-up
 
-Reviewed 2026-10-17. **No Android 17 compilation or boot test has completed.**
+Reviewed 2026-10-20. **No Android 17 policy, kernel or ROM build, or boot test has completed.**
 The user selected Android 17 and now authorizes public GitHub publication of
 the required device/vendor changes. Platform/kernel source downloads and
 compilation remain restricted to Crave, with no Devspace or clean option.
 Job [306056](https://foss.crave.io/app/#/build/info/306056?team=14) failed while
 waiting for its local archive, before source sync or compilation. That private
 archive/uploader path is retired; the replacement reads public GitHub sources.
+Public-source job [306139](https://foss.crave.io/app/#/build/info/306139?team=14)
+successfully synchronized the selected commits and built the Soong host tool.
+Graph generation then failed on CTS `sepolicy-cil-files` depending on the
+disabled `odm_sepolicy.cil`, before the policy compiler ran. The dedicated
+`patches/cts` correction now makes that consumer use the same complete input
+set as the rebuilt stock-vendor policy, preserving its host test comparisons.
 
 ## Selected platform
 
@@ -132,6 +138,13 @@ filesystem generator reproduces all 33 stock OEM accounts and 15 permission
 rules. SELinux API 30 and FCM 5/R4.19 restoration provenance checks pass. The
 VINTF fixture test also checks idempotency, reverse application and refusal to
 overwrite server edits. These are source checks, not a compiled policy or ROM.
+
+After the job 306139 correction, 36 targeted regressions pass: eight CTS
+patch/host-script checks, fifteen workflow/OTA checks and thirteen ownership
+checks. Local preflight reports zero errors. The CTS host checks use tiny
+compiler stubs; they do not compile policy. Server preflight now requires both
+CTS files to match their exact reviewed patched blobs, and the integration
+snapshot records the CTS diff alongside the platform policy patches.
 
 The artifact checksum path works on Python 3.10 without `hashlib.file_digest`.
 The server log directory retains the complete integration patch set and source
