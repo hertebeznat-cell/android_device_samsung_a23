@@ -83,6 +83,44 @@ cat > .repo/local_manifests/a23.xml <<MANIFEST
 </manifest>
 MANIFEST
 
+# Seeded caches can contain copied hooks directories where repo expects a
+# shared link. Repair only those references before force-sync can recreate
+# an otherwise intact checkout. Fetch this helper from the same public commit.
+STAGE=repo-hook-repair
+readonly HOOK_REPAIR_SHA256="76aeecd295165d829a4f2dc98fed403ed9e924454bf8a0743ac08b2ffd283e9c"
+python3 - "$DEVICE_REVISION" "$HOOK_REPAIR_SHA256" <<'HOOK_REPAIR'
+import hashlib
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.request
+
+revision, expected = sys.argv[1:]
+url = ("https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/"
+       + revision + "/tools/repair_repo_hooks.py")
+for attempt in range(3):
+    try:
+        with urllib.request.urlopen(url, timeout=60) as response:
+            source = response.read(1000001)
+        break
+    except OSError:
+        if attempt == 2:
+            raise
+        time.sleep(5)
+if len(source) > 1000000 or hashlib.sha256(source).hexdigest() != expected:
+    raise SystemExit("BUILD_STATUS=FAILED stage=repo-hook-helper-sha256")
+with tempfile.NamedTemporaryFile(prefix="a23-repo-hooks-", suffix=".py", delete=False) as stream:
+    stream.write(source)
+    helper = Path(stream.name)
+try:
+    subprocess.run([sys.executable, str(helper), "--root", os.getcwd(), "--apply"], check=True)
+finally:
+    helper.unlink(missing_ok=True)
+HOOK_REPAIR
+
 # Crave's supported synchronizer resolves checkout conflicts in the seeded
 # workspace without manual deletion of platform projects.
 STAGE=repo-sync

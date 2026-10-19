@@ -13,6 +13,11 @@ Graph generation then failed on CTS `sepolicy-cil-files` depending on the
 disabled `odm_sepolicy.cil`, before the policy compiler ran. The dedicated
 `patches/cts` correction now makes that consumer use the same complete input
 set as the rebuilt stock-vendor policy, preserving its host test comparisons.
+Paid job [306532](https://foss.crave.io/app/#/build/info/306532?team=14) was
+cancelled at the user's request during synchronization (exit 130), after
+showing mismatched shared hook directory references in the seeded cache.
+The public entrypoint now repairs those references before `/opt/crave/resync.sh`
+can respond by recreating otherwise intact project worktrees.
 
 ## Selected platform
 
@@ -61,6 +66,22 @@ then verify both checked-out HEADs before applying the integration patches.
 Downloading the entrypoint to `/tmp` keeps synchronization from replacing the
 script while it runs. Neither private repositories nor a local archive,
 uploader, nested source checkout or `--clean` is part of this flow.
+
+Before synchronization, the entrypoint fetches `tools/repair_repo_hooks.py`
+from the same immutable public device commit and verifies its SHA256. The
+helper reads exact Git/object paths from the installed repo manifest parser;
+it does not guess repository names. It backs up copied or stale hook paths
+under `.repo/a23-hook-backups`, preserves missing custom hooks and restores
+the canonical shared directory link. Conflicting active hooks stop the full
+plan before the first write. No objects, refs, index, sources or output caches
+are deleted. Uninitialized/remapped repositories remain repo's responsibility.
+The helper's apply mode and the remote entrypoints reject local Windows/WSL use.
+
+The implementation follows repo v2.69's shared directory/reference contract:
+https://gerrit.googlesource.com/git-repo/+/refs/tags/v2.69/project.py.
+The Crave synchronizer already supplies `--force-sync`; adding that flag alone
+would still print the hook mismatch before force-sync recreates a checkout:
+https://github.com/accupara/docker-images/blob/master/aosp/common/resync.sh.
 
 ## Corrections in this review
 
