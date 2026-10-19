@@ -36,13 +36,30 @@ health 2.1, sensors 2.0, BT 1.0, fingerprint 2.1, keymaster 4.0 через
 | Патч | Репозиторий | Зачем |
 |---|---|---|
 | `patches/vndk` | `packages/modules/vndk` | APEX VNDK 30 для стоковых библиотек |
-| `patches/sepolicy` | `system/sepolicy` | маппинг SELinux 30.0 (init собирает политику при загрузке) |
+| `patches/sepolicy/0001` | `system/sepolicy` | маппинг SELinux 30.0 (init собирает политику при загрузке) |
+| `patches/sepolicy/0002` | `system/sepolicy` | метки, разделённые в Android 16/17 (`proc_bpf` и др.), как Google сделал для 31.0 |
+| `patches/core` | `system/core` | ueventd снова читает `/vendor/ueventd.rc` (права на /dev/kgsl, ion, DSP…) |
 | `patches/vintf/0001` | `hardware/interfaces` | матрица FCM 5 |
 | `patches/vintf/0002` | `kernel/configs` | требования R/4.19 для этой матрицы |
 | `patches/connectivity` | `packages/modules/Connectivity` | `NetBpfLoad` без жёсткого порога ядра 5.4/5.15 (страховка к подмене uname) |
 | `patches/kernel` | ядро | хостовые утилиты в окружении AOSP (`sched_param`, OpenSSL ENGINE) |
 
 Все патчи проверены на текущий `cnb` HEAD (накладываются чисто).
+
+Также проверено статически (без сборки):
+
+- маппинг 30.0 не ссылается на типы, которых нет в политике cnb; стоковые
+  `vendor_sepolicy.cil` и `vendor_*_contexts` используют только объявленные
+  типы (кроме Samsung-приложений и `vendor_hal_atfwd_hwservice`);
+- загрузчик передаёт `androidboot.fstab_suffix=default` и
+  `boot_devices=soc/4804000.ufshc` (по `last_kmsg` с телефона), Android 17
+  больше не читает DT-fstab;
+- `linkerconfig` 17 строит VNDK-namespace по `ro.vndk.version=30`
+  (из стокового `/vendor/default.prop`, который всё ещё загружается);
+- цепочка `init.rc` → `init.qcom.rc` → `init.target.rc` → `init.a23.rc` цела;
+- non-A/B OTA: `releasetools.py` пишет стоковые vendor/odm/dtbo, иначе
+  упаковка падает на assert списка super;
+- размеры super/группы, `cp2a`, `PRODUCT_EXTRA_VNDK_VERSIONS`, ресурсы оверлеев.
 
 ## Сборка (только Linux-сервер)
 
@@ -64,9 +81,13 @@ vendor-политику SELinux так же, как это сделает init �
 
 ## Прошивка
 
-Нужны разблокированный загрузчик, TWRP и отключённый vbmeta (как для UN1CA).
-OTA-zip ставится из TWRP; он записывает и стоковые vendor/odm SEZB1.
-Первая установка — с форматированием data.
+Нужны разблокированный загрузчик, TWRP и отключённый vbmeta (как для UN1CA;
+boot.img собирается без AVB). OTA-zip ставится из TWRP и сам записывает
+system, product, boot, dtbo и стоковые SEZB1 vendor/odm, поэтому подходит
+и поверх UN1CA. Первая установка — с форматированием data.
+
+Если не загрузится: `adb logcat -b all`, `adb shell dmesg` (adb открыт без
+подтверждения), либо из TWRP `/sys/fs/pstore/console-ramoops-0`.
 
 ## Известные риски
 
@@ -75,5 +96,9 @@ OTA-zip ставится из TWRP; он записывает и стоковы�
   в Android 17 удалён: HAL не смогут запросить RT-приоритет (не блокер).
 - Аудио по Bluetooth (A2DP): у Samsung только свой HAL
   `vendor.samsung.hardware.bluetooth.audio`, AOSP-стек может его не увидеть.
+- `vendor.qti.hardware.radio.atcmdfwd` (заводские AT-команды) не
+  зарегистрируется: его тип есть только в политике Samsung.
+- Метки точек монтирования `/efs` и др. в корне — общие (`rootfs`); для
+  enforcing-сборки возможны отказы vendor_init при монтировании.
 - BPF-программы Android 17 на ядре с подменой 5.10 проверены только для 16 QPR2
   (UN1CA 8.5). Смотреть `logcat -b all | grep -i bpf` после первой загрузки.
