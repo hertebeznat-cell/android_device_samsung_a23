@@ -19,7 +19,6 @@ fi
 
 readonly EVO_MANIFEST="https://github.com/Evolution-X/manifest.git"
 readonly EVO_BRANCH="cnb"
-readonly CRAVE_RESYNC="/opt/crave/resync.sh"
 
 BUILD_JOBS="${BUILD_JOBS:-12}"
 [[ "$BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || { echo 'BUILD_JOBS must be a positive integer' >&2; exit 2; }
@@ -38,7 +37,6 @@ trap 'rc=$?; echo "BUILD_STATUS=FAILED stage=$STAGE source=${BASH_SOURCE[0]} lin
 command -v repo >/dev/null || fail "repo-tool-missing"
 command -v git >/dev/null || fail "git-missing"
 command -v python3 >/dev/null || fail "python3-missing"
-[[ -x "$CRAVE_RESYNC" ]] || fail "crave-resync-missing"
 
 # Evolution's environment requires a real ccache executable. Do this before
 # syncing, so a missing package cannot waste another complete sync attempt.
@@ -60,6 +58,17 @@ export CCACHE_EXEC="$(command -v ccache)"
 
 git ls-remote --exit-code --heads "$EVO_MANIFEST" "refs/heads/$EVO_BRANCH" >/dev/null
 
+
+STAGE=repo-runtime
+# Keep the service's current runtime and local edits intact during this build.
+# The stock resync wrapper pulls/rebases it even when its worktree is dirty.
+grep -Fq REPO_SKIP_SELF_UPDATE .repo/repo/subcmds/sync.py || fail "repo-runtime-no-self-update-guard"
+export REPO_SKIP_SELF_UPDATE=1
+RUNTIME_STATE="$(mktemp -d /tmp/a23-repo-runtime.XXXXXX)"
+git -C .repo/repo rev-parse HEAD > "$RUNTIME_STATE/head.before"
+git -C .repo/repo status --porcelain=v1 > "$RUNTIME_STATE/status.before"
+git -C .repo/repo diff --binary HEAD > "$RUNTIME_STATE/changes.before.patch"
+echo "REPO_RUNTIME_STATE=$RUNTIME_STATE"
 
 STAGE=repo-init
 repo init \
@@ -87,7 +96,7 @@ MANIFEST
 # shared link. Repair only those references before force-sync can recreate
 # an otherwise intact checkout. Fetch this helper from the same public commit.
 STAGE=repo-hook-repair
-readonly HOOK_REPAIR_SHA256="76aeecd295165d829a4f2dc98fed403ed9e924454bf8a0743ac08b2ffd283e9c"
+readonly HOOK_REPAIR_SHA256="b308d0528a75ab99eed30c63af1cf03bf2129c230203fa4ddb47e7d01d45665e"
 python3 - "$DEVICE_REVISION" "$HOOK_REPAIR_SHA256" <<'HOOK_REPAIR'
 import hashlib
 import os
@@ -121,14 +130,19 @@ finally:
     helper.unlink(missing_ok=True)
 HOOK_REPAIR
 
-# Crave's supported synchronizer resolves checkout conflicts in the seeded
-# workspace without manual deletion of platform projects.
+# Sync in this ordinary queued build with the exact manifest just inspected.
+# Stale checkouts have reversible backups; unknown metadata conflicts must fail
+# instead of enabling repo's destructive --force-sync recovery.
 STAGE=repo-sync
-SYNC_LOG="$(mktemp /tmp/a23-resync.XXXXXX.log)"
-"$CRAVE_RESYNC" 2>&1 | tee "$SYNC_LOG"
-# Some revisions of resync.sh can return zero after a failed piped repo sync.
-# Require repo's own final success message, not the wrapper's optimistic text.
+SYNC_LOG="$(mktemp /tmp/a23-sync.XXXXXX.log)"
+repo sync -c -j"$BUILD_JOBS" --no-manifest-update --no-clone-bundle \
+    --no-tags --prune --optimized-fetch --force-remove-dirty 2>&1 | tee "$SYNC_LOG"
 grep -Fq 'repo sync has finished successfully.' "$SYNC_LOG" || fail "repo-sync-incomplete-see-$SYNC_LOG"
+git -C .repo/repo rev-parse HEAD > "$RUNTIME_STATE/head.after"
+git -C .repo/repo status --porcelain=v1 > "$RUNTIME_STATE/status.after"
+git -C .repo/repo diff --binary HEAD > "$RUNTIME_STATE/changes.after.patch"
+cmp -s "$RUNTIME_STATE/head.before" "$RUNTIME_STATE/head.after" || fail "repo-runtime-head-changed"
+cmp -s "$RUNTIME_STATE/changes.before.patch" "$RUNTIME_STATE/changes.after.patch" || fail "repo-runtime-edits-changed"
 
 STAGE=source-revisions
 [[ "$(git -C device/samsung/a23 rev-parse HEAD)" == "$DEVICE_REVISION" ]] || fail "device-revision-mismatch"

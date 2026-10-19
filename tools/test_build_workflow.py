@@ -171,6 +171,85 @@ sudo() { touch forbidden-operation; return 97; }
         self.assertFalse((self.root / 'forbidden-operation').exists())
         self.assertFalse((self.root / '.repo').exists())
 
+    def crave_sync_stub(self, sync_status=0, runtime_supported=True, runtime_changed=False):
+        """All external operations are sentinels; no real repo sync is permitted."""
+        if not BASH.is_file():
+            self.skipTest('Native Bash unavailable; never use WSL')
+        runtime = self.root / '.repo/repo/subcmds'
+        runtime.mkdir(parents=True)
+        (self.root / '.repo/manifest.xml').write_text('<manifest/>')
+        (runtime / 'sync.py').write_text('REPO_SKIP_SELF_UPDATE' if runtime_supported else '# fixture')
+        (self.device / 'server_build.sh').write_text('touch "$PWD/server-was-called"\n',
+                                                   encoding='utf-8', newline='\n')
+        bootstrap = self.root / 'stub-sync-env.sh'
+        bootstrap.write_text('''uname() { printf '%s\\n' Linux; }
+grep() { case "$*" in *microsoft*) return 1;; *) command grep "$@";; esac; }
+ccache() { printf '%s\\n' 'ccache fixture'; }
+python3() { touch helper-was-called; return 0; }
+mktemp() {
+  if [[ "$1" == -d ]]; then command mktemp -d "$PWD/${2##*/}";
+  else command mktemp "$PWD/${1##*/}"; fi
+}
+git() {
+  case "$*" in
+    *pull*|*reset*|*checkout*) touch forbidden-git-operation; return 97;;
+    '-C .repo/repo rev-parse HEAD') printf '%040d\\n' 3;;
+    '-C .repo/repo diff --binary HEAD')
+      if [[ "$TEST_RUNTIME_CHANGED" == 1 && -f repo-sync-was-called ]]; then
+        printf '%s\\n' 'unexpected changed runtime';
+      else printf '%s\\n' 'preserved local runtime edit'; fi;;
+    '-C device/samsung/a23 rev-parse HEAD') printf '%040d\\n' 1;;
+    '-C vendor/samsung/a235f rev-parse HEAD') printf '%040d\\n' 2;;
+  esac
+  return 0
+}
+repo() {
+  if [[ "$1" == init ]]; then touch repo-init-was-called; return 0; fi
+  if [[ "$1" == sync ]]; then
+    printf '%s\\n' "$*" > repo-sync-was-called
+    printf '%s\\n' 'repo sync has finished successfully.'
+    return SYNC_STATUS
+  fi
+  return 98
+}
+'''.replace('SYNC_STATUS', str(sync_status)), encoding='utf-8', newline='\n')
+        environment = os.environ.copy()
+        environment.update(A23_REMOTE_BUILD='1', BUILD_JOBS='12', BASH_ENV=bootstrap.as_posix(),
+                           A23_DEVICE_REVISION=f'{1:040d}', A23_VENDOR_REVISION=f'{2:040d}',
+                           TEST_RUNTIME_CHANGED=str(int(runtime_changed)))
+        result = subprocess.run([str(BASH), 'device/samsung/a23/crave_build.sh'], cwd=self.root,
+                                env=environment, capture_output=True, text=True, timeout=30)
+        self.assertFalse((self.root / 'forbidden-git-operation').exists())
+        return result
+
+    def test_crave_checked_sync_preserves_runtime_and_delegates(self):
+        result = self.crave_sync_stub()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((self.root / 'server-was-called').exists())
+        arguments = (self.root / 'repo-sync-was-called').read_text()
+        self.assertIn('--no-manifest-update', arguments)
+        self.assertNotIn('--force-sync', arguments)
+
+    def test_crave_sync_failure_stops_before_server_build(self):
+        result = self.crave_sync_stub(sync_status=37)
+        self.assertEqual(result.returncode, 37, result.stdout + result.stderr)
+        self.assertIn('stage=repo-sync', result.stdout + result.stderr)
+        self.assertFalse((self.root / 'server-was-called').exists())
+
+    def test_unsupported_runtime_stops_before_init_or_sync(self):
+        result = self.crave_sync_stub(runtime_supported=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('repo-runtime-no-self-update-guard', result.stdout + result.stderr)
+        self.assertFalse((self.root / 'repo-init-was-called').exists())
+        self.assertFalse((self.root / 'helper-was-called').exists())
+        self.assertFalse((self.root / 'repo-sync-was-called').exists())
+
+    def test_runtime_changed_during_sync_stops_before_build(self):
+        result = self.crave_sync_stub(runtime_changed=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('repo-runtime-edits-changed', result.stdout + result.stderr)
+        self.assertFalse((self.root / 'server-was-called').exists())
+
     def test_envsetup_failure_stops_before_lunch_and_build(self):
         result = self.run_server_stub('lunch() { touch build-was-called; }\n'
                                       'm() { touch build-was-called; }\nreturn 19\n')

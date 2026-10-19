@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from repair_repo_hooks import plan, repair
+from repair_repo_hooks import plan, prepare, repair
 
 
 @contextmanager
@@ -63,7 +63,8 @@ class RepoHookTests(unittest.TestCase):
         gitdir.mkdir(parents=True)
         (objdir / 'objects').mkdir(parents=True)
         (objdir / 'config').write_text('[core]\n bare = true\n')
-        return SimpleNamespace(gitdir=str(gitdir), objdir=str(objdir), use_git_worktrees=False)
+        return SimpleNamespace(gitdir=str(gitdir), objdir=str(objdir),
+                               worktree=str(self.root / path), use_git_worktrees=False)
 
     def assert_sources_preserved(self):
         for path, expected in self.sentinels.items():
@@ -188,6 +189,85 @@ class RepoHookTests(unittest.TestCase):
         self.project.objdir = str(self.root / 'not-repo-metadata')
         with self.assertRaises(ValueError):
             plan(self.root, [self.project])
+        self.assert_sources_preserved()
+
+    def test_cached_project_with_missing_new_object_store_is_preserved_for_reinit(self):
+        missing = self.repo / 'project-objects/new-upstream.git'
+        self.project.objdir = str(missing)
+        (self.destination / 'post-checkout').write_bytes(b'custom hook retained after remap')
+        with directory_links():
+            report = prepare(self.root, [self.project], apply=True)
+        self.assertEqual(report['projects_staged_for_reinit'], 1)
+        self.assertTrue((missing / 'config').is_file(), 'Create a complete bare repository')
+        self.assertTrue((missing / 'objects').is_dir())
+        self.assertFalse(Path(self.project.gitdir).exists())
+        self.assertFalse(Path(self.project.worktree).exists())
+        backup = Path(report['project_backup_dir'])
+        for original, content in self.sentinels.items():
+            if original.is_relative_to(Path(self.project.gitdir)):
+                saved = backup / 'metadata' / original.relative_to(self.root)
+            elif original.is_relative_to(Path(self.project.worktree)):
+                saved = backup / 'worktrees' / original.relative_to(self.root)
+            else:
+                saved = original
+            self.assertEqual(saved.read_bytes(), content)
+        old_hooks = Path(report['backup_dir']) / self.destination.relative_to(self.repo)
+        self.assertEqual((old_hooks / 'commit-msg').read_bytes(), b'#!/bin/sh\nexit 0\n')
+        self.assertEqual((missing / 'hooks/commit-msg').read_bytes(), b'#!/bin/sh\nexit 0\n')
+        self.assertEqual((missing / 'hooks/post-checkout').read_bytes(), b'custom hook retained after remap')
+
+    def test_incomplete_object_store_is_not_made_worse(self):
+        (Path(self.project.objdir) / 'config').unlink()
+        with directory_links():
+            report = prepare(self.root, [self.project], apply=True)
+        self.assertEqual(report['projects_staged_for_reinit'], 1)
+        self.assertTrue((Path(self.project.objdir) / 'config').is_file())
+        self.assertEqual((Path(self.project.objdir) / 'objects/keep').read_bytes(),
+                         self.sentinels[Path(self.project.objdir) / 'objects/keep'])
+
+    def test_other_shared_reference_mismatch_preserves_both_object_stores(self):
+        old_objects = self.repo / 'project-objects/old.git/objects'
+        old_objects.mkdir(parents=True)
+        (old_objects / 'old-commit').write_bytes(b'cached old object')
+        with directory_links():
+            (Path(self.project.gitdir) / 'objects').symlink_to(old_objects, target_is_directory=True)
+            report = prepare(self.root, [self.project], apply=True)
+        self.assertEqual(report['projects_staged_for_reinit'], 1)
+        self.assertEqual((old_objects / 'old-commit').read_bytes(), b'cached old object')
+        self.assertTrue((Path(self.project.objdir) / 'objects/keep').is_file())
+
+    def test_custom_hook_conflict_prevents_staging_another_stale_project(self):
+        stale = self.make_project('external/cronet', 'cronet')
+        stale.objdir = str(self.repo / 'project-objects/new-cronet.git')
+        (self.destination / 'commit-msg').write_bytes(b'conflicting custom hook')
+        with self.assertRaisesRegex(ValueError, 'Conflicting hook'):
+            prepare(self.root, [stale, self.project], apply=True)
+        self.assertTrue(Path(stale.gitdir).is_dir())
+        self.assertFalse((self.repo / 'a23-project-backups').exists())
+
+    def test_protected_output_worktree_cannot_be_staged(self):
+        self.project.objdir = str(self.repo / 'project-objects/new.git')
+        self.project.worktree = str(self.root / 'out')
+        with self.assertRaisesRegex(ValueError, 'Protected project worktree'):
+            prepare(self.root, [self.project], apply=True)
+        self.assert_sources_preserved()
+
+    def test_reinit_dry_run_reports_paths_and_reasons_without_writes(self):
+        self.project.objdir = str(self.repo / 'project-objects/new.git')
+        report = prepare(self.root, [self.project])
+        self.assertEqual(report['projects_staged_for_reinit'], 0)
+        self.assertEqual(Path(report['reinitialization_plan'][0]['path']).as_posix(), 'frameworks/base')
+        self.assertIn('not initialized', report['reinitialization_plan'][0]['reasons'][0])
+        self.assertFalse((self.repo / 'a23-project-backups').exists())
+        self.assert_sources_preserved()
+
+    def test_valid_nested_checkout_blocks_parent_staging(self):
+        nested = self.make_project('frameworks/base/child', 'child')
+        Path(nested.worktree).mkdir(parents=True)
+        self.project.objdir = str(self.repo / 'project-objects/new-parent.git')
+        with self.assertRaisesRegex(ValueError, 'contains another checkout'):
+            prepare(self.root, [self.project, nested], apply=True)
+        self.assertFalse((self.repo / 'a23-project-backups').exists())
         self.assert_sources_preserved()
 
 
