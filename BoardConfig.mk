@@ -35,6 +35,8 @@ TARGET_NO_RADIOIMAGE := true
 AB_OTA_UPDATER := false
 TARGET_OTA_ALLOW_NON_AB := true
 TARGET_OTA_ASSERT_DEVICE := a23,SM-A235F
+# Writes the prebuilt stock vendor/odm and dtbo images (see releasetools.py).
+TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
 
 # Kernel: boot image header v2, values copied from the SEZB1 boot.img.
 BOARD_BOOT_HEADER_VERSION := 2
@@ -89,12 +91,17 @@ TARGET_KERNEL_CONFIG_EXT := $(DEVICE_PATH)/configs/kernel/a23_evo.config
 KERNEL_LTO := thin
 # Same clang as the upstream CI release (NDK r29, clang-r563880c).
 TARGET_KERNEL_CLANG_VERSION := r563880c
-# This 4.19 tree derives clang's --target from CROSS_COMPILE even with LLVM=1.
-# The upstream build also silences new-clang warnings (KCFLAGS=-w).
+# Same make flags as the upstream build.sh (Evolution adds LLVM=1 LLVM_IAS=1):
+# this 4.19 tree derives clang's --target from CROSS_COMPILE, and new-clang
+# warnings are silenced with KCFLAGS=-w.
+# Evolution always runs "make dtbs" when the tree has DTS sources; build them
+# with the kernel's own overlay-capable dtc, as upstream does. The resulting
+# DTBs are not used: boot.img carries the stock ones.
 TARGET_KERNEL_ADDITIONAL_FLAGS := \
     CROSS_COMPILE=aarch64-linux-gnu- \
-    CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
-    KCFLAGS=-w
+    KCFLAGS=-w \
+    DTC_EXT=$(abspath $(TARGET_KERNEL_SOURCE))/tools/dtc \
+    CONFIG_BUILD_ARM64_DT_OVERLAY=y
 
 # Partitions
 BOARD_FLASH_BLOCK_SIZE := 262144
@@ -115,6 +122,12 @@ BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
+
+# Mount points used by the stock vendor fstab. Samsung's own system image
+# creates them; the AOSP root does not. /efs holds the modem calibration/IMEI
+# and /metadata the userdata encryption keys.
+BOARD_USES_METADATA_PARTITION := true
+BOARD_ROOT_EXTRA_FOLDERS := carrier efs optics prism spu
 
 TARGET_COPY_OUT_PRODUCT := product
 TARGET_COPY_OUT_VENDOR := vendor

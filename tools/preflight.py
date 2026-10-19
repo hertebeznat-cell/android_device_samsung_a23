@@ -59,6 +59,11 @@ def main():
     partitions = board.get('BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST', '').split()
     check(sorted(partitions) == ['odm', 'product', 'system', 'vendor'], 'dynamic partition list')
     check(board.get('TARGET_OTA_ALLOW_NON_AB') == 'true', 'non-A/B OTA must be allowed explicitly')
+    # Prebuilt vendor/odm have no target-files trees; without device block
+    # diffs the generic non-A/B script asserts on the super partition list.
+    check(board.get('TARGET_RELEASETOOLS_EXTENSIONS') == '$(DEVICE_PATH)', 'releasetools extension not set')
+    releasetools = (device / 'releasetools.py').read_text()
+    check("STOCK_PARTITIONS = ('vendor', 'odm')" in releasetools, 'releasetools must write vendor and odm')
 
     config = device / board.get('TARGET_KERNEL_CONFIG_EXT', '').replace('$(DEVICE_PATH)/', '')
     check(config.is_file(), 'kernel config fragment missing')
@@ -78,12 +83,27 @@ def main():
         check(any(row[1] == mount for row in rows), f'fstab lacks {mount}')
     check(not any('avb' in row[4] for row in rows), 'AVB is disabled; drop avb fstab flags')
 
+    # Every top-level mount point of the stock vendor fstab must exist in the
+    # AOSP root; anything else (e.g. /mnt/vendor/*) init creates at runtime.
+    extra = set(board.get('BOARD_ROOT_EXTRA_FOLDERS', '').split())
+    stock_fstab = (vendor / 'reference/fstab.default').read_text().splitlines()
+    builtin = {'cache': 'BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE', 'metadata': 'BOARD_USES_METADATA_PARTITION'}
+    for line in stock_fstab:
+        fields = line.split()
+        if len(fields) < 2 or line.lstrip().startswith('#') or not fields[1].startswith('/'):
+            continue
+        top = fields[1].split('/')[1]
+        if top in ('system', 'vendor', 'product', 'odm', 'data', 'mnt', 'misc'):
+            continue
+        check(top in extra or board.get(builtin.get(top, ''), ''), f'no root mount point for /{top}')
+
     # Patches the build script applies.
-    for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity'):
+    for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity', 'core'):
         check(any((device / 'patches' / directory).glob('*.patch')), f'no {directory} patches')
     script = (device / 'build_a23.sh').read_text()
     for repository in ('packages/modules/vndk', 'system/sepolicy', 'hardware/interfaces',
-                       'kernel/configs', 'packages/modules/Connectivity', 'kernel/samsung/a23'):
+                       'kernel/configs', 'packages/modules/Connectivity', 'system/core',
+                       'kernel/samsung/a23'):
         check(f'apply_series {repository} ' in script, f'build script does not patch {repository}')
 
     for path in (device / 'overlay').rglob('*.xml'):
