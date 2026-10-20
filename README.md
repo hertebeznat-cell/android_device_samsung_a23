@@ -99,6 +99,10 @@ vendor-политику SELinux так же, как это сделает init �
 
 Локальная проверка без исходников: `python3 device/samsung/a23/tools/preflight.py --root <корень>`.
 
+Перед каждым запуском на Crave: `bash device/samsung/a23/tools/dryrun.sh <device> <vendor>`
+— прогоняет `crave_build.sh` и `build_a23.sh` целиком на фейковом дереве с
+настоящими upstream-файлами патчей и заглушками repo/lunch/m/secilc.
+
 ## Прошивка
 
 Нужны разблокированный загрузчик, TWRP и отключённый vbmeta (как для UN1CA;
