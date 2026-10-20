@@ -107,6 +107,21 @@ echo "A23_DEVICE=$(git -C device/samsung/a23 rev-parse HEAD)"
 echo "A23_VENDOR=$(git -C vendor/samsung/a235f rev-parse HEAD)"
 echo "A23_KERNEL=$(git -C kernel/samsung/a23 rev-parse HEAD)"
 
+# The LOS 22.1 base left files of older project revisions behind as untracked
+# files (job 306580: Android 15 external/cronet/third_party/**/Android.bp next
+# to the Android 17 tot/ and stable/ trees). Soong parses every Android.bp, so
+# clean any project that holds untracked build files. Tracked sources and out/
+# are untouched; this tree's own projects are skipped.
+stage clean-stale-sources
+repo forall -j"$(nproc)" -c '
+    case "$REPO_PATH" in device/samsung/a23|vendor/samsung/a235f|kernel/samsung/a23) exit 0 ;; esac
+    stale=$(git ls-files --others -- "*Android.bp" "*Android.mk" | head -n 3 | tr "\n" " ")
+    if [ -n "$stale" ]; then
+        echo "A23_STALE $REPO_PATH: $stale"
+        git clean -fdxq
+    fi
+'
+
 # Earlier jobs left their own integration patches in these checkouts. Return
 # them to the synced commit so only this tree's patches are applied.
 stage reset-patched-repos

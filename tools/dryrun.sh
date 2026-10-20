@@ -60,6 +60,13 @@ make_repo kernel/samsung/a23 \
     "$KERNEL/scripts/sign-file.c" scripts/sign-file.c \
     "$KERNEL/scripts/extract-cert.c" scripts/extract-cert.c \
     "$KERNEL/Makefile" Makefile
+# Leftover of an older project revision (job 306580): untracked Android.bp
+# next to the tracked tree must be cleaned by crave_build.sh.
+mkdir -p "$root/external/cronet/tot"
+echo "cc_defaults { name: \"tot_cronet_cc_defaults\" }" > "$root/external/cronet/tot/Android.bp"
+make_repo external/cronet
+mkdir -p "$root/external/cronet/third_party/hash"
+echo "cc_library { defaults: [\"cronet_aml_cc_defaults\"] }" > "$root/external/cronet/third_party/hash/Android.bp"
 # A stale patch from an earlier job must be reset by crave_build.sh.
 echo "stale edit from an earlier job" >> "$root/system/sepolicy/compat/Android.bp"
 touch "$root/system/sepolicy/stale-untracked-file"
@@ -87,9 +94,18 @@ cat > "$bin/uname" <<'EOF'
 #!/bin/sh
 echo Linux
 EOF
-cat > "$bin/repo" <<'EOF'
-#!/bin/sh
-echo "stub repo $*"
+cat > "$bin/repo" <<EOF
+#!/bin/bash
+# Stub: "repo forall [-j N] -c <cmd>" runs <cmd> in every fake project.
+if [ "\$1" = forall ]; then
+    while [ \$# -gt 0 ] && [ "\$1" != -c ]; do shift; done
+    cmd="\$2"
+    for path in \$(cd "$root" && find . -name .git -maxdepth 5 | sed 's#^\./##; s#/\.git\$##' | sort); do
+        (cd "$root/\$path" && REPO_PATH="\$path" bash -c "\$cmd") || exit 1
+    done
+    exit 0
+fi
+echo "stub repo \$*"
 EOF
 cat > "$bin/curl" <<EOF
 #!/bin/sh
@@ -136,6 +152,9 @@ PATH="$bin:$PATH" A23_DEVICE_REVISION="$device_sha" bash "$crave"
 
 # --- results -----------------------------------------------------------------
 [[ ! -e system/sepolicy/stale-untracked-file ]] || { echo "dryrun: stale file survived" >&2; exit 1; }
+[[ ! -e external/cronet/third_party ]] || { echo "dryrun: stale cronet files survived" >&2; exit 1; }
+[[ -f external/cronet/tot/Android.bp ]] || { echo "dryrun: tracked cronet file removed" >&2; exit 1; }
+[[ -f vendor/samsung/a235f/images/vendor.img ]] || { echo "dryrun: vendor image removed" >&2; exit 1; }
 for repo in packages/modules/vndk system/sepolicy hardware/interfaces kernel/configs \
             packages/modules/Connectivity system/core kernel/samsung/a23; do
     [[ -n "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo not patched" >&2; exit 1; }
