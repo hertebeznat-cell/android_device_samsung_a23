@@ -39,6 +39,7 @@ make_repo() {  # make_repo <path> [<url> <file>]...
     shift
     mkdir -p "$path"
     git -C "$path" init -q
+    git -C "$path" config core.autocrlf false
     while (($#)); do
         fetch "$1" "$path/$2"
         shift 2
@@ -71,6 +72,7 @@ mkdir -p "$root/vendor/samsung/a235f/images"
 cp "$vendor_src"/images/SHA256SUMS "$vendor_src"/images/*.xz.* "$root/vendor/samsung/a235f/images/"
 for repo in device/samsung/a23 vendor/samsung/a235f; do
     git -C "$root/$repo" init -q
+    git -C "$root/$repo" config core.autocrlf false
     git -C "$root/$repo" add -A
     git -C "$root/$repo" -c user.name=dryrun -c user.email=dryrun@localhost commit -qm tree
 done
