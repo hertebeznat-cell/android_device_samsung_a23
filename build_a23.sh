@@ -44,19 +44,21 @@ stage=stock-images; echo "---- A23 BUILD STEP: stock-images ($(date -u +%H:%M:%S
 python3 vendor/samsung/a235f/tools/assemble_images.py
 
 stage=lunch; echo "---- A23 BUILD STEP: lunch ($(date -u +%H:%M:%SZ)) ----"
-set +eu
+# envsetup.sh and its m/lunch functions probe with commands that may fail.
+# From here on run without errexit/ERR trap and check every step explicitly.
+fail() { echo "A23_BUILD=FAILED stage=$stage" >&2; exit 1; }
+set +eEu
+trap - ERR
 source build/envsetup.sh
-lunch lineage_a23-cp2a-userdebug || exit 1
-set -eu
+lunch lineage_a23-cp2a-userdebug || fail
 
 # Fail fast: compile the stock vendor policy the way init will at boot.
 stage=stock-sepolicy; echo "---- A23 BUILD STEP: stock-sepolicy ($(date -u +%H:%M:%SZ)) ----"
-m -j"$jobs" secilc plat_sepolicy.cil system_ext_sepolicy.cil product_sepolicy.cil \
-    plat_30.0.cil 30.0.compat.cil system_ext_30.0.cil system_ext_30.0.compat.cil product_30.0.cil
-bash "$device"/tools/check_stock_sepolicy.sh
+m -j"$jobs" secilc plat_sepolicy.cil system_ext_sepolicy.cil product_sepolicy.cil     plat_30.0.cil 30.0.compat.cil system_ext_30.0.cil system_ext_30.0.compat.cil product_30.0.cil || fail
+bash "$device"/tools/check_stock_sepolicy.sh || fail
 
 stage=build; echo "---- A23 BUILD STEP: build ($(date -u +%H:%M:%SZ)) ----"
-m -j"$jobs" evolution
+m -j"$jobs" evolution || fail
 
 echo "A23_BUILD=SUCCESS"
 ls -l "$OUT"/*.zip
