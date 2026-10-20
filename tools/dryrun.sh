@@ -98,7 +98,10 @@ cat > "$bin/resync.sh" <<'EOF'
 printf 'Fetching:  50%% (600/1200) platform/art\rFetching: 100%% (1200/1200)\n'
 echo "repo sync has finished successfully."
 EOF
-command -v python3 >/dev/null || printf '#!/bin/sh\nexec python "$@"\n' > "$bin/python3"
+# Windows ships a Store alias named python3; the server has a real one.
+if ! python3 -c 'import sys' >/dev/null 2>&1; then
+    printf '#!/bin/sh\nexec python "$@"\n' > "$bin/python3"
+fi
 chmod +x "$bin"/*
 
 cat > "$root/build/envsetup.sh" <<'EOF'
