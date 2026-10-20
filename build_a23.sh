@@ -30,7 +30,7 @@ apply_series() {
     done
 }
 
-stage=patches
+stage=patches; echo "---- A23 BUILD STEP: patches ($(date -u +%H:%M:%SZ)) ----"
 apply_series packages/modules/vndk "$device"/patches/vndk/*.patch
 apply_series system/sepolicy "$device"/patches/sepolicy/*.patch
 apply_series hardware/interfaces "$device"/patches/vintf/0001-*.patch
@@ -39,22 +39,22 @@ apply_series packages/modules/Connectivity "$device"/patches/connectivity/*.patc
 apply_series system/core "$device"/patches/core/*.patch
 apply_series kernel/samsung/a23 "$device"/patches/kernel/*.patch
 
-stage=stock-images
+stage=stock-images; echo "---- A23 BUILD STEP: stock-images ($(date -u +%H:%M:%SZ)) ----"
 python3 vendor/samsung/a235f/tools/assemble_images.py
 
-stage=lunch
+stage=lunch; echo "---- A23 BUILD STEP: lunch ($(date -u +%H:%M:%SZ)) ----"
 set +eu
 source build/envsetup.sh
 lunch lineage_a23-cp2a-userdebug || exit 1
 set -eu
 
 # Fail fast: compile the stock vendor policy the way init will at boot.
-stage=stock-sepolicy
+stage=stock-sepolicy; echo "---- A23 BUILD STEP: stock-sepolicy ($(date -u +%H:%M:%SZ)) ----"
 m -j"$jobs" secilc plat_sepolicy.cil system_ext_sepolicy.cil product_sepolicy.cil \
     plat_30.0.cil 30.0.compat.cil system_ext_30.0.cil system_ext_30.0.compat.cil product_30.0.cil
 bash "$device"/tools/check_stock_sepolicy.sh
 
-stage=build
+stage=build; echo "---- A23 BUILD STEP: build ($(date -u +%H:%M:%SZ)) ----"
 m -j"$jobs" evolution
 
 echo "A23_BUILD=SUCCESS"

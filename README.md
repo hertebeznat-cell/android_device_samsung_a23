@@ -75,6 +75,12 @@ crave run --projectID 93 --platform aosp-silver --no-patch --no-artifacts --deta
 `/opt/crave/resync.sh`, сбрасывает патчи прошлых джобов в патчимых репо и
 запускает `build_a23.sh`.
 
+В логе Crave каждый этап начинается с баннера `A23 STAGE: …`, а раз в минуту
+печатается `A23_PROGRESS +1h05m stage=repo-sync Fetching: 38% (431/1130)`
+(при сборке — счётчик ninja `[ 46% 12400/67890 …]`). repo запускается через
+`script`, чтобы рисовать прогресс без настоящего терминала. Ревизии device и
+vendor закрепляются на коммитах джоба (`A23_DEVICE_REVISION`/`A23_VENDOR_REVISION`).
+
 ## Сборка (только Linux-сервер)
 
 1. `repo init` Evolution X `cnb`, скопировать `manifest/a23.xml` в
