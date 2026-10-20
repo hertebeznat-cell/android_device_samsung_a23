@@ -61,6 +61,20 @@ health 2.1, sensors 2.0, BT 1.0, fingerprint 2.1, keymaster 4.0 через
   упаковка падает на assert списка super;
 - размеры super/группы, `cp2a`, `PRODUCT_EXTRA_VNDK_VERSIONS`, ресурсы оверлеев.
 
+## Сборка на Crave
+
+Проект **LOS 22.1** (id 93), платформа `aosp-silver`, без `--clean` и devspace.
+Из локального клона `accupara/los22`:
+
+```bash
+crave run --projectID 93 --platform aosp-silver --no-patch --no-artifacts --detached --json --   "curl -fsSL https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/<sha>/crave_build.sh -o /tmp/a23.sh && A23_DEVICE_REVISION=<sha> bash /tmp/a23.sh"
+```
+
+`crave_build.sh` делает `repo init` Evolution X `cnb` с `--depth=1 --git-lfs`,
+кладёт `manifest/a23.xml` в `.repo/local_manifests`, синхронизирует через
+`/opt/crave/resync.sh`, сбрасывает патчи прошлых джобов в патчимых репо и
+запускает `build_a23.sh`.
+
 ## Сборка (только Linux-сервер)
 
 1. `repo init` Evolution X `cnb`, скопировать `manifest/a23.xml` в
