@@ -66,6 +66,9 @@ touch "$root/system/sepolicy/stale-untracked-file"
 
 mkdir -p "$root/device/samsung" "$root/vendor/samsung" "$root/prebuilts/vndk/v30/arm64"
 cp -r "$device_src" "$root/device/samsung/a23"
+# Never take the source checkout's .git (a worktree link): the commits below
+# would land in the real repository.
+rm -rf "$root/device/samsung/a23/.git"
 mkdir -p "$root/vendor/samsung/a235f"
 cp -r "$vendor_src/BoardConfigVendor.mk" "$vendor_src/tools" "$vendor_src/reference" "$root/vendor/samsung/a235f/"
 mkdir -p "$root/vendor/samsung/a235f/images"
