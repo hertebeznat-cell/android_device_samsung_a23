@@ -109,7 +109,7 @@ lunch() {
     echo "stub lunch $*"
     export OUT="$PWD/out/target/product/a23" ANDROID_HOST_OUT="$PWD/out/host/linux-x86"
     mkdir -p "$ANDROID_HOST_OUT/bin"
-    printf '#!/bin/sh\nout=; while [ $# -gt 0 ]; do case "$1" in -o) out=$2; shift;; -c) shift;; -*) ;; *) [ -f "$1" ] || { echo "secilc stub: missing $1" >&2; exit 1; };; esac; shift; done; echo compiled > "$out"\n' > "$ANDROID_HOST_OUT/bin/secilc"
+    printf '#!/bin/sh\nout=; while [ $# -gt 0 ]; do case "$1" in -o) out=$2; shift;; -c|-M|-f) shift;; -*) ;; *) [ -f "$1" ] || { echo "secilc stub: missing $1" >&2; exit 1; };; esac; shift; done; echo compiled > "$out"\n' > "$ANDROID_HOST_OUT/bin/secilc"
     chmod +x "$ANDROID_HOST_OUT/bin/secilc"
 }
 m() {
