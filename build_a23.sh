@@ -11,7 +11,8 @@ trap 'echo "A23_BUILD=FAILED stage=${stage:-init} line=$LINENO" >&2' ERR
 [[ -f build/envsetup.sh && -d .repo ]] || { echo "Run from the Android source root" >&2; exit 2; }
 [[ "$(uname -s)" == Linux ]] || { echo "Linux build host required" >&2; exit 2; }
 
-device=device/samsung/a23
+# Absolute: apply_series runs git -C inside each repository.
+device="$PWD/device/samsung/a23"
 jobs="${BUILD_JOBS:-$(nproc)}"
 
 # Apply one patch series; already-applied patches are skipped, so the script
