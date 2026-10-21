@@ -40,10 +40,17 @@ if [[ "${1:-}" != --as-builder ]]; then
     script=$(mktemp /tmp/a23-colab.XXXXXX.sh)
     cp "$0" "$script"
     chmod 755 "$script"
-    exec runuser -u builder -- env HOME=/home/builder PATH="/usr/local/bin:$PATH" \
+    runuser -u builder -- env HOME=/home/builder PATH="/usr/local/bin:$PATH" \
         A23_WORK="$work" A23_LOG="$log" A23_DEVICE_REVISION="$device_revision" \
         A23_VENDOR_REVISION="$vendor_revision" A23_STOP_AFTER="$stop_after" \
-        bash "$script" --as-builder
+        bash "$script" --as-builder || exit $?
+    # Google Drive is mounted for root only; copy the OTA zip from here.
+    if [[ -d /content/drive/MyDrive ]]; then
+        for zip in "$work"/out/target/product/a23/*.zip; do
+            [[ -f "$zip" ]] && cp "$zip" /content/drive/MyDrive/ && echo "copied to Google Drive: MyDrive/$(basename "$zip")"
+        done
+    fi
+    exit 0
 fi
 
 # --- phase 2 (builder) -------------------------------------------------------
@@ -114,8 +121,5 @@ grep -a -E "A23 BUILD STEP|A23_BUILD=|STOCK_SEPOLICY|boot.img" "$log" | tail -n 
 for zip in out/target/product/a23/*.zip; do
     [[ -f "$zip" ]] || continue
     echo "A23_ZIP=$work/$zip ($(du -h "$zip" | cut -f1))"
-    if [[ -d /content/drive/MyDrive ]]; then
-        cp "$zip" /content/drive/MyDrive/ && echo "copied to Google Drive: MyDrive/$(basename "$zip")"
-    fi
 done
 echo "A23_COLAB=OK elapsed=$(elapsed)"
