@@ -141,6 +141,7 @@ m() {
         done ;;
     esac
     case " $* " in *" evolution "*) touch "$OUT/EvolutionX-17.0-dryrun-a23.zip" ;; esac
+    case " $* " in *" bootimage "*) touch "$OUT/boot.img" ;; esac
 }
 EOF
 

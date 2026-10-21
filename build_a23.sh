@@ -57,6 +57,21 @@ stage=stock-sepolicy; echo "---- A23 BUILD STEP: stock-sepolicy ($(date -u +%H:%
 m -j"$jobs" secilc plat_sepolicy.cil system_ext_sepolicy.cil product_sepolicy.cil     plat_30.0.cil 30.0.compat.cil system_ext_30.0.cil system_ext_30.0.compat.cil product_30.0.cil || fail
 bash "$device"/tools/check_stock_sepolicy.sh || fail
 
+# Validation runs on short-lived machines (tools/colab_check.sh) stop early:
+#   A23_STOP_AFTER=stock-sepolicy  Soong graph + boot-time policy compile
+#   A23_STOP_AFTER=bootimage       also Kati, kernel and boot.img
+case "${A23_STOP_AFTER:-}" in
+    stock-sepolicy)
+        echo "A23_BUILD=CHECKED stage=stock-sepolicy"
+        exit 0 ;;
+    bootimage)
+        stage=bootimage; echo "---- A23 BUILD STEP: bootimage ($(date -u +%H:%M:%SZ)) ----"
+        m -j"$jobs" bootimage || fail
+        ls -l "$OUT"/boot.img
+        echo "A23_BUILD=CHECKED stage=bootimage"
+        exit 0 ;;
+esac
+
 stage=build; echo "---- A23 BUILD STEP: build ($(date -u +%H:%M:%SZ)) ----"
 m -j"$jobs" evolution || fail
 
