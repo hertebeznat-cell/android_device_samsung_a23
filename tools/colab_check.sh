@@ -101,7 +101,16 @@ open(path, 'w').write(text)
 PIN
 
 banner repo-sync
-sync() { repo sync -c -j"$(nproc)" --no-tags --no-clone-bundle --optimized-fetch --force-sync --retry-fetches=3 >> "$log" 2>&1; }
+# repo draws its progress ("Fetching: 37% (420/1130)") only on a terminal; run
+# it under script(1) so the log, and the progress line above, get it.
+sync() {
+    local cmd="repo sync -c -j$(nproc) --no-tags --no-clone-bundle --optimized-fetch --force-sync --retry-fetches=3"
+    if command -v script >/dev/null; then
+        script -qefac "$cmd" "$log" > /dev/null
+    else
+        $cmd >> "$log" 2>&1
+    fi
+}
 sync || { echo "first sync pass failed, retrying"; sync || fail; }
 for path in device/samsung/a23/build_a23.sh vendor/samsung/a235f/images/SHA256SUMS \
             kernel/samsung/a23/Makefile prebuilts/vndk/v30/arm64/Android.bp; do
