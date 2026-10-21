@@ -113,6 +113,13 @@ system, product, boot, dtbo и стоковые SEZB1 vendor/odm, поэтому
 Если не загрузится: `adb logcat -b all`, `adb shell dmesg` (adb открыт без
 подтверждения), либо из TWRP `/sys/fs/pstore/console-ramoops-0`.
 
+## Память на бесплатном Crave
+
+Бесплатные машины Crave убивали `soong_build` по памяти (джобы 306583, 306676).
+`device.mk` исключает из графа Soong `external/cronet/tot` (`PRODUCT_SOURCE_ROOT_DIRS`):
+`cp2a` не включает `RELEASE_ENABLE_TOT_CRONET`, сборка использует только `stable/`.
+Платная `aosp-silver` проходит этот шаг и без этого.
+
 ## Известные риски
 
 - Не собиралось. Возможны ошибки сборки ядра/платформы на Crave.

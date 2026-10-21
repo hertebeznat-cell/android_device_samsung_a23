@@ -42,6 +42,13 @@ PRODUCT_PACKAGES += \
     FrameworksResA23 \
     WifiResA23
 
+# Keep Soong's graph small enough for Crave's free machines (jobs 306583 and
+# 306676 were OOM-killed in "analyzing Android.bp files"). cp2a leaves
+# RELEASE_ENABLE_TOT_CRONET unset, so external/cronet selects stable_* modules
+# and every tot_* reference sits in an unselected select() branch; skip the
+# ToT Chromium copy (~54k files) entirely.
+PRODUCT_SOURCE_ROOT_DIRS += -external/cronet/tot
+
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
     $(DEVICE_PATH)
