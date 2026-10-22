@@ -23,7 +23,8 @@ for file in "$system/plat_sepolicy.cil" "$system/mapping/$version.cil"; do
 done
 
 # Optional inputs are added exactly when init would find them on device.
-arguments=("$system/plat_sepolicy.cil" -m -M true -G -N -c 31
+# -v as init uses it: secilc then names the rule behind any failure.
+arguments=("$system/plat_sepolicy.cil" -m -M true -G -N -v -c 31
            "$system/mapping/$version.cil")
 optional() { [[ -f "$1" ]] && arguments+=("$1"); return 0; }
 optional "$system/mapping/$version.compat.cil"

@@ -125,7 +125,7 @@ repo forall -j"$(nproc)" -c '
 # Earlier jobs left their own integration patches in these checkouts. Return
 # them to the synced commit so only this tree's patches are applied.
 stage reset-patched-repos
-for repository in system/sepolicy system/core cts build/make hardware/interfaces \
+for repository in system/sepolicy system/core device/lineage/sepolicy cts build/make hardware/interfaces \
                   kernel/configs packages/modules/vndk packages/modules/Connectivity \
                   kernel/samsung/a23; do
     [[ -d "$repository/.git" || -f "$repository/.git" ]] || continue

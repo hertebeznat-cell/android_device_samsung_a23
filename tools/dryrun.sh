@@ -55,6 +55,7 @@ make_repo hardware/interfaces "$EVO/hardware_interfaces/cnb/compatibility_matric
 make_repo kernel/configs
 make_repo packages/modules/Connectivity "$EVO/packages_modules_Connectivity/cnb/bpf/loader/NetBpfLoad.cpp" bpf/loader/NetBpfLoad.cpp
 make_repo system/core "$EVO/system_core/cnb/rootdir/ueventd.rc" rootdir/ueventd.rc
+make_repo device/lineage/sepolicy "$EVO/device_evolution_sepolicy/cnb/common/private/genfs_contexts" common/private/genfs_contexts
 make_repo kernel/samsung/a23 \
     "$KERNEL/include/uapi/linux/sched/types.h" include/uapi/linux/sched/types.h \
     "$KERNEL/scripts/sign-file.c" scripts/sign-file.c \
@@ -163,7 +164,7 @@ PATH="$bin:$PATH" A23_DEVICE_REVISION="$device_sha" bash "$crave"
 [[ -f external/cronet/tot/Android.bp ]] || { echo "dryrun: tracked cronet file removed" >&2; exit 1; }
 [[ -f vendor/samsung/a235f/images/vendor.img ]] || { echo "dryrun: vendor image removed" >&2; exit 1; }
 for repo in packages/modules/vndk system/sepolicy hardware/interfaces kernel/configs \
-            packages/modules/Connectivity system/core kernel/samsung/a23; do
+            packages/modules/Connectivity system/core device/lineage/sepolicy kernel/samsung/a23; do
     [[ -n "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo not patched" >&2; exit 1; }
 done
 echo "DRYRUN=OK ($root)"

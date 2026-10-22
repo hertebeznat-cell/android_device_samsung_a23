@@ -98,11 +98,11 @@ def main():
         check(top in extra or board.get(builtin.get(top, ''), ''), f'no root mount point for /{top}')
 
     # Patches the build script applies.
-    for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity', 'core'):
+    for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity', 'core', 'lineage-sepolicy'):
         check(any((device / 'patches' / directory).glob('*.patch')), f'no {directory} patches')
     script = (device / 'build_a23.sh').read_text()
     for repository in ('packages/modules/vndk', 'system/sepolicy', 'hardware/interfaces',
-                       'kernel/configs', 'packages/modules/Connectivity', 'system/core',
+                       'kernel/configs', 'packages/modules/Connectivity', 'system/core', 'device/lineage/sepolicy',
                        'kernel/samsung/a23'):
         check(f'apply_series {repository} ' in script, f'build script does not patch {repository}')
 
