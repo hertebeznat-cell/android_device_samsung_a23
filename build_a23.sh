@@ -52,9 +52,27 @@ trap - ERR
 source build/envsetup.sh
 lunch lineage_a23-cp2a-userdebug || fail
 
+# m output is kept for diagnosis; an OOM-killed step (signal:killed / exit
+# 137, as on Crave's free machines) is retried once with a smaller Soong
+# graph (A23_LOW_MEMORY in device.mk) and, for compiles, half the jobs.
+mlog=$(mktemp /tmp/a23-m.XXXXXX.log)
+run_m() { m "$@" 2>&1 | tee "$mlog"; return "${PIPESTATUS[0]}"; }
+oom_killed() { grep -qaE 'signal:killed|exit=137' "$mlog"; }
+low_memory() {
+    export A23_LOW_MEMORY=true ALLOW_MISSING_DEPENDENCIES=true
+    echo "---- A23 BUILD STEP: $stage low-memory retry ($(date -u +%H:%M:%SZ)) ----"
+}
+
 # Fail fast: compile the stock vendor policy the way init will at boot.
 stage=stock-sepolicy; echo "---- A23 BUILD STEP: stock-sepolicy ($(date -u +%H:%M:%SZ)) ----"
-m -j"$jobs" secilc plat_sepolicy.cil system_ext_sepolicy.cil product_sepolicy.cil     plat_30.0.cil 30.0.compat.cil system_ext_30.0.cil system_ext_30.0.compat.cil product_30.0.cil || fail
+policy_targets=(secilc plat_sepolicy.cil system_ext_sepolicy.cil product_sepolicy.cil
+                plat_30.0.cil 30.0.compat.cil system_ext_30.0.cil system_ext_30.0.compat.cil
+                product_30.0.cil)
+if ! run_m -j"$jobs" "${policy_targets[@]}"; then
+    oom_killed || fail
+    low_memory
+    run_m -j"$jobs" "${policy_targets[@]}" || fail
+fi
 bash "$device"/tools/check_stock_sepolicy.sh || fail
 
 # Validation runs on short-lived machines (tools/colab_check.sh) stop early:
@@ -66,14 +84,20 @@ case "${A23_STOP_AFTER:-}" in
         exit 0 ;;
     bootimage)
         stage=bootimage; echo "---- A23 BUILD STEP: bootimage ($(date -u +%H:%M:%SZ)) ----"
-        m -j"$jobs" bootimage || fail
+        run_m -j"$jobs" bootimage || fail
         ls -l "$OUT"/boot.img
         echo "A23_BUILD=CHECKED stage=bootimage"
         exit 0 ;;
 esac
 
 stage=build; echo "---- A23 BUILD STEP: build ($(date -u +%H:%M:%SZ)) ----"
-m -j"$jobs" evolution || fail
+if ! run_m -j"$jobs" evolution; then
+    oom_killed || fail
+    low_memory
+    jobs=$(( jobs > 2 ? jobs / 2 : 1 ))
+    echo "retrying with -j$jobs"
+    run_m -j"$jobs" evolution || fail
+fi
 
 echo "A23_BUILD=SUCCESS"
 ls -l "$OUT"/*.zip

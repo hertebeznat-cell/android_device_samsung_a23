@@ -49,6 +49,21 @@ PRODUCT_PACKAGES += \
 # ToT Chromium copy (~54k files) entirely.
 PRODUCT_SOURCE_ROOT_DIRS += -external/cronet/tot
 
+# Low-memory fallback, enabled by build_a23.sh (with ALLOW_MISSING_DEPENDENCIES)
+# when Soong is OOM-killed: also skip test suites that install nothing into
+# the device images.
+ifeq ($(A23_LOW_MEMORY),true)
+PRODUCT_SOURCE_ROOT_DIRS += \
+    -cts \
+    -test/cts-root \
+    -test/vts-testcase \
+    -test/catbox \
+    -test/dittosuite \
+    -test/mlts \
+    -test/app_compat \
+    -test/robolectric-extensions
+endif
+
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
     $(DEVICE_PATH)
