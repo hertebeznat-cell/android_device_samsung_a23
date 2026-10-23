@@ -1,6 +1,6 @@
 # Galaxy A23 4G (SM-A235F) — Evolution X `cnb` (Android 17)
 
-Дерево с нуля, ветка `cnb-clean`. Цель: `lineage_a23-cp2a-userdebug`,
+Актуальное дерево опубликовано в ветке `main` (ранее `cnb-clean`). Цель: `lineage_a23-cp2a-userdebug`,
 Evolution X Unofficial с GMS, загрузчик/прошивка **A235FXXSEEZB1**.
 
 Статус: **не собрано и не проверено на телефоне.** Ниже — что сделано и почему.
@@ -63,11 +63,11 @@ health 2.1, sensors 2.0, BT 1.0, fingerprint 2.1, keymaster 4.0 через
 
 ## Сборка на Crave
 
-Проект **LOS 22.1** (id 93), платформа `aosp-silver`, без `--clean` и devspace.
+Проект **LOS 22.1** (id 93), бесплатная платформа `linux16`, без `--clean` и devspace.
 Из локального клона `accupara/los22`:
 
 ```bash
-crave run --projectID 93 --platform aosp-silver --no-patch --no-artifacts --detached --json --   "curl -fsSL https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/<sha>/crave_build.sh -o /tmp/a23.sh && A23_DEVICE_REVISION=<sha> bash /tmp/a23.sh"
+crave run --projectID 93 --platform linux16 --no-patch --no-artifacts --detached --json --   "curl -fsSL https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/<device-sha>/crave_build.sh -o /tmp/a23.sh && A23_DEVICE_REVISION=<device-sha> A23_VENDOR_REVISION=<vendor-sha> bash /tmp/a23.sh"
 ```
 
 `crave_build.sh` делает `repo init` Evolution X `cnb` с `--depth=1 --git-lfs`,
@@ -119,6 +119,24 @@ system, product, boot, dtbo и стоковые SEZB1 vendor/odm, поэтому
 `device.mk` исключает из графа Soong `external/cronet/tot` (`PRODUCT_SOURCE_ROOT_DIRS`):
 `cp2a` не включает `RELEASE_ENABLE_TOT_CRONET`, сборка использует только `stable/`.
 Платная `aosp-silver` проходит этот шаг и без этого.
+
+По умолчанию `build_a23.sh` запускает не более четырёх задач одновременно
+(`BUILD_JOBS` позволяет задать другое положительное число). Число видимых CPU
+не отражает лимит памяти контейнера. Перед сборкой и после ошибки скрипт
+печатает доступную память и доступные счётчики cgroup, включая `oom_kill`.
+При `signal:killed`/`exit=137` он повторяет те же цели один раз с вдвое меньшим
+числом задач. Состав исходников и проверка зависимостей при этом сохраняются.
+
+В сборке **306988** синхронизация и проверка стоковой политики прошли,
+но на 76% операций R8 для `SystemUIGoogle` получил SIGKILL. Нехватка памяти
+вероятна, однако её нельзя подтвердить одним кодом 137. Старый повторный
+запуск исключал `test/app_compat`, удаляя регистрацию типа `csuite_test`,
+и ломал анализ ART и WM Shell. Этот режим исключения тестовых деревьев
+и включение `ALLOW_MISSING_DEPENDENCIES` удалены. Это исправление ещё требует
+проверки настоящей сборкой на сервере; готового OTA по этому логу нет.
+
+Проверка повторных запусков без исходников, образов и компиляции:
+`python3 tools/test_build_retry.py` из каталога device-дерева (нужен Bash).
 
 ## Известные риски
 

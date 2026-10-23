@@ -16,7 +16,7 @@ set -Eeuo pipefail
 
 work="${A23_WORK:-/content/evo}"
 log="${A23_LOG:-/content/a23-full.log}"
-device_revision="${A23_DEVICE_REVISION:-cnb-clean}"
+device_revision="${A23_DEVICE_REVISION:-main}"
 vendor_revision="${A23_VENDOR_REVISION:-}"
 stop_after="${A23_STOP_AFTER:-full}"
 raw="https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/$device_revision"

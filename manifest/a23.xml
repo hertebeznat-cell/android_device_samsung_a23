@@ -9,10 +9,10 @@
 
   <project path="device/samsung/a23"
            name="hertebeznat-cell/android_device_samsung_a23"
-           remote="a23-github" revision="cnb-clean" clone-depth="1" />
+           remote="a23-github" revision="main" clone-depth="1" />
   <project path="vendor/samsung/a235f"
            name="hertebeznat-cell/android_vendor_samsung_a235f"
-           remote="a23-github" revision="cnb-clean" clone-depth="1" />
+           remote="a23-github" revision="main" clone-depth="1" />
 
   <!-- ZestKernel source: the 20261010 release runs UN1CA on SEZB1. -->
   <project path="kernel/samsung/a23"

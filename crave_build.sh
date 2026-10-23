@@ -59,7 +59,7 @@ trap 'echo "A23_CRAVE=FAILED stage=${stage:-init} line=$LINENO elapsed=$(elapsed
 
 stage guard
 [[ -d .repo && "$(uname -s)" == Linux ]] || { echo "Run from the Crave Android root" >&2; exit 2; }
-device_revision="${A23_DEVICE_REVISION:-cnb-clean}"
+device_revision="${A23_DEVICE_REVISION:-main}"
 vendor_revision="${A23_VENDOR_REVISION:-}"
 raw="https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/$device_revision"
 
@@ -68,7 +68,7 @@ rm -rf .repo/local_manifests
 repo init -u https://github.com/Evolution-X/manifest -b cnb --git-lfs --depth=1
 mkdir -p .repo/local_manifests
 curl -fsSL --retry 3 "$raw/manifest/a23.xml" -o .repo/local_manifests/a23.xml
-# Pin the trees to the exact commits of this job, so pushes to the cnb-clean
+# Pin the trees to the exact commits of this job, so pushes to the main
 # branches during a long sync cannot change what gets built.
 python3 - .repo/local_manifests/a23.xml "$device_revision" "$vendor_revision" <<'PIN'
 import re, sys

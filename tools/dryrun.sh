@@ -134,12 +134,16 @@ lunch() {
 }
 m() {
     echo "stub m $*"
-    # DRYRUN_OOM=1 simulates Crave's free machines: the first Soong run dies.
-    if [ -n "${DRYRUN_OOM:-}" ] && [ -z "${A23_LOW_MEMORY:-}" ]; then
+    # DRYRUN_OOM=1 simulates one killed Soong run without changing the graph.
+    if [ -n "${DRYRUN_OOM:-}" ] && [ ! -f "$PWD/.dryrun-killed" ]; then
+        touch "$PWD/.dryrun-killed"
         echo " 1 steps failed: exit=137 # signal:killed"
         return 1
     fi
-    [ -n "${A23_LOW_MEMORY:-}" ] && echo "stub m low-memory ALLOW_MISSING_DEPENDENCIES=${ALLOW_MISSING_DEPENDENCIES:-}"
+    if [ -n "${A23_LOW_MEMORY:-}${ALLOW_MISSING_DEPENDENCIES:-}" ]; then
+        echo "dryrun: retry changed dependency checking" >&2
+        return 1
+    fi
     case " $* " in *" plat_sepolicy.cil "*)
         for f in system/etc/selinux/plat_sepolicy.cil system/etc/selinux/mapping/30.0.cil \
                  system/etc/selinux/mapping/30.0.compat.cil product/etc/selinux/product_sepolicy.cil \

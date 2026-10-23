@@ -13,7 +13,29 @@ trap 'echo "A23_BUILD=FAILED stage=${stage:-init} line=$LINENO" >&2' ERR
 
 # Absolute: apply_series runs git -C inside each repository.
 device="$PWD/device/samsung/a23"
-jobs="${BUILD_JOBS:-$(nproc)}"
+# Crave can expose many CPUs to a container with much less memory. R8 alone
+# uses a 4 GiB Java heap; do not start one compile per visible CPU by default.
+cpus=$(nproc)
+jobs="${BUILD_JOBS:-$(( cpus < 4 ? cpus : 4 ))}"
+[[ "$jobs" =~ ^[1-9][0-9]*$ && ${#jobs} -le 6 ]] || {
+    echo "BUILD_JOBS must be a positive integer (at most six digits)" >&2
+    exit 2
+}
+
+memory_snapshot() {
+    echo "A23_MEMORY stage=${stage:-init} jobs=$jobs"
+    grep -E '^(MemTotal|MemAvailable|SwapTotal|SwapFree):' /proc/meminfo || true
+    local file
+    for file in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.current \
+                /sys/fs/cgroup/memory.events /sys/fs/cgroup/memory.peak \
+                /sys/fs/cgroup/memory/memory.limit_in_bytes \
+                /sys/fs/cgroup/memory/memory.failcnt; do
+        if [[ -r "$file" ]]; then
+            echo "A23_MEMORY $file"
+            cat "$file" || true
+        fi
+    done
+}
 
 # Apply one patch series; already-applied patches are skipped, so the script
 # can be re-run on the same tree.
@@ -53,15 +75,27 @@ trap - ERR
 source build/envsetup.sh
 lunch lineage_a23-cp2a-userdebug || fail
 
-# m output is kept for diagnosis; an OOM-killed step (signal:killed / exit
-# 137, as on Crave's free machines) is retried once with a smaller Soong
-# graph (A23_LOW_MEMORY in device.mk) and, for compiles, half the jobs.
+# Keep the same product configuration and dependencies on retry. Excluding
+# test/app_compat removes the csuite_test plugin used by ART and WM Shell.
+# SIGKILL can indicate memory pressure, but is not proof of an OOM kill.
 mlog=$(mktemp /tmp/a23-m.XXXXXX.log)
 run_m() { m "$@" 2>&1 | tee "$mlog"; return "${PIPESTATUS[0]}"; }
-oom_killed() { grep -qaE 'signal:killed|exit=137' "$mlog"; }
-low_memory() {
-    export A23_LOW_MEMORY=true ALLOW_MISSING_DEPENDENCIES=true
-    echo "---- A23 BUILD STEP: $stage low-memory retry ($(date -u +%H:%M:%SZ)) ----"
+killed_step() { grep -qaE 'signal:killed|exit=137([^0-9]|$)' "$mlog"; }
+run_targets() {
+    memory_snapshot
+    if run_m -j"$jobs" "$@"; then
+        return 0
+    fi
+    memory_snapshot
+    killed_step || return 1
+    jobs=$(( jobs > 1 ? jobs / 2 : 1 ))
+    echo "---- A23 BUILD STEP: $stage SIGKILL retry ($(date -u +%H:%M:%SZ)) ----"
+    echo "retrying unchanged targets with -j$jobs: $*"
+    if run_m -j"$jobs" "$@"; then
+        return 0
+    fi
+    memory_snapshot
+    return 1
 }
 
 # Fail fast: compile the stock vendor policy the way init will at boot.
@@ -69,11 +103,7 @@ stage=stock-sepolicy; echo "---- A23 BUILD STEP: stock-sepolicy ($(date -u +%H:%
 policy_targets=(secilc plat_sepolicy.cil system_ext_sepolicy.cil product_sepolicy.cil
                 plat_30.0.cil 30.0.compat.cil system_ext_30.0.cil system_ext_30.0.compat.cil
                 product_30.0.cil)
-if ! run_m -j"$jobs" "${policy_targets[@]}"; then
-    oom_killed || fail
-    low_memory
-    run_m -j"$jobs" "${policy_targets[@]}" || fail
-fi
+run_targets "${policy_targets[@]}" || fail
 bash "$device"/tools/check_stock_sepolicy.sh || fail
 
 # Validation runs on short-lived machines (tools/colab_check.sh) stop early:
@@ -85,20 +115,14 @@ case "${A23_STOP_AFTER:-}" in
         exit 0 ;;
     bootimage)
         stage=bootimage; echo "---- A23 BUILD STEP: bootimage ($(date -u +%H:%M:%SZ)) ----"
-        run_m -j"$jobs" bootimage || fail
+        run_targets bootimage || fail
         ls -l "$OUT"/boot.img
         echo "A23_BUILD=CHECKED stage=bootimage"
         exit 0 ;;
 esac
 
 stage=build; echo "---- A23 BUILD STEP: build ($(date -u +%H:%M:%SZ)) ----"
-if ! run_m -j"$jobs" evolution; then
-    oom_killed || fail
-    low_memory
-    jobs=$(( jobs > 2 ? jobs / 2 : 1 ))
-    echo "retrying with -j$jobs"
-    run_m -j"$jobs" evolution || fail
-fi
+run_targets evolution || fail
 
 echo "A23_BUILD=SUCCESS"
 ls -l "$OUT"/*.zip
