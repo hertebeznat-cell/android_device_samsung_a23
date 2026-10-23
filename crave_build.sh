@@ -1,179 +1,141 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Public-source entrypoint for an ordinary queued Crave build, cnb / depth 1.
-
+#
+# Crave entry point for the Galaxy A23 4G, run from the project's Android root
+# (LOS 22.1 base, re-initialised to Evolution X cnb as in the Crave docs for
+# unsupported ROMs). Never uses --clean, rm -rf on the source tree or out/.
+#
+#   crave run --no-patch -- "curl -fsSL <raw url of this file> -o /tmp/a23.sh && \
+#       A23_DEVICE_REVISION=<sha> A23_VENDOR_REVISION=<sha> bash /tmp/a23.sh"
+#
+# Progress: every stage prints an "A23 STAGE" banner, and a heartbeat prints an
+# "A23_PROGRESS" line every minute with the elapsed time and the latest repo
+# (sync) or ninja (build) percentage.
+#
 set -Eeuo pipefail
 
-[[ "${A23_REMOTE_BUILD:-}" == 1 && "$(uname -s)" == Linux ]] || {
-    echo "Run only on the designated Linux build server with A23_REMOTE_BUILD=1" >&2
-    exit 2
-}
-if grep -qi microsoft /proc/sys/kernel/osrelease; then
-    echo "Local Windows/WSL compilation is not permitted for this project" >&2
-    exit 2
-fi
-[[ -f .repo/manifest.xml ]] || {
-    echo "Run from the existing Crave Android source root; do not create a nested checkout." >&2
-    exit 2
-}
+started=$(date +%s)
+state=/tmp/a23-crave
+mkdir -p "$state"
+sync_log="$state/sync.log"
+build_log="$state/build.log"
+: > "$sync_log"
+: > "$build_log"
 
-readonly EVO_MANIFEST="https://github.com/Evolution-X/manifest.git"
-readonly EVO_BRANCH="cnb"
+elapsed() { local s=$(( $(date +%s) - started )); printf '%dh%02dm' $((s / 3600)) $((s % 3600 / 60)); }
 
-BUILD_JOBS="${BUILD_JOBS:-12}"
-[[ "$BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || { echo 'BUILD_JOBS must be a positive integer' >&2; exit 2; }
-DEVICE_REVISION="${A23_DEVICE_REVISION:?Pass the published device commit}"
-VENDOR_REVISION="${A23_VENDOR_REVISION:?Pass the published vendor commit}"
-[[ "$DEVICE_REVISION" =~ ^[0-9a-f]{40}$ && "$VENDOR_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 2
-
-fail() {
-    echo "BUILD_STATUS=FAILED stage=$1" >&2
-    exit 1
+stage() {
+    stage="$1"
+    echo "$stage" > "$state/stage"
+    echo
+    echo "==================== A23 STAGE: $stage  (+$(elapsed), $(date -u +%H:%M:%SZ)) ===================="
 }
 
-STAGE=initialization
-trap 'rc=$?; echo "BUILD_STATUS=FAILED stage=$STAGE source=${BASH_SOURCE[0]} line=$LINENO exit=$rc" >&2; exit "$rc"' ERR
+# Last progress figure of the running stage: repo's "Fetching: 37% (420/1130)"
+# or ninja's "[ 45% 12345/67890]".
+progress() {
+    case "$(cat "$state/stage" 2>/dev/null)" in
+        repo-sync)
+            tail -c 65536 "$sync_log" 2>/dev/null | tr '\r' '\n' |
+                grep -aoE '(Fetching|Checking out|Syncing)[^%]{0,40}[0-9]+% \([0-9]+/[0-9]+\)' | tail -n 1 || true ;;
+        build)
+            tail -c 65536 "$build_log" 2>/dev/null | tr '\r' '\n' |
+                grep -aoE '\[ *[0-9]+% [0-9]+/[0-9]+[^]]*\]' | tail -n 1 || true ;;
+    esac
+}
 
-command -v repo >/dev/null || fail "repo-tool-missing"
-command -v git >/dev/null || fail "git-missing"
-command -v python3 >/dev/null || fail "python3-missing"
+heartbeat() {
+    # Runs in the background: never trip the job's error handling.
+    set +eE
+    trap - ERR
+    while sleep 60; do
+        echo "A23_PROGRESS +$(elapsed) stage=$(cat "$state/stage" 2>/dev/null) $(progress)"
+    done
+}
+heartbeat &
+heartbeat_pid=$!
+trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
+trap 'echo "A23_CRAVE=FAILED stage=${stage:-init} line=$LINENO elapsed=$(elapsed)" >&2' ERR
 
-# Evolution's environment requires a real ccache executable. Do this before
-# syncing, so a missing package cannot waste another complete sync attempt.
-STAGE=ccache-setup
-if ! command -v ccache >/dev/null; then
-    command -v apt-get >/dev/null || fail "ccache-missing-no-package-manager"
-    if [[ $(id -u) == 0 ]]; then
-        apt-get update
-        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ccache
-    elif command -v sudo >/dev/null && sudo -n true; then
-        sudo -n apt-get update
-        sudo -n env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ccache
-    else
-        fail "ccache-missing-contact-crave-admin"
-    fi
-fi
-export CCACHE_EXEC="$(command -v ccache)"
-"$CCACHE_EXEC" --version
+stage guard
+[[ -d .repo && "$(uname -s)" == Linux ]] || { echo "Run from the Crave Android root" >&2; exit 2; }
+device_revision="${A23_DEVICE_REVISION:-main}"
+vendor_revision="${A23_VENDOR_REVISION:-}"
+raw="https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/$device_revision"
 
-git ls-remote --exit-code --heads "$EVO_MANIFEST" "refs/heads/$EVO_BRANCH" >/dev/null
-
-
-STAGE=repo-runtime
-# Keep the service's current runtime and local edits intact during this build.
-# The stock resync wrapper pulls/rebases it even when its worktree is dirty.
-grep -Fq REPO_SKIP_SELF_UPDATE .repo/repo/subcmds/sync.py || fail "repo-runtime-no-self-update-guard"
-export REPO_SKIP_SELF_UPDATE=1
-RUNTIME_STATE="$(mktemp -d /tmp/a23-repo-runtime.XXXXXX)"
-git -C .repo/repo rev-parse HEAD > "$RUNTIME_STATE/head.before"
-git -C .repo/repo status --porcelain=v1 > "$RUNTIME_STATE/status.before"
-git -C .repo/repo diff --binary HEAD > "$RUNTIME_STATE/changes.before.patch"
-echo "REPO_RUNTIME_STATE=$RUNTIME_STATE"
-
-STAGE=repo-init
-repo init \
-    -u "$EVO_MANIFEST" \
-    -b "$EVO_BRANCH" \
-    --git-lfs \
-    --depth=1 \
-    --no-clone-bundle
-
+stage repo-init
+rm -rf .repo/local_manifests
+repo init -u https://github.com/Evolution-X/manifest -b cnb --git-lfs --depth=1
 mkdir -p .repo/local_manifests
-cat > .repo/local_manifests/a23.xml <<MANIFEST
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest>
-  <remote name="a23-github" fetch="https://github.com" />
-  <remote name="a23-aosp" fetch="https://android.googlesource.com" />
-  <project path="prebuilts/vndk/v30" name="platform/prebuilts/vndk/v30" remote="a23-aosp" revision="5f9884aa352825291757dfd6694b874ad8c1805e" upstream="main" clone-depth="1" />
-  <project path="hardware/samsung" name="LineageOS/android_hardware_samsung" remote="a23-github" revision="lineage-24.0" clone-depth="1" />
-  <project path="device/samsung/a23" name="hertebeznat-cell/android_device_samsung_a23" remote="a23-github" revision="$DEVICE_REVISION" clone-depth="1" />
-  <project path="vendor/samsung/a235f" name="hertebeznat-cell/android_vendor_samsung_a235f" remote="a23-github" revision="$VENDOR_REVISION" clone-depth="1" />
-  <project path="kernel/samsung/a23" name="blxyzY/android_kernel_samsung_sm6225" remote="a23-github" revision="8c34b1fc1e921fcac33e839f7d6e9f3ea732221b" upstream="master" clone-depth="1" />
-</manifest>
-MANIFEST
+curl -fsSL --retry 3 "$raw/manifest/a23.xml" -o .repo/local_manifests/a23.xml
+# Pin the trees to the exact commits of this job, so pushes to the main
+# branches during a long sync cannot change what gets built.
+python3 - .repo/local_manifests/a23.xml "$device_revision" "$vendor_revision" <<'PIN'
+import re, sys
+path, device, vendor = sys.argv[1:4]
+text = open(path).read()
+for name, sha in (('android_device_samsung_a23', device), ('android_vendor_samsung_a235f', vendor)):
+    if re.fullmatch(r'[0-9a-f]{40}', sha):
+        text, count = re.subn(r'(name="hertebeznat-cell/%s"[^>]*?revision=")[^"]+"' % name,
+                              r'\g<1>%s"' % sha, text, flags=re.S)
+        assert count == 1, name
+        print(f'pinned {name} to {sha}')
+open(path, 'w').write(text)
+PIN
+cat .repo/local_manifests/a23.xml
 
-# Seeded caches can contain copied hooks directories where repo expects a
-# shared link. Repair only those references before force-sync can recreate
-# an otherwise intact checkout. Fetch this helper from the same public commit.
-STAGE=repo-hook-repair
-readonly HOOK_REPAIR_SHA256="b308d0528a75ab99eed30c63af1cf03bf2129c230203fa4ddb47e7d01d45665e"
-python3 - "$DEVICE_REVISION" "$HOOK_REPAIR_SHA256" <<'HOOK_REPAIR'
-import hashlib
-import os
-from pathlib import Path
-import subprocess
-import sys
-import tempfile
-import time
-import urllib.request
+stage repo-sync
+# repo only draws its progress bar on a terminal; give it one with script(1).
+if command -v script >/dev/null; then
+    script -qefc /opt/crave/resync.sh "$sync_log"
+else
+    /opt/crave/resync.sh 2>&1 | tee "$sync_log"
+fi
 
-revision, expected = sys.argv[1:]
-url = ("https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/"
-       + revision + "/tools/repair_repo_hooks.py")
-for attempt in range(3):
-    try:
-        with urllib.request.urlopen(url, timeout=60) as response:
-            source = response.read(1000001)
-        break
-    except OSError:
-        if attempt == 2:
-            raise
-        time.sleep(5)
-if len(source) > 1000000 or hashlib.sha256(source).hexdigest() != expected:
-    raise SystemExit("BUILD_STATUS=FAILED stage=repo-hook-helper-sha256")
-with tempfile.NamedTemporaryFile(prefix="a23-repo-hooks-", suffix=".py", delete=False) as stream:
-    stream.write(source)
-    helper = Path(stream.name)
-try:
-    subprocess.run([sys.executable, str(helper), "--root", os.getcwd(), "--apply"], check=True)
-finally:
-    helper.unlink(missing_ok=True)
-HOOK_REPAIR
+stage verify-sync
+for path in device/samsung/a23/build_a23.sh vendor/samsung/a235f/images/SHA256SUMS \
+            kernel/samsung/a23/Makefile prebuilts/vndk/v30/arm64/Android.bp build/envsetup.sh; do
+    [[ -f "$path" ]] || { echo "missing after sync: $path" >&2; exit 1; }
+done
+for pair in "device/samsung/a23:$device_revision" "vendor/samsung/a235f:$vendor_revision"; do
+    path="${pair%%:*}" sha="${pair#*:}"
+    if [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+        [[ "$(git -C "$path" rev-parse HEAD)" == "$sha" ]] || { echo "$path is not at $sha" >&2; exit 1; }
+    fi
+done
+echo "A23_DEVICE=$(git -C device/samsung/a23 rev-parse HEAD)"
+echo "A23_VENDOR=$(git -C vendor/samsung/a235f rev-parse HEAD)"
+echo "A23_KERNEL=$(git -C kernel/samsung/a23 rev-parse HEAD)"
 
-# Sync in this ordinary queued build with the exact manifest just inspected.
-# Stale checkouts have reversible backups; unknown metadata conflicts must fail
-# instead of enabling repo's destructive --force-sync recovery.
-STAGE=repo-sync
-SYNC_LOG="$(mktemp /tmp/a23-sync.XXXXXX.log)"
-echo "REPO_SYNC_STATUS=started jobs=$BUILD_JOBS log=$SYNC_LOG"
-# Repo hides its interactive progress bar when Crave captures stdout. Verbose
-# fetch output plus a periodic heartbeat keeps long network waits visible.
-python3 -u - "$SYNC_LOG" <<'SYNC_PROGRESS' &
-from pathlib import Path
-import sys
-import time
+# The LOS 22.1 base left files of older project revisions behind as untracked
+# files (job 306580: Android 15 external/cronet/third_party/**/Android.bp next
+# to the Android 17 tot/ and stable/ trees). Soong parses every Android.bp, so
+# clean any project that holds untracked build files. Tracked sources and out/
+# are untouched; this tree's own projects are skipped.
+stage clean-stale-sources
+repo forall -j"$(nproc)" -c '
+    case "$REPO_PATH" in device/samsung/a23|vendor/samsung/a235f|kernel/samsung/a23) exit 0 ;; esac
+    stale=$(git ls-files --others -- "*Android.bp" "*Android.mk" | head -n 3 | tr "\n" " ")
+    if [ -n "$stale" ]; then
+        echo "A23_STALE $REPO_PATH: $stale"
+        git clean -fdxq
+    fi
+'
 
-log = Path(sys.argv[1])
-started = time.monotonic()
-while True:
-    time.sleep(30)
-    print(f"REPO_SYNC_STATUS=running elapsed_seconds={int(time.monotonic() - started)} "
-          f"log_bytes={log.stat().st_size}")
-SYNC_PROGRESS
-SYNC_PROGRESS_PID=$!
-stop_sync_progress() {
-    kill "$SYNC_PROGRESS_PID" 2>/dev/null || true
-    wait "$SYNC_PROGRESS_PID" 2>/dev/null || true
-}
-trap stop_sync_progress EXIT
-PYTHONUNBUFFERED=1 repo sync -c -j"$BUILD_JOBS" --no-manifest-update --no-clone-bundle --verbose \
-    --no-tags --prune --optimized-fetch --force-remove-dirty 2>&1 | tee "$SYNC_LOG"
-stop_sync_progress
-trap - EXIT
-grep -Fq 'repo sync has finished successfully.' "$SYNC_LOG" || fail "repo-sync-incomplete-see-$SYNC_LOG"
-echo "REPO_SYNC_STATUS=finished log=$SYNC_LOG"
-git -C .repo/repo rev-parse HEAD > "$RUNTIME_STATE/head.after"
-git -C .repo/repo status --porcelain=v1 > "$RUNTIME_STATE/status.after"
-git -C .repo/repo diff --binary HEAD > "$RUNTIME_STATE/changes.after.patch"
-cmp -s "$RUNTIME_STATE/head.before" "$RUNTIME_STATE/head.after" || fail "repo-runtime-head-changed"
-cmp -s "$RUNTIME_STATE/changes.before.patch" "$RUNTIME_STATE/changes.after.patch" || fail "repo-runtime-edits-changed"
+# Earlier jobs left their own integration patches in these checkouts. Return
+# them to the synced commit so only this tree's patches are applied.
+stage reset-patched-repos
+for repository in system/sepolicy system/core device/lineage/sepolicy cts build/make hardware/interfaces \
+                  kernel/configs packages/modules/vndk packages/modules/Connectivity \
+                  kernel/samsung/a23; do
+    [[ -d "$repository/.git" || -f "$repository/.git" ]] || continue
+    git -C "$repository" reset --quiet --hard HEAD
+    git -C "$repository" clean -fdq
+    echo "reset $repository to $(git -C "$repository" rev-parse --short HEAD)"
+done
 
-STAGE=source-revisions
-[[ "$(git -C device/samsung/a23 rev-parse HEAD)" == "$DEVICE_REVISION" ]] || fail "device-revision-mismatch"
-[[ "$(git -C vendor/samsung/a235f rev-parse HEAD)" == "$VENDOR_REVISION" ]] || fail "vendor-revision-mismatch"
-echo "DEVICE_REVISION=$DEVICE_REVISION"
-echo "VENDOR_REVISION=$VENDOR_REVISION"
-# Use the same guarded build pipeline for Crave and an already synced server.
-# It preserves build logs/patches/checksums locally and never uploads artifacts.
-export BUILD_JOBS
-exec bash device/samsung/a23/server_build.sh
+stage build
+A23_BRINGUP="${A23_BRINGUP:-true}" bash device/samsung/a23/build_a23.sh 2>&1 | tee "$build_log"
+
+stage done
+echo "A23_CRAVE=SUCCESS elapsed=$(elapsed)"

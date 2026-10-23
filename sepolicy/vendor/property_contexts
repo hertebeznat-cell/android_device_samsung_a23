@@ -1,5 +1,0 @@
-# Samsung Galaxy A23 property_contexts
-# SPDX-License-Identifier: Apache-2.0
-
-ro.hardware.chipname       u:object_r:vendor_default_prop:s0
-vendor.camera.             u:object_r:vendor_camera_prop:s0

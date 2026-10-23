@@ -1,24 +1,36 @@
 #
-# Copyright (C) 2024-2026 The Evolution X Project
+# Copyright (C) 2026 The LineageOS Project
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Select Google apps before inherited product files evaluate WITH_GMS.
+# Evolution X options. vendor/lineage/config/common.mk tests these with
+# ifdef/ifeq while it is being inherited, so they must be set first.
 WITH_GMS := true
-# Use standard GMS rather than optional Mosey product inheritance.
 TARGET_INCLUDE_MOSEY := false
+EVO_BUILD_TYPE := Unofficial
+TARGET_BOOT_ANIMATION_RES := 1080
+TARGET_HAS_UDFPS := false
+TARGET_ENABLE_BLUR := false
+TARGET_SUPPORTS_QUICK_TAP := false
+TARGET_FACE_UNLOCK_SUPPORTED := true
+
+# Bring-up builds: permissive SELinux (BoardConfig.mk) and adb without
+# authorization, so logs can be pulled from a first boot. Build with
+# A23_BRINGUP=false for daily use.
+ifneq ($(A23_BRINGUP),false)
+WITH_ADB_INSECURE := true
+endif
 
 # Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 
-# Inherit from a23 device
+# Inherit from the device configuration.
 $(call inherit-product, device/samsung/a23/device.mk)
 
-# Inherit Lineage common configuration
+# Inherit common Lineage/Evolution X configuration.
 $(call inherit-product, vendor/lineage/config/common_full_phone.mk)
 
-# Device identifier
 PRODUCT_NAME := lineage_a23
 PRODUCT_DEVICE := a23
 PRODUCT_BRAND := samsung
@@ -27,19 +39,7 @@ PRODUCT_MANUFACTURER := samsung
 
 PRODUCT_GMS_CLIENTID_BASE := android-samsung
 
-BUILD_FINGERPRINT := samsung/a23nsxx/a23:14/UP1A.231005.007/A235FXXSEEZB1:user/release-keys
-
-# Evolution X build flags
-EVO_BUILD_TYPE := Unofficial
-BUILD_BCR := true
-TARGET_HAS_UDFPS := false
-TARGET_INCLUDE_BOOT_ANIMATIONS := true
-WITH_ADB_INSECURE := false
-WITH_SU := false
-BYPASS_CHARGE_SUPPORTED := false
-TARGET_ENABLE_BLUR := true
-TARGET_BOOT_ANIMATION_RES := 1080
-TARGET_FACE_UNLOCK_SUPPORTED := true
-
-# Android 17 / Cinnamon Bun specifics
-TARGET_SUPPORTS_64_BIT_APPS := true
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    BuildDesc="a23nsxx-user 14 UP1A.231005.007 A235FXXSEEZB1 release-keys" \
+    BuildFingerprint=samsung/a23nsxx/a23:14/UP1A.231005.007/A235FXXSEEZB1:user/release-keys \
+    DeviceProduct=a23nsxx

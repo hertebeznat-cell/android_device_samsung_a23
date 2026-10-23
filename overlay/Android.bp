@@ -1,0 +1,21 @@
+//
+// Copyright (C) 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// The vendor partition is the untouched stock image, so device overlays are
+// installed to product.
+
+runtime_resource_overlay {
+    name: "FrameworksResA23",
+    product_specific: true,
+    resource_dirs: ["FrameworksResA23/res"],
+    manifest: "FrameworksResA23/AndroidManifest.xml",
+}
+
+runtime_resource_overlay {
+    name: "WifiResA23",
+    product_specific: true,
+    resource_dirs: ["WifiResA23/res"],
+    manifest: "WifiResA23/AndroidManifest.xml",
+}

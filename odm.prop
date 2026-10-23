@@ -1,9 +1,0 @@
-# Samsung Galaxy A23 odm.prop
-# SPDX-License-Identifier: Apache-2.0
-
-# Samsung
-ro.soc.manufacturer=Qualcomm
-ro.soc.model=SM6225
-
-# Preserve the SEZB1 ODM feature through the generated ODM property file.
-ro.vendor.qti.va_odm.support=1

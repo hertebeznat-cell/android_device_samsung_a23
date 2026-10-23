@@ -1,0 +1,35 @@
+diff --git a/private/compat/30.0/30.0.cil b/private/compat/30.0/30.0.cil
+index f95488c..a21e24f 100644
+--- a/private/compat/30.0/30.0.cil
++++ b/private/compat/30.0/30.0.cil
+@@ -1144,10 +1144,10 @@
+ (typeattributeset apex_metadata_file_30_0 (apex_metadata_file))
+ (typeattributeset apex_mnt_dir_30_0 (apex_mnt_dir))
+ (typeattributeset apex_module_data_file_30_0 (apex_module_data_file))
+-(typeattributeset apex_permission_data_file_30_0 (apex_permission_data_file))
++(typeattributeset apex_permission_data_file_30_0 (apex_permission_data_file apex_system_server_data_file))
+ (typeattributeset apex_rollback_data_file_30_0 (apex_rollback_data_file))
+ (typeattributeset apex_service_30_0 (apex_service))
+-(typeattributeset apex_wifi_data_file_30_0 (apex_wifi_data_file))
++(typeattributeset apex_wifi_data_file_30_0 (apex_wifi_data_file apex_system_server_data_file))
+ (typeattributeset apexd_30_0 (apexd))
+ (typeattributeset apexd_exec_30_0 (apexd_exec))
+ (typeattributeset apexd_prop_30_0 (apexd_prop))
+@@ -1838,6 +1838,8 @@
+ (typeattributeset proc_30_0
+   ( proc
+     proc_bootconfig
++    proc_bpf
++    proc_cpu_alignment
+     proc_watermark_scale_factor))
+ (typeattributeset proc_abi_30_0 (proc_abi))
+ (typeattributeset proc_asound_30_0 (proc_asound))
+@@ -1866,7 +1868,7 @@
+ (typeattributeset proc_misc_30_0 (proc_misc))
+ (typeattributeset proc_modules_30_0 (proc_modules))
+ (typeattributeset proc_mounts_30_0 (proc_mounts))
+-(typeattributeset proc_net_30_0 (proc_net))
++(typeattributeset proc_net_30_0 (proc_bpf proc_net))
+ (typeattributeset proc_net_tcp_udp_30_0 (proc_net_tcp_udp))
+ (typeattributeset proc_overcommit_memory_30_0 (proc_overcommit_memory))
+ (typeattributeset proc_page_cluster_30_0 (proc_page_cluster))

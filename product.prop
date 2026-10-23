@@ -1,11 +1,9 @@
-# Samsung Galaxy A23 product.prop
-# SPDX-License-Identifier: Apache-2.0
+# Graphics: the Android 11 Adreno 610 driver is safest with GL composition.
+# Product props load last, overriding the empty stock ro.hwui.use_vulkan.
+debug.renderengine.backend=skiaglthreaded
+debug.hwui.renderer=skiagl
+ro.hwui.use_vulkan=false
 
-# Telephony
-ro.telephony.iwlan_operation_mode=legacy
-
-# ART
-dalvik.vm.dex2oat-filter=speed
-dalvik.vm.dex2oat-threads=8
-dalvik.vm.image-dex2oat-filter=speed
-dalvik.vm.image-dex2oat-threads=8
+# Samsung RIL
+ro.telephony.default_network=9,9
+persist.radio.multisim.config=dsds
