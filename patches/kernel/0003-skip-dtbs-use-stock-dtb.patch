@@ -1,0 +1,25 @@
+diff --git a/arch/arm64/boot/dts/Makefile b/arch/arm64/boot/dts/Makefile
+index e281c9c..85d2a36 100644
+--- a/arch/arm64/boot/dts/Makefile
++++ b/arch/arm64/boot/dts/Makefile
+@@ -20,7 +20,10 @@ subdir-y += nvidia
+ subdir-y += realtek
+ subdir-y += renesas
+ subdir-y += rockchip
+-subdir-y += samsung
++# Android builds use the stock SEZB1 DTB/DTBO (device/samsung/a23/prebuilt).
++# Building samsung/a23 overlays races with vendor/qcom on the shared
++# khaje.dtb base under parallel make (Crave job 307173), so skip both.
++#subdir-y += samsung
+ subdir-y += socionext
+ subdir-y += sprd
+ subdir-y += synaptics
+@@ -33,7 +36,7 @@ dtstree		:= $(srctree)/$(src)
+ 
+ # Qualcomm khaje (SM6225) base DTS/overlay tree
+ ifneq ($(wildcard $(dtstree)/vendor/Makefile),)
+-subdir-y += vendor
++#subdir-y += vendor
+ endif
+ 
+ dtb-$(CONFIG_OF_ALL_DTBS) := $(patsubst $(dtstree)/%.dts,%.dtb, $(foreach d,$(subdir), $(wildcard $(dtstree)/$(d)/*.dts)))

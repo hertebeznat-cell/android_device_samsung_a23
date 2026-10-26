@@ -60,7 +60,8 @@ make_repo kernel/samsung/a23 \
     "$KERNEL/include/uapi/linux/sched/types.h" include/uapi/linux/sched/types.h \
     "$KERNEL/scripts/sign-file.c" scripts/sign-file.c \
     "$KERNEL/scripts/extract-cert.c" scripts/extract-cert.c \
-    "$KERNEL/Makefile" Makefile
+    "$KERNEL/Makefile" Makefile \
+    "$KERNEL/arch/arm64/boot/dts/Makefile" arch/arm64/boot/dts/Makefile
 # Leftover of an older project revision (job 306580): untracked Android.bp
 # next to the tracked tree must be cleaned by crave_build.sh.
 mkdir -p "$root/external/cronet/tot"
