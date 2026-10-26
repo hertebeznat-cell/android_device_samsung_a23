@@ -4,6 +4,7 @@
 # Dry run of crave_build.sh + build_a23.sh without an Android checkout.
 #
 #   bash device/samsung/a23/tools/dryrun.sh <device tree> <vendor tree> [work dir]
+#   (the work dir is deleted afterwards unless DRYRUN_KEEP=1)
 #
 # Builds a fake Android root whose patched repositories are real git repos
 # holding the exact upstream files the patches touch (fetched from the cnb /
@@ -172,4 +173,11 @@ for repo in packages/modules/vndk system/sepolicy hardware/interfaces kernel/con
             packages/modules/Connectivity system/core device/lineage/sepolicy kernel/samsung/a23; do
     [[ -n "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo not patched" >&2; exit 1; }
 done
-echo "DRYRUN=OK ($root)"
+echo "DRYRUN=OK"
+# Each run holds a full tree copy with the stock images (~1.6 GB).
+if [[ -z "${DRYRUN_KEEP:-}" ]]; then
+    cd /
+    rm -rf -- "$work"
+else
+    echo "kept: $root"
+fi
