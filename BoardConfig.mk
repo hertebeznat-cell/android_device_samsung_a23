@@ -128,6 +128,8 @@ TARGET_USERIMAGES_USE_F2FS := true
 # and /metadata the userdata encryption keys.
 BOARD_USES_METADATA_PARTITION := true
 BOARD_ROOT_EXTRA_FOLDERS := carrier efs optics prism spu
+# ...labelled by sepolicy/private (system_ext), see file.te there.
+SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/private
 
 TARGET_COPY_OUT_PRODUCT := product
 TARGET_COPY_OUT_VENDOR := vendor

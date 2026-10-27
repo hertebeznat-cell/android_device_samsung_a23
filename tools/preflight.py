@@ -97,6 +97,13 @@ def main():
             continue
         check(top in extra or board.get(builtin.get(top, ''), ''), f'no root mount point for /{top}')
 
+    # Every extra root folder needs a file_contexts label, or the system image
+    # build fails in e2fsdroid ("searching for label", Colab/server build).
+    contexts = (device / 'sepolicy/private/file_contexts').read_text()
+    for folder in extra:
+        check(re.search(r'^/%s\s+u:object_r:\w+:s0' % re.escape(folder), contexts, re.M),
+              f'no file_contexts label for /{folder}')
+
     # Patches the build script applies.
     for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity', 'core', 'lineage-sepolicy'):
         check(any((device / 'patches' / directory).glob('*.patch')), f'no {directory} patches')

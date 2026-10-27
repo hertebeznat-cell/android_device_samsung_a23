@@ -1,0 +1,16 @@
+# Root mount points used by the stock SEZB1 vendor fstab (BOARD_ROOT_EXTRA_FOLDERS).
+# On One UI these types belong to Samsung's platform policy, and the stock
+# vendor policy refers to them through API 30 versioned attributes; declare
+# them here and join those attributes so the vendor rules apply to them.
+type efs_file, file_type;
+type carrier_file, file_type;
+type spu_file, file_type;
+type prism_file, file_type;
+type optics_file, file_type;
+
+attribute efs_file_30_0;
+attribute carrier_file_30_0;
+attribute spu_file_30_0;
+typeattribute efs_file efs_file_30_0;
+typeattribute carrier_file carrier_file_30_0;
+typeattribute spu_file spu_file_30_0;
