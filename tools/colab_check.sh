@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 #
-# Validation run for short-lived Linux machines such as Google Colab (needs
-# ~32 GB RAM, ~200 GB disk, x86_64). Syncs Evolution X cnb with --depth=1 plus
+# Build on a plain x86_64 Debian/Ubuntu machine as root: a rented server or
+# Google Colab (needs ~48 GB RAM+swap, ~300 GB disk). Syncs Evolution X cnb with --depth=1 plus
 # this tree, then runs build_a23.sh. A23_STOP_AFTER=full (default) builds the
 # whole ROM; stock-sepolicy or bootimage stop after those checks. On success the
 # OTA zip is copied to Google Drive when /content/drive/MyDrive is mounted.
 #
+# Server (as root, inside tmux):
+#   curl -fsSL https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/<sha>/tools/colab_check.sh -o /root/a23.sh && A23_DEVICE_REVISION=<sha> BUILD_JOBS=12 bash /root/a23.sh
 # Colab cell:
 #   !curl -fsSL https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a23/<sha>/tools/colab_check.sh -o /content/a23.sh && A23_DEVICE_REVISION=<sha> bash /content/a23.sh
 #
-# Full output goes to $A23_LOG (default /content/a23-full.log); the console only
+# Work dir and log default to /content/evo and /content/a23-full.log on Colab,
+# /srv/a23/evo and /srv/a23/a23-full.log elsewhere. The console only
 # shows stages, a progress line per minute and, on failure, the log tail.
 set -Eeuo pipefail
 
-work="${A23_WORK:-/content/evo}"
-log="${A23_LOG:-/content/a23-full.log}"
+if [[ -d /content ]]; then base=/content; else base=/srv/a23; fi
+work="${A23_WORK:-$base/evo}"
+log="${A23_LOG:-$base/a23-full.log}"
 device_revision="${A23_DEVICE_REVISION:-main}"
 vendor_revision="${A23_VENDOR_REVISION:-}"
 stop_after="${A23_STOP_AFTER:-full}"
@@ -25,7 +29,15 @@ raw="https://raw.githubusercontent.com/hertebeznat-cell/android_device_samsung_a
 if [[ "${1:-}" != --as-builder ]]; then
     [[ "$(uname -m)" == x86_64 ]] || { echo "x86_64 Linux required" >&2; exit 2; }
     echo "== A23 COLAB: setup ($(date -u +%H:%M:%SZ)) =="
-    nproc; free -g | sed -n 2p; df -h "$(dirname "$work")" | tail -n 1
+    command -v apt-get >/dev/null || { echo "Debian/Ubuntu (apt-get) required" >&2; exit 2; }
+    mkdir -p "$(dirname "$log")" "$work"
+    nproc; free -g | sed -n '2,3p'; df -h "$work" | tail -n 1
+    # Soong's analysis of the Evolution graph peaks around 40 GB.
+    total_gb=$(awk '/^(MemTotal|SwapTotal):/ {kb += $2} END {print int(kb / 1048576)}' /proc/meminfo)
+    if (( total_gb < 48 )); then
+        echo "WARNING: RAM+swap is ${total_gb} GB; Soong may be OOM-killed. Add swap first, e.g.:"
+        echo "  fallocate -l 32G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile"
+    fi
     : > "$log"
     export DEBIAN_FRONTEND=noninteractive
     apt-get -qq update >> "$log" 2>&1
@@ -43,6 +55,7 @@ if [[ "${1:-}" != --as-builder ]]; then
     runuser -u builder -- env HOME=/home/builder PATH="/usr/local/bin:$PATH" \
         A23_WORK="$work" A23_LOG="$log" A23_DEVICE_REVISION="$device_revision" \
         A23_VENDOR_REVISION="$vendor_revision" A23_STOP_AFTER="$stop_after" \
+        ${BUILD_JOBS:+BUILD_JOBS="$BUILD_JOBS"} \
         bash "$script" --as-builder || exit $?
     # Google Drive is mounted for root only; copy the OTA zip from here.
     if [[ -d /content/drive/MyDrive ]]; then
