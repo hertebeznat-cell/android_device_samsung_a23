@@ -133,6 +133,18 @@ echo "A23_DEVICE=$(git -C device/samsung/a23 rev-parse HEAD)"
 echo "A23_KERNEL=$(git -C kernel/samsung/a23 rev-parse HEAD)"
 df -h --output=used,avail "$work" | tail -n 1
 
+# A re-run on the same tree finds the previous run's patches applied; series
+# such as sepolicy 0001+0002 cannot be detected as applied one by one. Return
+# the patched checkouts to their synced commits, as crave_build.sh does.
+banner reset-patched-repos
+for repository in system/sepolicy system/core device/lineage/sepolicy cts build/make hardware/interfaces \
+                  kernel/configs packages/modules/vndk packages/modules/Connectivity \
+                  kernel/samsung/a23; do
+    [[ -d "$repository/.git" || -f "$repository/.git" ]] || continue
+    run git -C "$repository" reset --quiet --hard HEAD
+    run git -C "$repository" clean -fdq
+done
+
 banner "build-a23 (stop after $stop_after)"
 [[ "$stop_after" == full ]] && stop_after=""
 A23_STOP_AFTER="$stop_after" A23_BRINGUP=true bash device/samsung/a23/build_a23.sh >> "$log" 2>&1 || {
