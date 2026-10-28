@@ -106,7 +106,7 @@ def main():
           'efs_file is declared by system/sepolicy')
     check(not re.search(r'^/efs', contexts, re.M), '/efs is labelled by system/sepolicy')
     for folder in extra - {'efs'}:
-        check(re.search(r'^/%s\s+u:object_r:\w+:s0' % re.escape(folder), contexts, re.M),
+        check(re.search(r'^/%s(\(/\.\*\)\?)?\s+u:object_r:\w+:s0' % re.escape(folder), contexts, re.M),
               f'no file_contexts label for /{folder}')
 
     # Patches the build script applies.

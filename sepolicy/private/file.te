@@ -1,12 +1,11 @@
 # Root mount points used by the stock SEZB1 vendor fstab (BOARD_ROOT_EXTRA_FOLDERS).
-# AOSP already declares and labels efs_file (/efs). The other types belong to
+# AOSP already declares and labels efs_file (/efs); One UI labels /prism and
+# /optics with AOSP types (see file_contexts). carrier/spu types belong to
 # Samsung's platform policy on One UI, and the stock vendor policy refers to
 # them through API 30 versioned attributes; declare them here and join those
 # attributes so the vendor rules apply to them.
 type carrier_file, file_type;
 type spu_file, file_type;
-type prism_file, file_type;
-type optics_file, file_type;
 
 attribute carrier_file_30_0;
 attribute spu_file_30_0;

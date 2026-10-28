@@ -1,0 +1,13 @@
+# Platform-side rules for the stock SEZB1 vendor.
+
+# init.a23.rc binds the fixed Codec2 seccomp policy over the stock one.
+allow init vendor_configs_file:file mounton;
+
+# vold queries the flags of every mounted filesystem root, including the
+# stock /carrier and /spu partitions.
+allow vold { carrier_file spu_file }:dir { getattr ioctl open read search };
+
+# Both enumerate every property area (__system_property_foreach) and only use
+# the ones they may read; the rest is noise.
+dontaudit flags_health_check property_type:file { getattr map open read };
+dontaudit hal_camera_server property_type:file { getattr map open read };

@@ -9,3 +9,10 @@ on early-boot
     # recording hung and media playback stalled. Overlay a copy that also
     # allows those flags (the vendor image stays untouched).
     mount none /system_ext/etc/seccomp_policy/samsung.software.media.c2-base-policy /vendor/etc/seccomp_policy/samsung.software.media.c2-base-policy bind
+
+on post-fs-data
+    # Directories the stock vendor creates under /data, labelled since the
+    # One UI labels were ported (sepolicy/private); fix earlier installs.
+    restorecon_recursive /data/log
+    restorecon_recursive /data/nfc
+    restorecon_recursive /data/sec
