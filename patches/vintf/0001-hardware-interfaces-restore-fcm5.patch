@@ -37,7 +37,7 @@ diff --git a/compatibility_matrices/compatibility_matrix.5.xml b/compatibility_m
 new file mode 100644
 --- /dev/null
 +++ b/compatibility_matrices/compatibility_matrix.5.xml
-@@ -0,0 +1,578 @@
+@@ -0,0 +1,513 @@
 +<compatibility-matrix version="1.0" type="framework" level="5">
 +    <hal format="hidl">
 +        <name>android.hardware.atrace</name>
@@ -72,15 +72,6 @@ new file mode 100644
 +        </interface>
 +    </hal>
 +    <hal format="hidl">
-+        <name>android.hardware.automotive.audiocontrol</name>
-+        <version>1.0</version>
-+        <version>2.0</version>
-+        <interface>
-+            <name>IAudioControl</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
-+    <hal format="hidl">
 +        <name>android.hardware.automotive.can</name>
 +        <version>1.0</version>
 +        <interface>
@@ -105,14 +96,6 @@ new file mode 100644
 +        <name>android.hardware.automotive.occupant_awareness</name>
 +        <interface>
 +            <name>IOccupantAwareness</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
-+    <hal format="hidl">
-+        <name>android.hardware.automotive.sv</name>
-+        <version>1.0</version>
-+        <interface>
-+            <name>ISurroundViewService</name>
 +            <instance>default</instance>
 +        </interface>
 +    </hal>
@@ -225,14 +208,6 @@ new file mode 100644
 +        </interface>
 +    </hal>
 +    <hal format="hidl">
-+        <name>android.hardware.dumpstate</name>
-+        <version>1.1</version>
-+        <interface>
-+            <name>IDumpstateDevice</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
-+    <hal format="hidl">
 +        <name>android.hardware.gatekeeper</name>
 +        <version>1.0</version>
 +        <interface>
@@ -292,14 +267,6 @@ new file mode 100644
 +            <instance>default</instance>
 +        </interface>
 +    </hal>
-+    <hal format="hidl">
-+        <name>android.hardware.health.storage</name>
-+        <version>1.0</version>
-+        <interface>
-+            <name>IStorage</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
 +    <hal format="aidl">
 +        <name>android.hardware.identity</name>
 +        <!--
@@ -311,22 +278,6 @@ new file mode 100644
 +        <version>1-2</version>
 +        <interface>
 +            <name>IIdentityCredentialStore</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
-+    <hal format="hidl">
-+        <name>android.hardware.ir</name>
-+        <version>1.0</version>
-+        <interface>
-+            <name>IConsumerIr</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
-+    <hal format="hidl">
-+        <name>android.hardware.input.classifier</name>
-+        <version>1.0</version>
-+        <interface>
-+            <name>IInputClassifier</name>
 +            <instance>default</instance>
 +        </interface>
 +    </hal>
@@ -382,14 +333,6 @@ new file mode 100644
 +        </interface>
 +        <interface>
 +            <name>IOmxStore</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
-+    <hal format="hidl">
-+        <name>android.hardware.memtrack</name>
-+        <version>1.0</version>
-+        <interface>
-+            <name>IMemtrack</name>
 +            <instance>default</instance>
 +        </interface>
 +    </hal>
@@ -572,14 +515,6 @@ new file mode 100644
 +        <name>android.hardware.vibrator</name>
 +        <interface>
 +            <name>IVibrator</name>
-+            <instance>default</instance>
-+        </interface>
-+    </hal>
-+    <hal format="hidl">
-+        <name>android.hardware.vr</name>
-+        <version>1.0</version>
-+        <interface>
-+            <name>IVr</name>
 +            <instance>default</instance>
 +        </interface>
 +    </hal>
