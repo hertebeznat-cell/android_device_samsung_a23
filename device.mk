@@ -42,7 +42,7 @@ PRODUCT_COPY_FILES +=     frameworks/native/data/etc/android.hardware.fingerprin
 
 # Compile the always-running UI fully at build time; otherwise it runs from
 # the interpreter/JIT until the first idle-maintenance dexopt.
-PRODUCT_DEXPREOPT_SPEED_APPS +=     NexusLauncherRelease     Settings     SystemUIGoogle
+PRODUCT_DEXPREOPT_SPEED_APPS +=     SettingsGoogle     SystemUIGoogle
 
 # Fastbootd
 PRODUCT_PACKAGES += \

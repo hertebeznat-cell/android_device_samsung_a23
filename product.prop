@@ -7,3 +7,21 @@ ro.hwui.use_vulkan=false
 # Samsung RIL
 ro.telephony.default_network=9,9
 persist.radio.multisim.config=dsds
+
+# Memory: 4 GB with Android 17 + GMS thrashes the 2 GB zram (kswapd ~40% CPU,
+# direct reclaim stalls) because lmkd keeps cached apps too long. The stock
+# vendor only sets Samsung's own ro.slmk.* knobs, which AOSP lmkd ignores.
+# Kill cached apps earlier under thrashing / low swap instead of stalling the
+# foreground.
+ro.lmk.kill_heaviest_task=true
+ro.lmk.thrashing_limit=30
+ro.lmk.thrashing_limit_decay=50
+ro.lmk.swap_free_low_percentage=20
+ro.lmk.swap_util_max=90
+
+# Prebuilt apps (launcher, Weather, GMS) are not dexpreopted and stayed at
+# "verify" (interpreter/JIT) until the overnight idle dexopt. Compile them with
+# their bundled baseline profiles on first boot and after updates instead;
+# the first boot takes a few minutes longer.
+pm.dexopt.first-boot=speed-profile
+pm.dexopt.boot-after-ota=speed-profile
