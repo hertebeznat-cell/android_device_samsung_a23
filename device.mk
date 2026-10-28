@@ -33,6 +33,13 @@ PRODUCT_ENABLE_UFFD_GC := false
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/rootdir/etc/fstab.default:$(TARGET_COPY_OUT_RAMDISK)/fstab.default
 
+# Init and the Samsung Codec2 seccomp fix (see init.a23.rc)
+PRODUCT_COPY_FILES +=     $(DEVICE_PATH)/rootdir/etc/init/init.a23.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.a23.rc     $(DEVICE_PATH)/configs/seccomp/samsung.software.media.c2-base-policy:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/seccomp_policy/samsung.software.media.c2-base-policy
+
+# Fingerprint: the stock HAL serves android.hardware.biometrics.fingerprint@2.1,
+# but One UI declares the feature on its own system image, not in vendor.
+PRODUCT_COPY_FILES +=     frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.hardware.fingerprint.xml
+
 # Fastbootd
 PRODUCT_PACKAGES += \
     fastbootd

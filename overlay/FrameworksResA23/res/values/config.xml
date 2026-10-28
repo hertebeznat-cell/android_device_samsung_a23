@@ -14,7 +14,8 @@
 
     <!-- Waterdrop notch -->
     <string name="config_mainBuiltInDisplayCutout" translatable="false">M 0,0 H -30.57777777777778 V 23.11111111111111 H 30.57777777777778 V 0 H 0 Z @dp</string>
-    <bool name="config_fillMainBuiltInDisplayCutout">true</bool>
+    <!-- Filling drew a black bar across the whole cutout rectangle. -->
+    <bool name="config_fillMainBuiltInDisplayCutout">false</bool>
     <dimen name="rounded_corner_radius_top">32.0dip</dimen>
     <dimen name="rounded_corner_radius_bottom">32.0dip</dimen>
     <dimen name="status_bar_height_portrait">4.389984mm</dimen>
@@ -63,6 +64,11 @@
         <item>255</item>
         <item>255</item>
     </integer-array>
+
+    <!-- Fingerprint: stock HIDL 2.1 HAL, sensor 0, strong (BIOMETRIC_STRONG = 15) -->
+    <string-array name="config_biometric_sensors" translatable="false">
+        <item>0:2:15</item>
+    </string-array>
 
     <!-- Audio -->
     <bool name="config_supportAudioSourceUnprocessed">false</bool>

@@ -1,0 +1,11 @@
+# Copyright (C) 2026 The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+
+on early-boot
+    # The stock SEZB1 policy lets the Samsung Codec2 service call mremap only
+    # with MREMAP_MAYMOVE|MREMAP_FIXED; Android 17's libc also uses plain
+    # MREMAP_MAYMOVE, so the service died with SIGSYS in a loop. It serves
+    # IComponentStore/default (the hardware codecs): without it video
+    # recording hung and media playback stalled. Overlay a copy that also
+    # allows those flags (the vendor image stays untouched).
+    mount none /system_ext/etc/seccomp_policy/samsung.software.media.c2-base-policy /vendor/etc/seccomp_policy/samsung.software.media.c2-base-policy bind
