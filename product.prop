@@ -25,3 +25,21 @@ ro.lmk.swap_util_max=90
 # the first boot takes a few minutes longer.
 pm.dexopt.first-boot=speed-profile
 pm.dexopt.boot-after-ota=speed-profile
+
+# Blur: the notification shade requests blur regions, which makes
+# SurfaceFlinger GPU-compose everything below it every frame; the Adreno 610
+# with the Android 11 driver cannot keep up. Turn window/launcher blurs off.
+ro.surface_flinger.supports_background_blur=0
+ro.sf.blurs_are_expensive=1
+persist.sysui.disableBlur=true
+ro.launcher.blur.appLaunch=0
+
+# Background dexopt competed with the foreground for all 8 cores and memory
+# (the phone froze during an idle-maintenance dexopt). Keep it on the
+# Cortex-A53 cluster with 2 threads; first boot and installs may use all.
+dalvik.vm.background-dex2oat-cpu-set=0,1,2,3
+dalvik.vm.background-dex2oat-threads=2
+dalvik.vm.boot-dex2oat-cpu-set=0,1,2,3,4,5,6,7
+dalvik.vm.boot-dex2oat-threads=8
+dalvik.vm.dex2oat-cpu-set=0,1,2,3,4,5,6,7
+dalvik.vm.dex2oat-threads=4
