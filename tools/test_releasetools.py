@@ -48,6 +48,12 @@ class ReleasetoolsTest(unittest.TestCase):
         common.GetUserImage = lambda partition, tmp, zip_, **kw: self.calls.append((partition, kw)) or f'image:{partition}'
         common.BlockDifference = lambda partition, image, src=None: (partition, image, src)
         common.ZipWriteStr = lambda output, name, data: output.written.__setitem__(name, data)
+
+        class DynamicPartitionsDifference:
+            def __init__(self, info_dict, block_diffs, progress_dict=None,
+                         source_info_dict=None, build_without_vendor=False):
+                self.build_without_vendor = build_without_vendor
+        common.DynamicPartitionsDifference = DynamicPartitionsDifference
         self.module = load(common)
 
     def info(self, entries):
@@ -68,6 +74,20 @@ class ReleasetoolsTest(unittest.TestCase):
     def test_missing_dtbo_fails_the_package(self):
         with self.assertRaises(ValueError):
             self.module.FullOTA_InstallEnd(self.info({}))
+
+    def test_full_ota_recreates_super_layout(self):
+        # non_ab_ota passes build_without_vendor=True: target-files has no VENDOR/.
+        diff = self.module.common.DynamicPartitionsDifference(
+            info_dict={}, block_diffs=[], progress_dict={}, build_without_vendor=True)
+        self.assertFalse(diff.build_without_vendor)
+        incremental = self.module.common.DynamicPartitionsDifference(
+            info_dict={}, source_info_dict={}, block_diffs=[], progress_dict={})
+        self.assertFalse(incremental.build_without_vendor)
+
+    def test_layout_override_applies_once(self):
+        cls = self.module.common.DynamicPartitionsDifference
+        self.module = load(self.module.common)
+        self.assertIs(self.module.common.DynamicPartitionsDifference, cls)
 
     def test_no_incremental_override(self):
         self.assertIsNone(self.module.IncrementalOTA_GetBlockDifferences(self.info({})))

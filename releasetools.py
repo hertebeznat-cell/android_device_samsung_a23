@@ -13,6 +13,27 @@ import common
 STOCK_PARTITIONS = ('vendor', 'odm')
 
 
+class _FullSuperLayout(common.DynamicPartitionsDifference):
+  """Recreates the whole super layout on full installs.
+
+  Lineage's non-A/B script sees no VENDOR/ tree, takes this for a system-only
+  build and emits only "resize" ops, keeping the phone's existing partitions.
+  A phone coming from UN1CA has no product partition, so the install aborted
+  ("Failed to find partition product in dynamic partition metadata"). vendor
+  and odm are always written here, so the AOSP full-OTA layout is correct.
+  """
+
+  def __init__(self, *args, **kwargs):
+    kwargs['build_without_vendor'] = False
+    super().__init__(*args, **kwargs)
+
+
+# This module is loaded before the non-A/B script builds its op list.
+if not getattr(common.DynamicPartitionsDifference, 'a23_full_layout', False):
+  _FullSuperLayout.a23_full_layout = True
+  common.DynamicPartitionsDifference = _FullSuperLayout
+
+
 def FullOTA_GetBlockDifferences(info):
   return [_StockImage(info, partition) for partition in STOCK_PARTITIONS]
 
