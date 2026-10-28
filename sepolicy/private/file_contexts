@@ -1,6 +1,5 @@
 # Root mount points of the stock SEZB1 vendor fstab; the mounted filesystems
-# carry their own labels.
-/efs        u:object_r:efs_file:s0
+# carry their own labels. /efs is labelled by system/sepolicy.
 /carrier    u:object_r:carrier_file:s0
 /spu        u:object_r:spu_file:s0
 /prism      u:object_r:prism_file:s0
