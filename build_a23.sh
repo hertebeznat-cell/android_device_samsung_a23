@@ -3,7 +3,7 @@
 #
 # Build Evolution X for the Galaxy A23 4G from a synced cnb tree (Linux only).
 #   bash device/samsung/a23/build_a23.sh            # bring-up userdebug build
-#   A23_BRINGUP=false bash device/samsung/a23/build_a23.sh
+#   [A23_BRINGUP=true] bash device/samsung/a23/build_a23.sh   (true: permissive debugging build)
 #
 set -Eeuo pipefail
 trap 'echo "A23_BUILD=FAILED stage=${stage:-init} line=$LINENO" >&2' ERR

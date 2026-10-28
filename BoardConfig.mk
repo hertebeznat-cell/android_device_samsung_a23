@@ -62,8 +62,8 @@ BOARD_KERNEL_CMDLINE := \
     firmware_class.path=/vendor/firmware_mnt/image \
     printk.devkmsg=on
 
-# Bring-up builds boot permissive (userdebug only); see lineage_a23.mk.
-ifneq ($(A23_BRINGUP),false)
+# Opt-in debugging builds boot permissive (userdebug only); see lineage_a23.mk.
+ifeq ($(A23_BRINGUP),true)
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 endif
 

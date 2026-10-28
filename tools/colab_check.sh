@@ -55,7 +55,7 @@ if [[ "${1:-}" != --as-builder ]]; then
     runuser -u builder -- env HOME=/home/builder PATH="/usr/local/bin:$PATH" \
         A23_WORK="$work" A23_LOG="$log" A23_DEVICE_REVISION="$device_revision" \
         A23_VENDOR_REVISION="$vendor_revision" A23_STOP_AFTER="$stop_after" \
-        ${BUILD_JOBS:+BUILD_JOBS="$BUILD_JOBS"} \
+        ${BUILD_JOBS:+BUILD_JOBS="$BUILD_JOBS"} ${A23_BRINGUP:+A23_BRINGUP="$A23_BRINGUP"} \
         bash "$script" --as-builder || exit $?
     # Google Drive is mounted for root only; copy the OTA zip from here.
     if [[ -d /content/drive/MyDrive ]]; then
@@ -147,7 +147,7 @@ done
 
 banner "build-a23 (stop after $stop_after)"
 [[ "$stop_after" == full ]] && stop_after=""
-A23_STOP_AFTER="$stop_after" A23_BRINGUP=true bash device/samsung/a23/build_a23.sh >> "$log" 2>&1 || {
+A23_STOP_AFTER="$stop_after" A23_BRINGUP="${A23_BRINGUP:-false}" bash device/samsung/a23/build_a23.sh >> "$log" 2>&1 || {
     grep -a -E "A23 BUILD STEP|A23_BUILD=|STOCK_SEPOLICY" "$log" | tail -n 20 >&2
     fail
 }

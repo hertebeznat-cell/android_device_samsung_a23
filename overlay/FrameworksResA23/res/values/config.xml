@@ -9,7 +9,10 @@
 <resources>
     <!-- Display -->
     <bool name="config_showNavigationBar">true</bool>
-    <integer name="config_defaultPeakRefreshRate">90</integer>
+    <!-- 90 Hz stays available (Settings > Display > Smooth display), but with the
+         Android 11 display/GPU stack SurfaceFlinger misses most 11 ms deadlines:
+         SystemUI janked 97% of frames at 90 Hz against 11% at 60 Hz. -->
+    <integer name="config_defaultPeakRefreshRate">60</integer>
     <integer name="config_defaultRefreshRate">60</integer>
 
     <!-- Waterdrop notch -->

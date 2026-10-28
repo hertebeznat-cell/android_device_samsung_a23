@@ -135,7 +135,7 @@ for repository in system/sepolicy system/core device/lineage/sepolicy cts build/
 done
 
 stage build
-A23_BRINGUP="${A23_BRINGUP:-true}" bash device/samsung/a23/build_a23.sh 2>&1 | tee "$build_log"
+A23_BRINGUP="${A23_BRINGUP:-false}" bash device/samsung/a23/build_a23.sh 2>&1 | tee "$build_log"
 
 stage done
 echo "A23_CRAVE=SUCCESS elapsed=$(elapsed)"

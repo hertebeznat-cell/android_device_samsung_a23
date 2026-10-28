@@ -1,0 +1,5 @@
+# Nodes of this kernel the stock vendor policy does not label (its genfs
+# covers the s2mu106 charger, not the MUIC manager or the EUD extcon).
+genfscon sysfs /devices/platform/soc/4a84000.i2c/i2c-34/34-003d/s2mu106-muic/power_supply u:object_r:sysfs_batteryinfo:s0
+genfscon sysfs /devices/platform/soc/4a84000.i2c/i2c-34/34-003d/s2mu106-muic/power_supply/muic-manager/wakeup u:object_r:sysfs_wakeup:s0
+genfscon sysfs /devices/platform/soc/1610000.qcom,msm-eud/extcon u:object_r:sysfs_extcon:s0

@@ -40,6 +40,10 @@ PRODUCT_COPY_FILES +=     $(DEVICE_PATH)/rootdir/etc/init/init.a23.rc:$(TARGET_C
 # but One UI declares the feature on its own system image, not in vendor.
 PRODUCT_COPY_FILES +=     frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.hardware.fingerprint.xml
 
+# Compile the always-running UI fully at build time; otherwise it runs from
+# the interpreter/JIT until the first idle-maintenance dexopt.
+PRODUCT_DEXPREOPT_SPEED_APPS +=     NexusLauncherRelease     Settings     SystemUIGoogle
+
 # Fastbootd
 PRODUCT_PACKAGES += \
     fastbootd

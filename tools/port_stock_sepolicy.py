@@ -89,24 +89,31 @@ a17_props = [r for p in (a17_dir / 'private/property_contexts', a17_dir / 'linea
                           ref_dir / 'selinux/vendor_property_contexts') for r in contexts(p)]
 
 
-def a17_label(name):
-    """Label Android 17 + stock vendor give this property today (longest prefix)."""
+def a17_match(name):
+    """The Android 17 / stock vendor entry that labels this property today (longest prefix)."""
     best = None
     for n, _, t, extra in a17_props:
         exact = 'exact' in extra
         if (name == n) or (not exact and name.startswith(n)):
             if best is None or len(n) > len(best[0]):
                 best = (n, t)
-    return best[1] if best else 'default_prop'
+    return best
+
+
+# Catch-all prefixes ("persist.sys.", "sys.", "ril.", ...) the stock vendor cannot read.
+GENERIC = {'default_prop', 'system_prop', 'radio_prop'}
 
 
 props = []
 for name, _, t, extra in stock_props:
     if name in have or name.startswith(('vendor.', 'persist.vendor.', 'ro.vendor.', 'ctl.')):
         continue
-    # Only fill holes: never take a property away from the label Android 17
-    # (or the stock vendor) already gives it.
-    if a17_label(name) not in ('default_prop',):
+    # Only fill holes: never take a property away from a label Android 17 (or
+    # the stock vendor) gives it specifically. Samsung properties that merely
+    # fall under a catch-all prefix (persist.sys.matched_code -> system_prop)
+    # get One UI's label back; the vendor reads them (seen in enforcing mode).
+    match = a17_match(name)
+    if match and not (match[1] in GENERIC and len(match[0]) < len(name)):
         continue
     label = port(t)
     if label:

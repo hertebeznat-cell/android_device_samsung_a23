@@ -11,3 +11,9 @@ allow vold { carrier_file spu_file }:dir { getattr ioctl open read search };
 # the ones they may read; the rest is noise.
 dontaudit flags_health_check property_type:file { getattr map open read };
 dontaudit hal_camera_server property_type:file { getattr map open read };
+
+# Probes that find nothing on this device: the Samsung audio HAL looks for an
+# Exynos A2DP offload service, audioserver for an unset Qualcomm flag
+# (ro.vendor.qti.va_aosp.support).
+dontaudit hal_audio_server default_android_hwservice:hwservice_manager find;
+dontaudit audioserver vendor_default_prop:file { getattr map open read };

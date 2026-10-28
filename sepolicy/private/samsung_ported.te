@@ -10,6 +10,9 @@ typeattribute armnn_prop armnn_prop_30_0;
 system_public_prop(cache_status_prop)
 attribute cache_status_prop_30_0;
 typeattribute cache_status_prop cache_status_prop_30_0;
+system_public_prop(ccm_prop)
+attribute ccm_prop_30_0;
+typeattribute ccm_prop ccm_prop_30_0;
 system_public_prop(chipname_prop)
 attribute chipname_prop_30_0;
 typeattribute chipname_prop chipname_prop_30_0;
@@ -28,12 +31,18 @@ typeattribute em_version_prop em_version_prop_30_0;
 system_public_prop(facm_prop)
 attribute facm_prop_30_0;
 typeattribute facm_prop facm_prop_30_0;
+system_public_prop(ina_status_prop)
+attribute ina_status_prop_30_0;
+typeattribute ina_status_prop ina_status_prop_30_0;
 system_public_prop(log_ewlogd_prop)
 attribute log_ewlogd_prop_30_0;
 typeattribute log_ewlogd_prop log_ewlogd_prop_30_0;
 system_public_prop(media_plat_prop)
 attribute media_plat_prop_30_0;
 typeattribute media_plat_prop media_plat_prop_30_0;
+system_public_prop(mobicore_prop)
+attribute mobicore_prop_30_0;
+typeattribute mobicore_prop mobicore_prop_30_0;
 system_public_prop(oneseg_prop)
 attribute oneseg_prop_30_0;
 typeattribute oneseg_prop oneseg_prop_30_0;
@@ -79,6 +88,9 @@ typeattribute sec_timed_prop sec_timed_prop_30_0;
 type secure_storage_device, dev_type;
 attribute secure_storage_device_30_0;
 typeattribute secure_storage_device secure_storage_device_30_0;
+system_public_prop(security_sepolicy_prop)
+attribute security_sepolicy_prop_30_0;
+typeattribute security_sepolicy_prop security_sepolicy_prop_30_0;
 system_public_prop(smartamp_prop)
 attribute smartamp_prop_30_0;
 typeattribute smartamp_prop smartamp_prop_30_0;
@@ -88,6 +100,9 @@ typeattribute sns_camera_light_prop sns_camera_light_prop_30_0;
 type speg_marker_data_file, core_data_file_type, data_file_type, file_type;
 attribute speg_marker_data_file_30_0;
 typeattribute speg_marker_data_file speg_marker_data_file_30_0;
+system_public_prop(spud_prop)
+attribute spud_prop_30_0;
+typeattribute spud_prop spud_prop_30_0;
 system_public_prop(system_fota_prop)
 attribute system_fota_prop_30_0;
 typeattribute system_fota_prop system_fota_prop_30_0;
@@ -100,6 +115,15 @@ typeattribute system_product_prop system_product_prop_30_0;
 system_public_prop(system_sensor_prop)
 attribute system_sensor_prop_30_0;
 typeattribute system_sensor_prop system_sensor_prop_30_0;
+system_public_prop(system_sensordebug_prop)
+attribute system_sensordebug_prop_30_0;
+typeattribute system_sensordebug_prop system_sensordebug_prop_30_0;
+system_public_prop(tzdaemon_prop)
+attribute tzdaemon_prop_30_0;
+typeattribute tzdaemon_prop tzdaemon_prop_30_0;
+system_public_prop(tztsdaemon_prop)
+attribute tztsdaemon_prop_30_0;
+typeattribute tztsdaemon_prop tztsdaemon_prop_30_0;
 system_public_prop(uwb_regulation_skip_prop)
 attribute uwb_regulation_skip_prop_30_0;
 typeattribute uwb_regulation_skip_prop uwb_regulation_skip_prop_30_0;

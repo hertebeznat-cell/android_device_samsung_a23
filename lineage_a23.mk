@@ -14,10 +14,10 @@ TARGET_ENABLE_BLUR := false
 TARGET_SUPPORTS_QUICK_TAP := false
 TARGET_FACE_UNLOCK_SUPPORTED := true
 
-# Bring-up builds: permissive SELinux (BoardConfig.mk) and adb without
-# authorization, so logs can be pulled from a first boot. Build with
-# A23_BRINGUP=false for daily use.
-ifneq ($(A23_BRINGUP),false)
+# Opt-in debugging builds (A23_BRINGUP=true): permissive SELinux
+# (BoardConfig.mk) and adb without authorization, to pull logs from a boot
+# that does not reach the UI. Regular builds are enforcing.
+ifeq ($(A23_BRINGUP),true)
 WITH_ADB_INSECURE := true
 endif
 
