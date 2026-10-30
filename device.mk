@@ -116,7 +116,6 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -device/google/sdv_display_safety \
     -device/generic/x86 \
     -device/generic/x86_64 \
-    -device/sample \
     -device/qcom/sepolicy_vndr \
     -hardware/qcom/sm7250 \
     -hardware/qcom/sm8150 \
