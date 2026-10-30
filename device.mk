@@ -77,9 +77,10 @@ PRODUCT_SOURCE_ROOT_DIRS += -external/cronet/tot
 # the 60 GB a 64 GB Crave machine allows (soong_build OOM-killed in jobs
 # 308321/308326; swap is not permitted there). Leave out what this product
 # never builds: vendor-side Qualcomm HALs for other SoCs (the vendor is the
-# stock SEZB1 image, and no qcom-caf namespace is exported), emulators and
-# other form factors, and the automotive tools built on top of them. System-side
-# qcom code, Car and tests stay in.
+# stock SEZB1 image, and no qcom-caf namespace is exported), emulators (not
+# cuttlefish: platform_testing/Android.bp lists its tests), other form factors and
+# the automotive tools built on top of them. System-side qcom code, Car and
+# tests stay in.
 PRODUCT_SOURCE_ROOT_DIRS += \
     -hardware/qcom-caf/msm8953 \
     -hardware/qcom-caf/msm8996 \
@@ -105,9 +106,6 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -vendor/qcom/opensource/thermal-engine \
     -vendor/qcom/opensource/usb \
     -vendor/qcom/opensource/vibrator \
-    -device/google/cuttlefish \
-    -device/google/cuttlefish_prebuilts \
-    -device/google/cuttlefish_vmm \
     -device/generic/goldfish \
     -device/generic/car \
     -device/google_car \
@@ -126,7 +124,6 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -platform_testing/tools/automotive \
     -system/software_defined_vehicle \
     -packages/services/display_safety \
-    -platform_testing/tests/display/hcct/tests \
     -platform_testing/libraries/sdv \
     -platform_testing/tests/sdv
 
