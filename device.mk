@@ -127,7 +127,8 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -system/software_defined_vehicle \
     -packages/services/display_safety \
     -platform_testing/tests/display/hcct \
-    -platform_testing/libraries/sdv
+    -platform_testing/libraries/sdv \
+    -platform_testing/tests/sdv
 
 # cp2a turns on Soong's incremental analysis, which keeps a cache of build
 # actions in memory; Crave job 308321 had soong_build OOM-killed twice at
