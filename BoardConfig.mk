@@ -84,11 +84,10 @@ BOARD_INCLUDE_RECOVERY_DTBO := true
 # The Samsung TEE binds keys to the boot patch level; keep the SEZB1 value.
 BOOT_SECURITY_PATCH := 2026-02-05
 
-# blxyzY SM6225 kernel (4.19.325-cip): reports 5.10 to the BPF loaders and
-# carries the BPF/userfaultfd backports Android 16+ needs.
+# SM6225 kernel (4.19.325-cip, hertebeznat-cell/android_kernel_samsung_a23): reports
+# 5.10 to the BPF loaders and carries the BPF/userfaultfd backports Android 16+ needs.
 TARGET_KERNEL_SOURCE := kernel/samsung/a23
-TARGET_KERNEL_CONFIG := a23_eur_open_defconfig
-TARGET_KERNEL_CONFIG_EXT := $(DEVICE_PATH)/configs/kernel/a23_evo.config
+TARGET_KERNEL_CONFIG := a23_eur_open_defconfig a23_evo.config
 KERNEL_LTO := thin
 # Same clang as the upstream CI release (NDK r29, clang-r563880c).
 TARGET_KERNEL_CLANG_VERSION := r563880c

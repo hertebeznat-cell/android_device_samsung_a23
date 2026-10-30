@@ -8,7 +8,7 @@
 #
 # Builds a fake Android root whose patched repositories are real git repos
 # holding the exact upstream files the patches touch (fetched from the cnb /
-# android-17.0.0_r1 / kernel sources), stubs repo, resync, lunch, m and secilc,
+# android-17.0.0_r1 sources), stubs repo, resync, lunch, m and secilc,
 # then runs the real scripts end to end. Catches path, patch and ordering
 # mistakes before a paid Crave job; it does not compile anything.
 #
@@ -24,7 +24,6 @@ mkdir -p "$root/.repo" "$root/build" "$bin"
 
 EVO=https://raw.githubusercontent.com/Evolution-X
 AOSP=https://android.googlesource.com/platform
-KERNEL=https://raw.githubusercontent.com/blxyzY/android_kernel_samsung_sm6225/9eec76ce9a2dbbe2707ae5f240b1c028601e78d2
 
 fetch() {  # fetch <url> <dest>; gitiles serves base64 with ?format=TEXT
     mkdir -p "$(dirname "$2")"
@@ -53,12 +52,9 @@ echo "dryrun: fetching upstream files"
 make_repo system/sepolicy "$EVO/system_sepolicy/cnb/compat/Android.bp" compat/Android.bp
 make_repo packages/modules/Connectivity "$EVO/packages_modules_Connectivity/cnb/bpf/loader/NetBpfLoad.cpp" bpf/loader/NetBpfLoad.cpp
 make_repo device/lineage/sepolicy "$EVO/device_evolution_sepolicy/cnb/common/private/genfs_contexts" common/private/genfs_contexts
-make_repo kernel/samsung/a23 \
-    "$KERNEL/include/uapi/linux/sched/types.h" include/uapi/linux/sched/types.h \
-    "$KERNEL/scripts/sign-file.c" scripts/sign-file.c \
-    "$KERNEL/scripts/extract-cert.c" scripts/extract-cert.c \
-    "$KERNEL/Makefile" Makefile \
-    "$KERNEL/arch/arm64/boot/dts/Makefile" arch/arm64/boot/dts/Makefile     "$KERNEL/drivers/input/touchscreen/novatek/nt36523_spi/nt36xxx.c" drivers/input/touchscreen/novatek/nt36523_spi/nt36xxx.c
+mkdir -p "$root/kernel/samsung/a23"
+touch "$root/kernel/samsung/a23/Makefile"
+make_repo kernel/samsung/a23
 # Leftover of an older project revision (job 306580): untracked Android.bp
 # next to the tracked tree must be cleaned by crave_build.sh.
 mkdir -p "$root/external/cronet/tot"
@@ -167,7 +163,7 @@ PATH="$bin:$PATH" A23_DEVICE_REVISION="$device_sha" bash "$crave"
 [[ -f external/cronet/tot/Android.bp ]] || { echo "dryrun: tracked cronet file removed" >&2; exit 1; }
 [[ -f vendor/samsung/a235f/images/vendor.img ]] || { echo "dryrun: vendor image removed" >&2; exit 1; }
 for repo in system/sepolicy \
-            packages/modules/Connectivity device/lineage/sepolicy kernel/samsung/a23; do
+            packages/modules/Connectivity device/lineage/sepolicy; do
     [[ -n "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo not patched" >&2; exit 1; }
 done
 echo "DRYRUN=OK"

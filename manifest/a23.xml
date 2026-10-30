@@ -14,12 +14,12 @@
            name="hertebeznat-cell/android_vendor_samsung_a235f"
            remote="a23-github" revision="main" clone-depth="1" />
 
-  <!-- ZestKernel source: the 20261010 release runs UN1CA on SEZB1. -->
+  <!-- ZestKernel 4.19 (blxyzY/android_kernel_samsung_sm6225) with the A23 Evolution X changes. -->
   <project path="kernel/samsung/a23"
-           name="blxyzY/android_kernel_samsung_sm6225"
+           name="hertebeznat-cell/android_kernel_samsung_a23"
            remote="a23-github"
-           revision="9eec76ce9a2dbbe2707ae5f240b1c028601e78d2"
-           upstream="master" clone-depth="1" />
+           revision="44515b03c1e168412ab0f3c9eca62ce6f173a87a"
+           upstream="main" clone-depth="1" />
 
   <!-- VNDK 30 libraries for the Android 11 vendor (dropped from cnb). -->
   <project path="prebuilts/vndk/v30"

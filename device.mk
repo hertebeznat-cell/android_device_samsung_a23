@@ -78,7 +78,8 @@ PRODUCT_SOURCE_ROOT_DIRS += -external/cronet/tot
 # 308321/308326; swap is not permitted there). Leave out what this product
 # never builds: vendor-side Qualcomm HALs for other SoCs (the vendor is the
 # stock SEZB1 image, and no qcom-caf namespace is exported), emulators and
-# other form factors. System-side qcom code, Car and tests stay in.
+# other form factors, and the automotive tools built on top of them. System-side
+# qcom code, Car and tests stay in.
 PRODUCT_SOURCE_ROOT_DIRS += \
     -hardware/qcom-caf/msm8953 \
     -hardware/qcom-caf/msm8996 \
@@ -121,7 +122,9 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -device/sample \
     -device/qcom/sepolicy_vndr \
     -hardware/qcom/sm7250 \
-    -hardware/qcom/sm8150
+    -hardware/qcom/sm8150 \
+    -platform_testing/tools/automotive \
+    -system/software_defined_vehicle
 
 # cp2a turns on Soong's incremental analysis, which keeps a cache of build
 # actions in memory; Crave job 308321 had soong_build OOM-killed twice at

@@ -13,7 +13,8 @@ import xml.etree.ElementTree as ET
 
 STOCK_DTB = '064a8b777cebdff6c075f552b3ec6aa92ebb7af663bd3bcd240cb1afebf9b1f3'
 STOCK_DTBO = '7d9c005109e3e9524425a70d46b85ccd5c63b732f3d820be4942d3115ea5aa85'
-KERNEL_REVISION = '9eec76ce9a2dbbe2707ae5f240b1c028601e78d2'
+KERNEL_REPOSITORY = 'hertebeznat-cell/android_kernel_samsung_a23'
+KERNEL_REVISION = '44515b03c1e168412ab0f3c9eca62ce6f173a87a'
 SUPER_GROUP_SIZE = 9013559296
 STOCK_VENDOR_SIZE = 922710016
 STOCK_ODM_SIZE = 21389312
@@ -65,11 +66,12 @@ def main():
     releasetools = (device / 'releasetools.py').read_text()
     check("STOCK_PARTITIONS = ('vendor',)" in releasetools, 'releasetools must write the stock vendor')
 
-    config = device / board.get('TARGET_KERNEL_CONFIG_EXT', '').replace('$(DEVICE_PATH)/', '')
-    check(config.is_file(), 'kernel config fragment missing')
+    check(board.get('TARGET_KERNEL_CONFIG') == 'a23_eur_open_defconfig a23_evo.config', 'kernel configs')
+    check('TARGET_KERNEL_CONFIG_EXT' not in board, 'the kernel fragment lives in the kernel repository')
     manifest = ET.parse(device / 'manifest/a23.xml').getroot()
     kernel = [p for p in manifest.iter('project') if p.get('path') == 'kernel/samsung/a23']
-    check(len(kernel) == 1 and kernel[0].get('revision') == KERNEL_REVISION, 'kernel pin')
+    check(len(kernel) == 1 and kernel[0].get('name') == KERNEL_REPOSITORY
+          and kernel[0].get('revision') == KERNEL_REVISION, 'kernel pin')
 
     # First-stage fstab: one entry per logical partition, matching image types.
     rows = [line.split() for line in (device / 'rootdir/etc/fstab.default').read_text().splitlines()
@@ -123,7 +125,7 @@ def main():
               f'no file_contexts label for /{folder}')
 
     # Patches the build script applies.
-    for directory in ('kernel', 'sepolicy', 'connectivity', 'lineage-sepolicy'):
+    for directory in ('sepolicy', 'connectivity', 'lineage-sepolicy'):
         check(any((device / 'patches' / directory).glob('*.patch')), f'no {directory} patches')
     script = (device / 'build_a23.sh').read_text()
     check('com.android.vndk.v30' in (device / 'Android.bp').read_text(), 'VNDK 30 APEX not defined in the tree')
@@ -131,8 +133,7 @@ def main():
     check('framework_compatibility_matrix.5.xml' in bp and 'kernel_config_r_4.19' in bp, 'FCM 5 matrix not defined in the tree')
     check('framework_compatibility_matrix.5.xml' in (device / 'device.mk').read_text(), 'FCM 5 matrix not installed')
     for repository in ('system/sepolicy',
-                       'packages/modules/Connectivity', 'device/lineage/sepolicy',
-                       'kernel/samsung/a23'):
+                       'packages/modules/Connectivity', 'device/lineage/sepolicy'):
         check(f'apply_series {repository} ' in script, f'build script does not patch {repository}')
 
     for path in (device / 'overlay').rglob('*.xml'):
