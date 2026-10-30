@@ -54,10 +54,7 @@ apply_series() {
 }
 
 stage=patches; echo "---- A23 BUILD STEP: patches ($(date -u +%H:%M:%SZ)) ----"
-apply_series packages/modules/vndk "$device"/patches/vndk/*.patch
 apply_series system/sepolicy "$device"/patches/sepolicy/*.patch
-apply_series hardware/interfaces "$device"/patches/vintf/0001-*.patch
-apply_series kernel/configs "$device"/patches/vintf/0002-*.patch
 apply_series packages/modules/Connectivity "$device"/patches/connectivity/*.patch
 apply_series device/lineage/sepolicy "$device"/patches/lineage-sepolicy/*.patch
 apply_series kernel/samsung/a23 "$device"/patches/kernel/*.patch

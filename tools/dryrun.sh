@@ -50,10 +50,7 @@ make_repo() {  # make_repo <path> [<url> <file>]...
 }
 
 echo "dryrun: fetching upstream files"
-make_repo packages/modules/vndk "$AOSP/packages/modules/vndk/+/refs/tags/android-17.0.0_r1/apex/Android.bp" apex/Android.bp
 make_repo system/sepolicy "$EVO/system_sepolicy/cnb/compat/Android.bp" compat/Android.bp
-make_repo hardware/interfaces "$EVO/hardware_interfaces/cnb/compatibility_matrices/Android.bp" compatibility_matrices/Android.bp
-make_repo kernel/configs
 make_repo packages/modules/Connectivity "$EVO/packages_modules_Connectivity/cnb/bpf/loader/NetBpfLoad.cpp" bpf/loader/NetBpfLoad.cpp
 make_repo device/lineage/sepolicy "$EVO/device_evolution_sepolicy/cnb/common/private/genfs_contexts" common/private/genfs_contexts
 make_repo kernel/samsung/a23 \
@@ -169,7 +166,7 @@ PATH="$bin:$PATH" A23_DEVICE_REVISION="$device_sha" bash "$crave"
 [[ ! -e external/cronet/third_party ]] || { echo "dryrun: stale cronet files survived" >&2; exit 1; }
 [[ -f external/cronet/tot/Android.bp ]] || { echo "dryrun: tracked cronet file removed" >&2; exit 1; }
 [[ -f vendor/samsung/a235f/images/vendor.img ]] || { echo "dryrun: vendor image removed" >&2; exit 1; }
-for repo in packages/modules/vndk system/sepolicy hardware/interfaces kernel/configs \
+for repo in system/sepolicy \
             packages/modules/Connectivity device/lineage/sepolicy kernel/samsung/a23; do
     [[ -n "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo not patched" >&2; exit 1; }
 done

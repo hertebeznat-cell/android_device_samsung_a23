@@ -5,3 +5,42 @@
 
 soong_namespace {
 }
+
+// VNDK 30 APEX for the stock Android 11 vendor. Android 17's
+// packages/modules/vndk only defines v31-v34; this is the same apex_vndk
+// definition for v30, using its key, certificate and file_contexts.
+// PRODUCT_EXTRA_VNDK_VERSIONS := 30 (device.mk) installs it.
+apex_vndk {
+    name: "com.android.vndk.v30",
+    manifest: "configs/vndk/apex_manifest.json",
+    key: "com.android.vndk.key",
+    certificate: ":com.android.vndk.certificate",
+    file_contexts: ":com.android.vndk-file_contexts",
+    updatable: false,
+    vndk_version: "30",
+    system_ext_specific: true,
+}
+
+// Framework compatibility matrix for FCM level 5 with the Android R kernel
+// 4.19 requirements: the stock vendor manifest is target-level 5 and
+// Android 17 only ships matrices from level 6. Installed to
+// /system/etc/vintf through PRODUCT_PACKAGES (device.mk). The matrix leaves
+// out HIDL HALs whose .hal definitions Android 17 removed.
+kernel_config {
+    name: "kernel_config_r_4.19",
+    srcs: [
+        "configs/vintf/kernel-r-4.19/android-base.config",
+        "configs/vintf/kernel-r-4.19/non_debuggable.config",
+    ],
+    debuggable_srcs: [
+        "configs/vintf/kernel-r-4.19/android-base.config",
+    ],
+    meta: "configs/vintf/kernel-r-4.19/android-base-conditional.xml",
+}
+
+vintf_compatibility_matrix {
+    name: "framework_compatibility_matrix.5.xml",
+    stem: "compatibility_matrix.5.xml",
+    srcs: ["configs/vintf/compatibility_matrix.5.xml"],
+    kernel_configs: ["kernel_config_r_4.19"],
+}

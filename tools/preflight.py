@@ -123,11 +123,15 @@ def main():
               f'no file_contexts label for /{folder}')
 
     # Patches the build script applies.
-    for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity', 'lineage-sepolicy'):
+    for directory in ('kernel', 'sepolicy', 'connectivity', 'lineage-sepolicy'):
         check(any((device / 'patches' / directory).glob('*.patch')), f'no {directory} patches')
     script = (device / 'build_a23.sh').read_text()
-    for repository in ('packages/modules/vndk', 'system/sepolicy', 'hardware/interfaces',
-                       'kernel/configs', 'packages/modules/Connectivity', 'device/lineage/sepolicy',
+    check('com.android.vndk.v30' in (device / 'Android.bp').read_text(), 'VNDK 30 APEX not defined in the tree')
+    bp = (device / 'Android.bp').read_text()
+    check('framework_compatibility_matrix.5.xml' in bp and 'kernel_config_r_4.19' in bp, 'FCM 5 matrix not defined in the tree')
+    check('framework_compatibility_matrix.5.xml' in (device / 'device.mk').read_text(), 'FCM 5 matrix not installed')
+    for repository in ('system/sepolicy',
+                       'packages/modules/Connectivity', 'device/lineage/sepolicy',
                        'kernel/samsung/a23'):
         check(f'apply_series {repository} ' in script, f'build script does not patch {repository}')
 

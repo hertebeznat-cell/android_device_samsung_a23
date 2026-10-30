@@ -32,15 +32,20 @@ Evolution X Unofficial с GMS, загрузчик/прошивка **A235FXXSEEZ
 Проверено по исходникам android-17.0.0_r1: клиенты всех стоковых HIDL HAL
 (audio 6.0, composer 2.4, gralloc 3/4, camera 2.6, radio 1.5, Wi-Fi 1.4,
 health 2.1, sensors 2.0, BT 1.0, fingerprint 2.1, keymaster 4.0 через
-`km_compat`) в платформе есть. Восстанавливается патчами:
+`km_compat`) в платформе есть. Из дерева (без правки исходников Evo):
+
+| Что | Где | Зачем |
+|---|---|---|
+| APEX `com.android.vndk.v30` | `Android.bp` | VNDK 30 для стоковых библиотек |
+| `framework_compatibility_matrix.5.xml` + `kernel_config_r_4.19` | `Android.bp`, `configs/vintf` | матрица FCM 5 и требования R/4.19 |
+| `/odm/etc/ueventd.rc` | `vendor/samsung/a235f` | права на /dev/kgsl, ion, DSP… из стокового `/vendor/ueventd.rc` |
+
+Остаются патчами к исходникам:
 
 | Патч | Репозиторий | Зачем |
 |---|---|---|
-| `patches/vndk` | `packages/modules/vndk` | APEX VNDK 30 для стоковых библиотек |
 | `patches/sepolicy/0001` | `system/sepolicy` | маппинг SELinux 30.0 (init собирает политику при загрузке) |
 | `patches/sepolicy/0002` | `system/sepolicy` | метки, разделённые в Android 16/17 (`proc_bpf` и др.), как Google сделал для 31.0 |
-| `patches/vintf/0001` | `hardware/interfaces` | матрица FCM 5 |
-| `patches/vintf/0002` | `kernel/configs` | требования R/4.19 для этой матрицы |
 | `patches/connectivity` | `packages/modules/Connectivity` | `NetBpfLoad` без жёсткого порога ядра 5.4/5.15 (страховка к подмене uname) |
 | `patches/kernel` | ядро | хостовые утилиты в окружении AOSP (`sched_param`, OpenSSL ENGINE) |
 

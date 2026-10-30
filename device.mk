@@ -12,7 +12,7 @@ PRODUCT_SHIPPING_API_LEVEL := 31
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_BUILD_SUPER_PARTITION := false
 
-# The stock blobs link against VNDK 30 (restored by patches/vndk).
+# The stock blobs link against VNDK 30 (APEX defined in Android.bp).
 PRODUCT_EXTRA_VNDK_VERSIONS := 30
 
 # SELinux: the stock vendor policy is API 30.0. Install the platform mapping
@@ -28,6 +28,9 @@ PRODUCT_PACKAGES += \
 # The 4.19 kernel has userfaultfd, but not every mremap feature ART's
 # concurrent-compacting GC probes for; use the default CC collector.
 PRODUCT_ENABLE_UFFD_GC := false
+
+# FCM 5 framework matrix with the R/4.19 kernel requirements (Android.bp).
+PRODUCT_PACKAGES +=     framework_compatibility_matrix.5.xml
 
 # First-stage mount
 PRODUCT_COPY_FILES += \
