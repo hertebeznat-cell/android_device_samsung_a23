@@ -126,7 +126,7 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -platform_testing/tools/automotive \
     -system/software_defined_vehicle \
     -packages/services/display_safety \
-    -platform_testing/tests/display/hcct \
+    -platform_testing/tests/display/hcct/tests \
     -platform_testing/libraries/sdv \
     -platform_testing/tests/sdv
 
