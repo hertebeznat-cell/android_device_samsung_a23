@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 
 STOCK_DTB = '064a8b777cebdff6c075f552b3ec6aa92ebb7af663bd3bcd240cb1afebf9b1f3'
 STOCK_DTBO = '7d9c005109e3e9524425a70d46b85ccd5c63b732f3d820be4942d3115ea5aa85'
-KERNEL_REPOSITORY = 'hertebeznat-cell/android_kernel_samsung_a23'
+KERNEL_REPOSITORY = 'hertebeznat-cell/android_kernel_samsung_a235f'
 KERNEL_REVISION = '44515b03c1e168412ab0f3c9eca62ce6f173a87a'
 SUPER_GROUP_SIZE = 9013559296
 STOCK_VENDOR_SIZE = 922710016
