@@ -78,7 +78,8 @@ PRODUCT_SOURCE_ROOT_DIRS += -external/cronet/tot
 # 308321/308326; swap is not permitted there). Leave out what this product
 # never builds: vendor-side Qualcomm HALs for other SoCs (the vendor is the
 # stock SEZB1 image, and no qcom-caf namespace is exported), emulators (not
-# cuttlefish: platform_testing/Android.bp lists its tests), other form factors and
+# cuttlefish and goldfish: platform_testing/Android.bp lists cuttlefish tests,
+# and cuttlefish imports the goldfish namespace), other form factors and
 # the automotive tools built on top of them. System-side qcom code, Car and
 # tests stay in.
 PRODUCT_SOURCE_ROOT_DIRS += \
@@ -106,7 +107,6 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -vendor/qcom/opensource/thermal-engine \
     -vendor/qcom/opensource/usb \
     -vendor/qcom/opensource/vibrator \
-    -device/generic/goldfish \
     -device/generic/car \
     -device/google_car \
     -device/google/atv \
