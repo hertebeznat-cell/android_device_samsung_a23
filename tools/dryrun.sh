@@ -55,7 +55,6 @@ make_repo system/sepolicy "$EVO/system_sepolicy/cnb/compat/Android.bp" compat/An
 make_repo hardware/interfaces "$EVO/hardware_interfaces/cnb/compatibility_matrices/Android.bp" compatibility_matrices/Android.bp
 make_repo kernel/configs
 make_repo packages/modules/Connectivity "$EVO/packages_modules_Connectivity/cnb/bpf/loader/NetBpfLoad.cpp" bpf/loader/NetBpfLoad.cpp
-make_repo system/core "$EVO/system_core/cnb/rootdir/ueventd.rc" rootdir/ueventd.rc
 make_repo device/lineage/sepolicy "$EVO/device_evolution_sepolicy/cnb/common/private/genfs_contexts" common/private/genfs_contexts
 make_repo kernel/samsung/a23 \
     "$KERNEL/include/uapi/linux/sched/types.h" include/uapi/linux/sched/types.h \
@@ -80,7 +79,8 @@ cp -r "$device_src" "$root/device/samsung/a23"
 # would land in the real repository.
 rm -rf "$root/device/samsung/a23/.git"
 mkdir -p "$root/vendor/samsung/a235f"
-cp -r "$vendor_src/BoardConfigVendor.mk" "$vendor_src/tools" "$vendor_src/reference" "$root/vendor/samsung/a235f/"
+cp -r "$vendor_src/BoardConfigVendor.mk" "$vendor_src/a235f-vendor.mk" "$vendor_src/tools" "$vendor_src/reference" \
+      "$vendor_src/proprietary" "$vendor_src/bluetooth-audio" "$root/vendor/samsung/a235f/"
 mkdir -p "$root/vendor/samsung/a235f/images"
 cp "$vendor_src"/images/SHA256SUMS "$vendor_src"/images/*.xz.* "$root/vendor/samsung/a235f/images/"
 for repo in device/samsung/a23 vendor/samsung/a235f; do
@@ -170,7 +170,7 @@ PATH="$bin:$PATH" A23_DEVICE_REVISION="$device_sha" bash "$crave"
 [[ -f external/cronet/tot/Android.bp ]] || { echo "dryrun: tracked cronet file removed" >&2; exit 1; }
 [[ -f vendor/samsung/a235f/images/vendor.img ]] || { echo "dryrun: vendor image removed" >&2; exit 1; }
 for repo in packages/modules/vndk system/sepolicy hardware/interfaces kernel/configs \
-            packages/modules/Connectivity system/core device/lineage/sepolicy kernel/samsung/a23; do
+            packages/modules/Connectivity device/lineage/sepolicy kernel/samsung/a23; do
     [[ -n "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo not patched" >&2; exit 1; }
 done
 echo "DRYRUN=OK"

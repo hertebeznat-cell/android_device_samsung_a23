@@ -60,9 +60,9 @@ class ReleasetoolsTest(unittest.TestCase):
         return types.SimpleNamespace(input_zip=FakeZip(entries), output_zip=FakeZip({}),
                                      input_tmp='/tmp/target', info_dict={}, script=FakeScript())
 
-    def test_full_ota_writes_stock_vendor_and_odm(self):
+    def test_full_ota_writes_stock_vendor(self):
         diffs = self.module.FullOTA_GetBlockDifferences(self.info({}))
-        self.assertEqual(diffs, [('vendor', 'image:vendor', None), ('odm', 'image:odm', None)])
+        self.assertEqual(diffs, [('vendor', 'image:vendor', None)])
         self.assertTrue(all(kw['reset_file_map'] for _, kw in self.calls))
 
     def test_dtbo_from_prebuilt_images(self):

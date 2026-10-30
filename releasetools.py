@@ -2,15 +2,15 @@
 #
 # OTA extensions for the Galaxy A23 4G.
 #
-# vendor and odm are prebuilt stock SEZB1 images, so target-files has no
-# VENDOR/ or ODM/ trees and the generic non-A/B script would skip them while
-# they are still listed in the super group. Provide their block updates here:
-# every install then writes the exact stock vendor/odm, whatever the phone
-# had before (UN1CA, for example, repacks vendor).
+# vendor is the prebuilt stock SEZB1 image, so target-files has no VENDOR/
+# tree and the generic non-A/B script would skip it while it is still listed
+# in the super group. Provide its block update here: every install then
+# writes the exact stock vendor, whatever the phone had before (UN1CA, for
+# example, repacks vendor). odm is built and handled by the generic script.
 
 import common
 
-STOCK_PARTITIONS = ('vendor', 'odm')
+STOCK_PARTITIONS = ('vendor',)
 
 
 class _FullSuperLayout(common.DynamicPartitionsDifference):

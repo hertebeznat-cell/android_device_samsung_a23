@@ -43,3 +43,7 @@ dalvik.vm.boot-dex2oat-cpu-set=0,1,2,3,4,5,6,7
 dalvik.vm.boot-dex2oat-threads=8
 dalvik.vm.dex2oat-cpu-set=0,1,2,3,4,5,6,7
 dalvik.vm.dex2oat-threads=4
+
+# Bluetooth: A2DP goes through the AOSP Bluetooth audio HAL 2.0 (software
+# encoding) installed to /odm; Samsung's DSP offload needs its own framework.
+persist.bluetooth.a2dp_offload.disabled=true

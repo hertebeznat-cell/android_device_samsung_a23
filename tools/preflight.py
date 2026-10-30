@@ -59,11 +59,11 @@ def main():
     partitions = board.get('BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST', '').split()
     check(sorted(partitions) == ['odm', 'product', 'system', 'vendor'], 'dynamic partition list')
     check(board.get('TARGET_OTA_ALLOW_NON_AB') == 'true', 'non-A/B OTA must be allowed explicitly')
-    # Prebuilt vendor/odm have no target-files trees; without device block
-    # diffs the generic non-A/B script asserts on the super partition list.
+    # The prebuilt vendor has no target-files tree; without a device block
+    # diff the generic non-A/B script asserts on the super partition list.
     check(board.get('TARGET_RELEASETOOLS_EXTENSIONS') == '$(DEVICE_PATH)', 'releasetools extension not set')
     releasetools = (device / 'releasetools.py').read_text()
-    check("STOCK_PARTITIONS = ('vendor', 'odm')" in releasetools, 'releasetools must write vendor and odm')
+    check("STOCK_PARTITIONS = ('vendor',)" in releasetools, 'releasetools must write the stock vendor')
 
     config = device / board.get('TARGET_KERNEL_CONFIG_EXT', '').replace('$(DEVICE_PATH)/', '')
     check(config.is_file(), 'kernel config fragment missing')
@@ -78,7 +78,20 @@ def main():
     check(set(logical) == set(partitions), 'fstab logical partitions differ from the super list')
     check(logical.get('system') == board.get('BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE'), 'system fs type')
     check(logical.get('product') == board.get('BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE'), 'product fs type')
-    check(logical.get('vendor') == 'f2fs' and logical.get('odm') == 'f2fs', 'stock vendor/odm are f2fs')
+    check(logical.get('vendor') == 'f2fs', 'the stock vendor is f2fs')
+    check(logical.get('odm') == board.get('BOARD_ODMIMAGE_FILE_SYSTEM_TYPE'), 'odm fs type')
+    check('BOARD_PREBUILT_ODMIMAGE' not in (vendor / 'BoardConfigVendor.mk').read_text(), 'odm is built, not prebuilt')
+
+    # A2DP: the AOSP Bluetooth audio HAL must be declared, installed and given
+    # an audio policy module, or A2DP source stays disabled.
+    device_mk = (device / 'device.mk').read_text()
+    for needle in ('odm_bluetooth_audio.xml', 'audio_policy_configuration_a2dp_offload_disabled.xml',
+                   'bluetooth_audio_policy_configuration.xml', 'a235f-vendor.mk'):
+        check(needle in device_mk, f'device.mk lacks {needle}')
+    check('bluetooth_audio_policy_configuration.xml' in (device / 'configs/audio/audio_policy_configuration.xml').read_text(),
+          'odm audio policy does not include the bluetooth module')
+    check((vendor / 'bluetooth-audio/lib/hw/android.hardware.bluetooth.audio@2.0-impl.so').is_file(), 'AOSP BT audio HAL missing')
+    check((vendor / 'proprietary/odm/etc/ueventd.rc').is_file(), 'odm ueventd.rc missing')
     for mount in ('/boot', '/recovery', '/dtbo', '/data', '/metadata'):
         check(any(row[1] == mount for row in rows), f'fstab lacks {mount}')
     check(not any('avb' in row[4] for row in rows), 'AVB is disabled; drop avb fstab flags')
@@ -110,11 +123,11 @@ def main():
               f'no file_contexts label for /{folder}')
 
     # Patches the build script applies.
-    for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity', 'core', 'lineage-sepolicy'):
+    for directory in ('kernel', 'sepolicy', 'vndk', 'vintf', 'connectivity', 'lineage-sepolicy'):
         check(any((device / 'patches' / directory).glob('*.patch')), f'no {directory} patches')
     script = (device / 'build_a23.sh').read_text()
     for repository in ('packages/modules/vndk', 'system/sepolicy', 'hardware/interfaces',
-                       'kernel/configs', 'packages/modules/Connectivity', 'system/core', 'device/lineage/sepolicy',
+                       'kernel/configs', 'packages/modules/Connectivity', 'device/lineage/sepolicy',
                        'kernel/samsung/a23'):
         check(f'apply_series {repository} ' in script, f'build script does not patch {repository}')
 

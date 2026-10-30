@@ -1,0 +1,2 @@
+# Kept from the stock SEZB1 odm build.prop.
+ro.vendor.qti.va_odm.support=1

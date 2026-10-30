@@ -44,6 +44,16 @@ PRODUCT_COPY_FILES +=     frameworks/native/data/etc/android.hardware.fingerprin
 # the interpreter/JIT until the first idle-maintenance dexopt.
 PRODUCT_DEXPREOPT_SPEED_APPS +=     SettingsGoogle     SystemUIGoogle
 
+# odm: stock SEZB1 files and the AOSP Bluetooth audio HAL (vendor repo), plus
+# the policy and VINTF entries that make Android use it for A2DP: the stock
+# audio policy has no "bluetooth" module and the stock vendor only declares
+# Samsung's own Bluetooth audio HAL, so A2DP source stayed disabled and
+# speakers disconnected right after pairing. audioserver reads /odm/etc first;
+# the a2dp_offload_disabled name is the one it looks for when offload is off.
+$(call inherit-product, vendor/samsung/a235f/a235f-vendor.mk)
+
+PRODUCT_COPY_FILES +=     $(DEVICE_PATH)/configs/audio/audio_policy_configuration.xml:$(TARGET_COPY_OUT_ODM)/etc/audio_policy_configuration.xml     $(DEVICE_PATH)/configs/audio/audio_policy_configuration.xml:$(TARGET_COPY_OUT_ODM)/etc/audio_policy_configuration_a2dp_offload_disabled.xml     $(DEVICE_PATH)/configs/audio/audio_policy_volumes.xml:$(TARGET_COPY_OUT_ODM)/etc/audio_policy_volumes.xml     $(DEVICE_PATH)/configs/audio/bluetooth_audio_policy_configuration.xml:$(TARGET_COPY_OUT_ODM)/etc/bluetooth_audio_policy_configuration.xml     $(DEVICE_PATH)/configs/audio/default_volume_tables.xml:$(TARGET_COPY_OUT_ODM)/etc/default_volume_tables.xml     $(DEVICE_PATH)/configs/audio/r_submix_audio_policy_configuration.xml:$(TARGET_COPY_OUT_ODM)/etc/r_submix_audio_policy_configuration.xml     $(DEVICE_PATH)/configs/vintf/odm_bluetooth_audio.xml:$(TARGET_COPY_OUT_ODM)/etc/vintf/manifest/android.hardware.bluetooth.audio@2.0.xml
+
 # Fastbootd
 PRODUCT_PACKAGES += \
     fastbootd

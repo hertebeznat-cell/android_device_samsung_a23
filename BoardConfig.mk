@@ -4,8 +4,9 @@
 #
 # Samsung Galaxy A23 4G (SM-A235F), Snapdragon 680 (bengal / SM6225).
 #
-# The SEZB1 vendor and odm partitions are shipped untouched as prebuilt
-# images; only boot, system, product and recovery are built here.
+# The SEZB1 vendor partition is shipped untouched as a prebuilt image. odm
+# is built from the stock odm files plus the AOSP Bluetooth audio HAL
+# (vendor/samsung/a235f); boot, system, product and recovery are built too.
 #
 
 DEVICE_PATH := device/samsung/a23
@@ -35,7 +36,7 @@ TARGET_NO_RADIOIMAGE := true
 AB_OTA_UPDATER := false
 TARGET_OTA_ALLOW_NON_AB := true
 TARGET_OTA_ASSERT_DEVICE := a23,SM-A235F
-# Writes the prebuilt stock vendor/odm and dtbo images (see releasetools.py).
+# Writes the prebuilt stock vendor and dtbo images (see releasetools.py).
 TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
 
 # Kernel: boot image header v2, values copied from the SEZB1 boot.img.
@@ -119,6 +120,7 @@ BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := system product vendor odm
 
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_ODMIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
@@ -135,7 +137,7 @@ TARGET_COPY_OUT_PRODUCT := product
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_COPY_OUT_ODM := odm
 
-# Stock vendor/odm (f2fs) images, assembled by vendor/samsung/a235f.
+# Stock vendor (f2fs) image, assembled by vendor/samsung/a235f.
 include vendor/samsung/a235f/BoardConfigVendor.mk
 
 # Verified boot is not used: the device runs with a disabled vbmeta and the
@@ -149,6 +151,7 @@ BOARD_HAS_DOWNLOAD_MODE := true
 
 # Properties
 TARGET_PRODUCT_PROP += $(DEVICE_PATH)/product.prop
+TARGET_ODM_PROP += $(DEVICE_PATH)/odm.prop
 
 # Display
 TARGET_SCREEN_DENSITY := 450

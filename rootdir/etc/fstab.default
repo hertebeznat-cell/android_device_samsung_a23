@@ -1,14 +1,14 @@
 # Samsung Galaxy A23 4G (SM-A235F) — first-stage ramdisk and recovery fstab.
 #
-# Matches the SEZB1 /vendor/etc/fstab.default except that the built system and
-# product images are ext4 and verified boot flags are dropped. Second-stage
+# Matches the SEZB1 /vendor/etc/fstab.default except that the built system,
+# product and odm images are ext4 and verified boot flags are dropped. Second-stage
 # init and vold use the untouched stock vendor fstab.
 #
 #<src>                                   <mnt_point>          <type>  <mnt_flags and options>                                                                                       <fs_mgr_flags>
 system                                   /system              ext4    ro,barrier=1                                                                                                  wait,logical,first_stage_mount
 product                                  /product             ext4    ro,barrier=1                                                                                                  wait,logical,first_stage_mount
 vendor                                   /vendor              f2fs    ro                                                                                                            wait,logical,first_stage_mount
-odm                                      /odm                 f2fs    ro                                                                                                            wait,logical,first_stage_mount
+odm                                      /odm                 ext4    ro,barrier=1                                                                                                  wait,logical,first_stage_mount
 /dev/block/by-name/metadata              /metadata            ext4    noatime,nosuid,nodev,noauto_da_alloc,discard,journal_checksum,data=ordered,errors=panic,sync                  wait,formattable,first_stage_mount,check
 /dev/block/bootdevice/by-name/cache      /cache               ext4    noatime,nosuid,nodev,noauto_da_alloc,discard,journal_checksum,data=ordered,errors=panic                       wait,check
 /dev/block/bootdevice/by-name/userdata   /data                f2fs    noatime,nosuid,nodev,discard,usrquota,grpquota,fsync_mode=nobarrier,reserve_root=32768,resgid=5678,inlinecrypt latemount,wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,quota,reservedsize=128M,checkpoint=fs,keydirectory=/metadata/vold/metadata_encryption

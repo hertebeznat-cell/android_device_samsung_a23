@@ -39,7 +39,6 @@ health 2.1, sensors 2.0, BT 1.0, fingerprint 2.1, keymaster 4.0 через
 | `patches/vndk` | `packages/modules/vndk` | APEX VNDK 30 для стоковых библиотек |
 | `patches/sepolicy/0001` | `system/sepolicy` | маппинг SELinux 30.0 (init собирает политику при загрузке) |
 | `patches/sepolicy/0002` | `system/sepolicy` | метки, разделённые в Android 16/17 (`proc_bpf` и др.), как Google сделал для 31.0 |
-| `patches/core` | `system/core` | ueventd снова читает `/vendor/ueventd.rc` (права на /dev/kgsl, ion, DSP…) |
 | `patches/vintf/0001` | `hardware/interfaces` | матрица FCM 5 |
 | `patches/vintf/0002` | `kernel/configs` | требования R/4.19 для этой матрицы |
 | `patches/connectivity` | `packages/modules/Connectivity` | `NetBpfLoad` без жёсткого порога ядра 5.4/5.15 (страховка к подмене uname) |
@@ -149,8 +148,12 @@ system, product, boot, dtbo и стоковые SEZB1 vendor/odm, поэтому
   не было отпечатка (feature + `config_biometric_sensors`), чёрная полоса у выреза.
 - `android.frameworks.schedulerservice@1.0`, который требует стоковый vendor,
   в Android 17 удалён: HAL не смогут запросить RT-приоритет (не блокер).
-- Аудио по Bluetooth (A2DP): у Samsung только свой HAL
-  `vendor.samsung.hardware.bluetooth.audio`, AOSP-стек может его не увидеть.
+- Аудио по Bluetooth (A2DP): стоковый vendor содержит только HAL Samsung
+  (`ISehBluetoothAudioProvidersFactory`). В odm кладётся AOSP-шный Bluetooth
+  audio HAL 2.0 (VNDK 30, см. `vendor/samsung/a235f/bluetooth-audio`), модуль
+  `bluetooth` в политике аудио и манифест VINTF; аппаратная разгрузка A2DP
+  выключена. odm теперь собирается (ext4) из стоковых файлов, там же
+  `/odm/etc/ueventd.rc` вместо патча `system/core`.
 - `vendor.qti.hardware.radio.atcmdfwd` (заводские AT-команды) не
   зарегистрируется: его тип есть только в политике Samsung.
 - Точки монтирования `/carrier /spu /prism /optics` помечены типами Samsung из
