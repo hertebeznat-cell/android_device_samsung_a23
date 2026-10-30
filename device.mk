@@ -124,7 +124,7 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -hardware/qcom/sm7250 \
     -hardware/qcom/sm8150 \
     -platform_testing/tools/automotive \
-    -system/software_defined_vehicle
+    -system/software_defined_vehicle \n    -packages/services/display_safety
 
 # cp2a turns on Soong's incremental analysis, which keeps a cache of build
 # actions in memory; Crave job 308321 had soong_build OOM-killed twice at
