@@ -125,6 +125,7 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -packages/services/display_safety \
     -platform_testing/libraries/sdv \
     -platform_testing/libraries/automotive/display_safety \
+    -platform_testing/tests/automotive/display_safety \
     -platform_testing/tests/sdv
 
 # cp2a turns on Soong's incremental analysis, which keeps a cache of build
