@@ -114,7 +114,6 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -device/google/trout \
     -device/google/sdv \
     -device/google/sdv_display_safety \
-    -device/generic/trusty \
     -device/generic/x86 \
     -device/generic/x86_64 \
     -device/sample \
@@ -125,6 +124,7 @@ PRODUCT_SOURCE_ROOT_DIRS += \
     -system/software_defined_vehicle \
     -packages/services/display_safety \
     -platform_testing/libraries/sdv \
+    -platform_testing/libraries/automotive/display_safety \
     -platform_testing/tests/sdv
 
 # cp2a turns on Soong's incremental analysis, which keeps a cache of build
