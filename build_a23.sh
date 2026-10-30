@@ -68,6 +68,9 @@ stage=lunch; echo "---- A23 BUILD STEP: lunch ($(date -u +%H:%M:%SZ)) ----"
 fail() { echo "A23_BUILD=FAILED stage=$stage" >&2; exit 1; }
 set +eEu
 trap - ERR
+# Soong incremental analysis holds cached build actions in memory; it pushed
+# soong_build past Crave's 60 GB limit (job 308321). See device.mk.
+export SOONG_INCREMENTAL_ANALYSIS=false
 source build/envsetup.sh
 lunch lineage_a23-cp2a-userdebug || fail
 

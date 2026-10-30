@@ -73,6 +73,11 @@ PRODUCT_PACKAGES += \
 # ToT Chromium copy (~54k files) entirely.
 PRODUCT_SOURCE_ROOT_DIRS += -external/cronet/tot
 
+# cp2a turns on Soong's incremental analysis, which keeps a cache of build
+# actions in memory; Crave job 308321 had soong_build OOM-killed twice at
+# the 60 GB cgroup limit. One-off builds gain nothing from it.
+PRODUCT_SOONG_INCREMENTAL_ANALYSIS := false
+
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
     $(DEVICE_PATH)
