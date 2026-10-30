@@ -73,6 +73,56 @@ PRODUCT_PACKAGES += \
 # ToT Chromium copy (~54k files) entirely.
 PRODUCT_SOURCE_ROOT_DIRS += -external/cronet/tot
 
+# Soong analyses every Android.bp in the tree. Evolution X cnb needs more than
+# the 60 GB a 64 GB Crave machine allows (soong_build OOM-killed in jobs
+# 308321/308326; swap is not permitted there). Leave out what this product
+# never builds: vendor-side Qualcomm HALs for other SoCs (the vendor is the
+# stock SEZB1 image, and no qcom-caf namespace is exported), emulators and
+# other form factors. System-side qcom code, Car and tests stay in.
+PRODUCT_SOURCE_ROOT_DIRS += \
+    -hardware/qcom-caf/msm8953 \
+    -hardware/qcom-caf/msm8996 \
+    -hardware/qcom-caf/sdm660 \
+    -hardware/qcom-caf/sm8150 \
+    -hardware/qcom-caf/sm8250 \
+    -hardware/qcom-caf/sm8350 \
+    -hardware/qcom-caf/sm8450 \
+    -hardware/qcom-caf/sm8450-6.6 \
+    -hardware/qcom-caf/sm8550 \
+    -hardware/qcom-caf/sm8650 \
+    -hardware/qcom-caf/sm8750 \
+    -hardware/qcom-caf/sm8850 \
+    -vendor/qcom/opensource/audio-hal \
+    -vendor/qcom/opensource/data-ipa-cfg-mgr-legacy-um \
+    -vendor/qcom/opensource/dataservices \
+    -vendor/qcom/opensource/display \
+    -vendor/qcom/opensource/healthd-ext \
+    -vendor/qcom/opensource/libqspa \
+    -vendor/qcom/opensource/libvmmem \
+    -vendor/qcom/opensource/core-utils-vendor \
+    -vendor/qcom/opensource/power \
+    -vendor/qcom/opensource/thermal-engine \
+    -vendor/qcom/opensource/usb \
+    -vendor/qcom/opensource/vibrator \
+    -device/google/cuttlefish \
+    -device/google/cuttlefish_prebuilts \
+    -device/google/cuttlefish_vmm \
+    -device/generic/goldfish \
+    -device/generic/car \
+    -device/google_car \
+    -device/google/atv \
+    -device/lineage/atv \
+    -device/google/trout \
+    -device/google/sdv \
+    -device/google/sdv_display_safety \
+    -device/generic/trusty \
+    -device/generic/x86 \
+    -device/generic/x86_64 \
+    -device/sample \
+    -device/qcom/sepolicy_vndr \
+    -hardware/qcom/sm7250 \
+    -hardware/qcom/sm8150
+
 # cp2a turns on Soong's incremental analysis, which keeps a cache of build
 # actions in memory; Crave job 308321 had soong_build OOM-killed twice at
 # the 60 GB cgroup limit. One-off builds gain nothing from it.
