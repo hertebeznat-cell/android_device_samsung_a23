@@ -66,9 +66,12 @@ PRODUCT_PACKAGES += \
     FrameworksResA23 \
     WifiResA23
 
-# Tells the stock audio HAL which SIM a call is on (callaudio/Android.bp)
+# Tells the stock audio HAL which SIM a call is on (callaudio/Android.bp), and
+# the stock RIL that the framework is ready, so it passes on incoming SMS
+# (sehradio/Android.bp)
 PRODUCT_PACKAGES += \
-    A23CallAudio
+    A23CallAudio \
+    A23SehRadio
 
 # Keep Soong's graph small enough for Crave's free machines (jobs 306583 and
 # 306676 were OOM-killed in "analyzing Android.bp files"). cp2a leaves

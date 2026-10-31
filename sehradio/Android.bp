@@ -1,0 +1,22 @@
+//
+// Copyright (C) 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Tells the stock Samsung RIL that the framework is ready (FW_READY=1 through
+// vendor.samsung.hardware.radio@2.2::ISehRadio), as One UI does and as
+// LineageOS' hardware/samsung sehradiomanager does on newer Samsung devices.
+// Until it gets this, libsec-ril acknowledges incoming SMS itself and never
+// passes them to the framework. ISehRadio is a hal_telephony_hwservice, which
+// the phone uid (radio domain) may use, so no sepolicy is needed.
+android_app {
+    name: "A23SehRadio",
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    system_ext_specific: true,
+    optimize: {
+        enabled: false,
+    },
+}
