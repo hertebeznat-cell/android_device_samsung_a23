@@ -66,6 +66,10 @@ PRODUCT_PACKAGES += \
     FrameworksResA23 \
     WifiResA23
 
+# Tells the stock audio HAL which SIM a call is on (callaudio/Android.bp)
+PRODUCT_PACKAGES += \
+    A23CallAudio
+
 # Keep Soong's graph small enough for Crave's free machines (jobs 306583 and
 # 306676 were OOM-killed in "analyzing Android.bp files"). cp2a leaves
 # RELEASE_ENABLE_TOT_CRONET unset, so external/cronet selects stable_* modules

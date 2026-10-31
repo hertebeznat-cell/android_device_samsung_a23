@@ -1,0 +1,21 @@
+//
+// Copyright (C) 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Tells the stock Samsung audio HAL which SIM a call is on. One UI's Telecom
+// sends g_call_sim_slot/g_call_state before switching to MODE_IN_CALL; AOSP
+// does not, so the HAL always opened the SIM 1 voice session (voicemmode1)
+// and SIM 2 calls had no audio. AudioFlinger only takes these parameters from
+// system processes, hence the platform certificate and system uid.
+android_app {
+    name: "A23CallAudio",
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    system_ext_specific: true,
+    optimize: {
+        enabled: false,
+    },
+}
