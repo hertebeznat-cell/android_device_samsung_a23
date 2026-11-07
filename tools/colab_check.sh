@@ -116,8 +116,11 @@ PIN
 banner repo-sync
 # repo draws its progress ("Fetching: 37% (420/1130)") only on a terminal; run
 # it under script(1) so the log, and the progress line above, get it.
+# At most 16 fetches at a time (A23_SYNC_JOBS overrides): with one per core,
+# a 192-core build server got HTTP 403 from GitHub for the manifest itself.
+sync_jobs="${A23_SYNC_JOBS:-$(( $(nproc) < 16 ? $(nproc) : 16 ))}"
 sync() {
-    local cmd="repo sync -c -j$(nproc) --no-tags --no-clone-bundle --optimized-fetch --force-sync --retry-fetches=3"
+    local cmd="repo sync -c -j$sync_jobs --no-tags --no-clone-bundle --optimized-fetch --force-sync --retry-fetches=3"
     if command -v script >/dev/null; then
         script -qefac "$cmd" "$log" > /dev/null
     else
