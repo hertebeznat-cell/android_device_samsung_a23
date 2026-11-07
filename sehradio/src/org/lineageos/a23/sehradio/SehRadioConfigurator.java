@@ -6,6 +6,7 @@
 package org.lineageos.a23.sehradio;
 
 import android.os.HwBinder;
+import android.os.IBinder;
 import android.os.HwBlob;
 import android.os.HwParcel;
 import android.os.IHwBinder;
@@ -85,8 +86,10 @@ class SehRadioConfigurator extends Thread implements IHwBinder.DeathRecipient {
 
         HwParcel reply = new HwParcel();
         try {
+            // HIDL oneway is the same flag value as binder's (generated code
+            // uses IHwBinder.FLAG_ONEWAY, which Android 17 no longer exports).
             radio.transact(SET_VENDOR_SPECIFIC_CONFIGURATION, request, reply,
-                    IHwBinder.FLAG_ONEWAY);
+                    IBinder.FLAG_ONEWAY);
             request.releaseTemporaryStorage();
         } finally {
             reply.release();
