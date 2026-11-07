@@ -36,6 +36,10 @@ PRODUCT_PACKAGES +=     framework_compatibility_matrix.5.xml
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/rootdir/etc/fstab.default:$(TARGET_COPY_OUT_RAMDISK)/fstab.default
 
+# CPU/GPU tuning, from odm so that vendor_init (allowed to write sysfs) runs it
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/rootdir/etc/init/init.a23.perf.rc:$(TARGET_COPY_OUT_ODM)/etc/init/init.a23.perf.rc
+
 # Init and the Samsung Codec2 seccomp fix (see init.a23.rc)
 PRODUCT_COPY_FILES +=     $(DEVICE_PATH)/rootdir/etc/init/init.a23.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.a23.rc     $(DEVICE_PATH)/configs/seccomp/samsung.software.media.c2-base-policy:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/seccomp_policy/samsung.software.media.c2-base-policy
 

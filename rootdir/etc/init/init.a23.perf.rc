@@ -1,0 +1,17 @@
+# Copyright (C) 2026 The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+# Installed to /odm/etc/init so the writes run as vendor_init, which may
+# write sysfs; init itself may only read these nodes.
+
+on property:sys.boot_completed=1
+    # One UI raises CPU/GPU floors through Samsung's Hyper hints on touch and
+    # launch; the AOSP framework sends none, and opening the app drawer ran
+    # with the GPU at its 320 MHz floor (measured with a 50 ms frequency
+    # sampler). Start the Adreno 610 from 465 MHz; it still power-collapses
+    # when idle, so the floor only applies while it renders.
+    write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 465000000
+    # schedutil predicted load, as Qualcomm's post_boot scripts use it: ramp
+    # for a task's expected demand instead of waiting for the next window.
+    write /sys/devices/system/cpu/cpufreq/policy0/schedutil/pl 1
+    write /sys/devices/system/cpu/cpufreq/policy4/schedutil/pl 1
