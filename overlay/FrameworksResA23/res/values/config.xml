@@ -19,8 +19,13 @@
     <string name="config_mainBuiltInDisplayCutout" translatable="false">M 0,0 H -30.57777777777778 V 23.11111111111111 H 30.57777777777778 V 0 H 0 Z @dp</string>
     <!-- Filling drew a black bar across the whole cutout rectangle. -->
     <bool name="config_fillMainBuiltInDisplayCutout">false</bool>
-    <dimen name="rounded_corner_radius_top">32.0dip</dimen>
-    <dimen name="rounded_corner_radius_bottom">32.0dip</dimen>
+    <!-- No rounded_corner_radius_top/bottom: with a radius, SystemUI keeps two
+         full-width ScreenDecorOverlay layers on screen at all times to mask the
+         corners, which the panel already rounds. The SM6225 HWC has few pipes,
+         so with those two layers any animation (app launch, notification shade)
+         sent the whole frame to GPU composition; SurfaceFlinger then missed
+         ~600 GPU frames in a minute and SystemUI's median frame was 46 ms.
+         Without a radius the overlays only show with the privacy dot. -->
     <dimen name="status_bar_height_portrait">4.389984mm</dimen>
 
     <!-- Brightness -->
