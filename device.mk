@@ -45,7 +45,10 @@ PRODUCT_COPY_FILES +=     frameworks/native/data/etc/android.hardware.fingerprin
 
 # Compile the always-running UI fully at build time; otherwise it runs from
 # the interpreter/JIT until the first idle-maintenance dexopt.
-PRODUCT_DEXPREOPT_SPEED_APPS +=     SettingsGoogle     SystemUIGoogle
+PRODUCT_DEXPREOPT_SPEED_APPS += \
+    NexusLauncherRelease \
+    SettingsGoogle \
+    SystemUIGoogle
 
 # odm: stock SEZB1 files and the AOSP Bluetooth audio HAL (vendor repo), plus
 # the policy and VINTF entries that make Android use it for A2DP: the stock
