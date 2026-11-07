@@ -80,4 +80,10 @@
 
     <!-- Audio -->
     <bool name="config_supportAudioSourceUnprocessed">false</bool>
+
+    <!-- Memory: Android 17 defaults to 1024 cached processes and leaves all
+         trimming to lmkd. On 3.6 GB with GMS that kept memory PSI near 60%
+         ("some" avg10) and lmkd killed eight apps in five seconds. One UI caps
+         hidden apps at 12-20 (ro.slmk.dha_*), which AOSP lmkd ignores. -->
+    <integer name="config_customizedMaxCachedProcesses">24</integer>
 </resources>
