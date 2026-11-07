@@ -3,8 +3,12 @@
 #
 # Installed to /odm/etc/init so the writes run as vendor_init, which may
 # write sysfs; init itself may only read these nodes.
+#
+# Applied once the stock /vendor/bin/init.qcom.post_boot.sh has finished: it
+# rewrites scaling_governor, which resets every schedutil tunable (pl written
+# at boot_completed was back to 0), and it zeroes the Qualcomm input boost.
 
-on property:sys.boot_completed=1
+on property:init.svc.qcom-post-boot=stopped
     # One UI raises CPU/GPU floors through Samsung's Hyper hints on touch and
     # launch; the AOSP framework sends none, and opening the app drawer ran
     # with the GPU at its 320 MHz floor (measured with a 50 ms frequency
@@ -15,3 +19,9 @@ on property:sys.boot_completed=1
     # for a task's expected demand instead of waiting for the next window.
     write /sys/devices/system/cpu/cpufreq/policy0/schedutil/pl 1
     write /sys/devices/system/cpu/cpufreq/policy4/schedutil/pl 1
+    # Qualcomm's kernel input boost (cpu_boost), which the stock script turns
+    # off for this SoC because One UI boosts from userspace instead: raise the
+    # little and big cluster floors to their hispeed frequencies for 120 ms
+    # after each touch, so animations start at speed.
+    write /sys/devices/system/cpu/cpu_boost/input_boost_freq "0:1516800 4:1344000"
+    write /sys/devices/system/cpu/cpu_boost/input_boost_ms 120
