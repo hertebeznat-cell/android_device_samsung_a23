@@ -132,6 +132,14 @@ BOARD_ROOT_EXTRA_FOLDERS := carrier efs optics prism spu
 # ...labelled by sepolicy/private (system_ext), see file.te there.
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/private
 
+# No precompiled_sepolicy: with a built odm it lands in /odm/etc/selinux with
+# hashes matching the system, but it is compiled without the stock API 30
+# vendor policy, so init loads it and aborts ("Failed to initialize property
+# area", 2026-11-07 build). Without it, init compiles the policy at boot from
+# the stock vendor CIL (the stock vendor's own precompiled policy never
+# matches), as it did when odm was the untouched stock image.
+PRODUCT_PRECOMPILED_SEPOLICY := false
+
 TARGET_COPY_OUT_PRODUCT := product
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_COPY_OUT_ODM := odm
