@@ -1,2 +1,22 @@
 # Kept from the stock SEZB1 odm build.prop.
 ro.vendor.qti.va_odm.support=1
+
+# Bluetooth profiles. Android 13+ starts a profile only if its
+# bluetooth.profile.*.enabled property is true (bluetooth_config_prop, set
+# from vendor/odm); the Android 11 stock vendor sets none, so only GATT and
+# ASHA ran and phones could neither send files (OPP) nor play to speakers
+# (A2DP). Classic profiles only: the 4.19 kernel and BT 5.0 controller have
+# no LE Audio.
+bluetooth.profile.a2dp.source.enabled=true
+bluetooth.profile.asha.central.enabled=true
+bluetooth.profile.avrcp.target.enabled=true
+bluetooth.profile.bas.client.enabled=true
+bluetooth.profile.gatt.enabled=true
+bluetooth.profile.hfp.ag.enabled=true
+bluetooth.profile.hid.device.enabled=true
+bluetooth.profile.hid.host.enabled=true
+bluetooth.profile.map.server.enabled=true
+bluetooth.profile.opp.enabled=true
+bluetooth.profile.pan.nap.enabled=true
+bluetooth.profile.pan.panu.enabled=true
+bluetooth.profile.pbap.server.enabled=true
