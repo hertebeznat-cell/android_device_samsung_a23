@@ -28,7 +28,7 @@ vendor_cil = (ref_dir / 'selinux/vendor_sepolicy.cil').read_text()
 vused = collections.Counter(re.findall(r'\b([a-z0-9_]+)_30_0\b', vendor_cil))
 aosp30_types = set(re.findall(r'\(typeattribute ([a-z0-9_]+)_30_0\)', aosp30.read_text()))
 stock_cil = ''.join(p.read_text() for p in stock_dir.rglob('*_sepolicy.cil'))
-mapping = (device / 'patches/sepolicy/0001-restore-api30-compatibility.patch').read_text()
+mapping = (device / 'sepolicy/api30/30.0.cil').read_text()
 a17_text = ''.join(p.read_text(errors='replace') for p in (a17_dir / 'public').glob('*.te')) + \
     ''.join(p.read_text(errors='replace') for p in (a17_dir / 'private').glob('*.te'))
 a17_types = set(re.findall(r'^\s*type\s+([a-z0-9_]+)', a17_text, re.M)) | \

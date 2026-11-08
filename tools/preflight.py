@@ -125,16 +125,24 @@ def main():
               f'no file_contexts label for /{folder}')
 
     # Patches the build script applies.
-    for directory in ('sepolicy', 'connectivity', 'lineage-sepolicy'):
+    for directory in ('lineage-sepolicy',):
         check(any((device / 'patches' / directory).glob('*.patch')), f'no {directory} patches')
     script = (device / 'build_a23.sh').read_text()
     check('com.android.vndk.v30' in (device / 'Android.bp').read_text(), 'VNDK 30 APEX not defined in the tree')
     bp = (device / 'Android.bp').read_text()
     check('framework_compatibility_matrix.5.xml' in bp and 'kernel_config_r_4.19' in bp, 'FCM 5 matrix not defined in the tree')
     check('framework_compatibility_matrix.5.xml' in (device / 'device.mk').read_text(), 'FCM 5 matrix not installed')
-    for repository in ('system/sepolicy',
-                       'packages/modules/Connectivity', 'device/lineage/sepolicy'):
+    for repository in ('device/lineage/sepolicy',):
         check(f'apply_series {repository} ' in script, f'build script does not patch {repository}')
+    # Evolution X sources the tree no longer patches: API 30.0 compat comes from
+    # Android.bp, and the kernel reports 5.10 to netbpfload (FAKE_UNAME_5_10).
+    for repository in ('system/sepolicy', 'packages/modules/Connectivity'):
+        check(f'apply_series {repository} ' not in script, f'build script still patches {repository}')
+    for module in ('plat_30.0.cil', 'system_ext_30.0.cil', 'product_30.0.cil',
+                   '30.0.compat.cil', 'system_ext_30.0.compat.cil'):
+        check(f'name: "{module}"' in bp, f'{module} not defined in the tree')
+    for name in ('30.0.cil', '30.0.compat.cil', 'empty.cil'):
+        check((device / 'sepolicy/api30' / name).is_file(), f'sepolicy/api30/{name} missing')
 
     for path in (device / 'overlay').rglob('*.xml'):
         try:

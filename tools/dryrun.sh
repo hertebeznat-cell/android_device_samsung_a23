@@ -162,9 +162,10 @@ PATH="$bin:$PATH" A23_DEVICE_REVISION="$device_sha" bash "$crave"
 [[ ! -e external/cronet/third_party ]] || { echo "dryrun: stale cronet files survived" >&2; exit 1; }
 [[ -f external/cronet/tot/Android.bp ]] || { echo "dryrun: tracked cronet file removed" >&2; exit 1; }
 [[ -f vendor/samsung/a235f/images/vendor.img ]] || { echo "dryrun: vendor image removed" >&2; exit 1; }
-for repo in system/sepolicy \
-            packages/modules/Connectivity device/lineage/sepolicy; do
-    [[ -n "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo not patched" >&2; exit 1; }
+[[ -n "$(git -C device/lineage/sepolicy status --porcelain)" ]] || { echo "dryrun: device/lineage/sepolicy not patched" >&2; exit 1; }
+# No longer patched: these checkouts must stay as synced (stale edits reset).
+for repo in system/sepolicy packages/modules/Connectivity; do
+    [[ -z "$(git -C "$repo" status --porcelain)" ]] || { echo "dryrun: $repo modified" >&2; exit 1; }
 done
 echo "DRYRUN=OK"
 # Each run holds a full tree copy with the stock images (~1.6 GB).

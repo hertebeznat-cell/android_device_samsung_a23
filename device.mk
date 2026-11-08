@@ -16,8 +16,8 @@ PRODUCT_BUILD_SUPER_PARTITION := false
 PRODUCT_EXTRA_VNDK_VERSIONS := 30
 
 # SELinux: the stock vendor policy is API 30.0. Install the platform mapping
-# and compat files init needs to compile it at boot (restored by
-# patches/sepolicy).
+# and compat files init needs to compile it at boot (Android.bp,
+# sepolicy/api30).
 PRODUCT_PACKAGES += \
     plat_30.0.cil \
     system_ext_30.0.cil \

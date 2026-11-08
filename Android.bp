@@ -44,3 +44,49 @@ vintf_compatibility_matrix {
     srcs: ["configs/vintf/compatibility_matrix.5.xml"],
     kernel_configs: ["kernel_config_r_4.19"],
 }
+
+// SELinux API 30.0 compatibility for the stock Android 11 vendor policy
+// (plat_sepolicy_vers.txt 30.0). Evolution X cnb dropped the 30.0 maps from
+// system/sepolicy; init needs them to compile the policy at boot. Same
+// module chain as system/sepolicy's compat/Android.bp for later versions,
+// with the 30.0 inputs from LineageOS android_system_sepolicy (885cc500)
+// updated for the cnb labels (sepolicy/api30). Installed by device.mk.
+se_cil_compat_map {
+    name: "plat_30.0.cil",
+    stem: "30.0.cil",
+    bottom_half: ["sepolicy/api30/30.0.cil"],
+    top_half: "plat_31.0.cil",
+    version: "30.0",
+}
+
+se_cil_compat_map {
+    name: "system_ext_30.0.cil",
+    stem: "30.0.cil",
+    bottom_half: ["sepolicy/api30/empty.cil"],
+    top_half: "system_ext_31.0.cil",
+    system_ext_specific: true,
+    version: "30.0",
+}
+
+se_cil_compat_map {
+    name: "product_30.0.cil",
+    stem: "30.0.cil",
+    bottom_half: ["sepolicy/api30/empty.cil"],
+    top_half: "product_31.0.cil",
+    product_specific: true,
+    version: "30.0",
+}
+
+se_compat_cil {
+    name: "30.0.compat.cil",
+    srcs: ["sepolicy/api30/30.0.compat.cil"],
+    version: "30.0",
+}
+
+se_compat_cil {
+    name: "system_ext_30.0.compat.cil",
+    srcs: ["sepolicy/api30/empty.cil"],
+    stem: "30.0.compat.cil",
+    system_ext_specific: true,
+    version: "30.0",
+}

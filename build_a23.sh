@@ -54,8 +54,6 @@ apply_series() {
 }
 
 stage=patches; echo "---- A23 BUILD STEP: patches ($(date -u +%H:%M:%SZ)) ----"
-apply_series system/sepolicy "$device"/patches/sepolicy/*.patch
-apply_series packages/modules/Connectivity "$device"/patches/connectivity/*.patch
 apply_series device/lineage/sepolicy "$device"/patches/lineage-sepolicy/*.patch
 
 stage=stock-images; echo "---- A23 BUILD STEP: stock-images ($(date -u +%H:%M:%SZ)) ----"
