@@ -20,3 +20,10 @@ bluetooth.profile.opp.enabled=true
 bluetooth.profile.pan.nap.enabled=true
 bluetooth.profile.pan.panu.enabled=true
 bluetooth.profile.pbap.server.enabled=true
+
+# Incremental (streaming) installs: the stock vendor sets ro.incremental.enable=1
+# for its own One UI kernel. Google Play then installs through incfs, and
+# pressing Install rebooted phones on this 4.19 kernel with the Android 17
+# installer. Fall back to plain installs (whole APK downloaded first); odm is
+# loaded after vendor, so this overrides it.
+ro.incremental.enable=0
