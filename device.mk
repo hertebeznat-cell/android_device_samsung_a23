@@ -80,6 +80,16 @@ PRODUCT_PACKAGES += \
     A23CallAudio \
     A23SehRadio
 
+# Proximity: the phone has none; One UI detects the ear with the touch
+# controller. A sub-HAL of the stock sensors multi-HAL reports it as a
+# standard proximity sensor (sensors/ProximitySubHal.cpp); the stock sub-HAL
+# list plus ours is bound over /vendor/etc/sensors/hals.conf (init.a23.rc).
+PRODUCT_PACKAGES += \
+    sensors.a23_proximity
+
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/configs/sensors/hals.conf:$(TARGET_COPY_OUT_ODM)/etc/sensors/hals.conf
+
 # Keep Soong's graph small enough for Crave's free machines (jobs 306583 and
 # 306676 were OOM-killed in "analyzing Android.bp files"). cp2a leaves
 # RELEASE_ENABLE_TOT_CRONET unset, so external/cronet selects stable_* modules

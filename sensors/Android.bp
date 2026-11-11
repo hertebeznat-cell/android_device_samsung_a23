@@ -1,0 +1,26 @@
+//
+// Copyright (C) 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Proximity sub-HAL for the stock sensors multi-HAL (ProximitySubHal.cpp).
+// Installed to /odm/lib64; /odm/etc/sensors/hals.conf adds it to the stock
+// sub-HAL list.
+cc_library_shared {
+    name: "sensors.a23_proximity",
+    device_specific: true,
+    srcs: ["ProximitySubHal.cpp"],
+    header_libs: ["android.hardware.sensors@2.0-multihal.header"],
+    shared_libs: [
+        "android.hardware.sensors@1.0",
+        "android.hardware.sensors@2.0",
+        "android.hardware.sensors@2.0-ScopedWakelock",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}

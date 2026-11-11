@@ -40,7 +40,6 @@ class CallAudioTracker {
     private final SubscriptionManager mSubscriptionManager;
     private final TelephonyManager mTelephonyManager;
     private final Executor mExecutor;
-    private final ProximityGuard mProximityGuard;
 
     /** Registered call state listeners, by subscription id. */
     private final SparseArray<SimCallListener> mListeners = new SparseArray<>();
@@ -56,7 +55,6 @@ class CallAudioTracker {
         mSubscriptionManager = context.getSystemService(SubscriptionManager.class);
         mTelephonyManager = context.getSystemService(TelephonyManager.class);
         mExecutor = context.getMainExecutor();
-        mProximityGuard = new ProximityGuard(context);
     }
 
     void start() {
@@ -119,7 +117,6 @@ class CallAudioTracker {
                 ringing = mCallStates.keyAt(i);
             }
         }
-        mProximityGuard.setInCall(offhook >= 0);
         if (offhook >= 0) {
             setSlot(offhook);
             if (!mCallOn) {

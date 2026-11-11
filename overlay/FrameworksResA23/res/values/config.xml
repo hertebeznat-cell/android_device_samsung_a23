@@ -86,4 +86,10 @@
          ("some" avg10) and lmkd killed eight apps in five seconds. One UI caps
          hidden apps at 12-20 (ro.slmk.dha_*), which AOSP lmkd ignores. -->
     <integer name="config_customizedMaxCachedProcesses">24</integer>
+
+    <!-- Sound dose (CSD), behind Settings > Sound > hearing health: the stock
+         Android 11 audio HAL has no ISoundDose, so audioserver computes the
+         MEL values itself on the mixer threads (MelReporter falls back to the
+         framework MEL processor). Offloaded playback is not measured. -->
+    <bool name="config_safe_sound_dosage_enabled">true</bool>
 </resources>
