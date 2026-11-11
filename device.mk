@@ -90,6 +90,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/configs/sensors/hals.conf:$(TARGET_COPY_OUT_ODM)/etc/sensors/hals.conf
 
+# 6 GB zram instead of the stock RAM Plus 2 GB, bound over
+# /vendor/etc/fstab.ramplus (init.a23.rc)
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/configs/zram/fstab.ramplus:$(TARGET_COPY_OUT_ODM)/etc/fstab.ramplus
+
 # Keep Soong's graph small enough for Crave's free machines (jobs 306583 and
 # 306676 were OOM-killed in "analyzing Android.bp files"). cp2a leaves
 # RELEASE_ENABLE_TOT_CRONET unset, so external/cronet selects stable_* modules

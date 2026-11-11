@@ -13,6 +13,9 @@ on early-boot
     # sub-HALs listed in /vendor/etc/sensors/hals.conf; add the touch
     # proximity sub-HAL (sensors.a23_proximity, in /odm/lib64).
     mount none /odm/etc/sensors/hals.conf /vendor/etc/sensors/hals.conf bind
+    # 6 GB of zram instead of RAM Plus's 2 GB (configs/zram/fstab.ramplus);
+    # the stock init.ramplus.rc swaps it on at boot_completed.
+    mount none /odm/etc/fstab.ramplus /vendor/etc/fstab.ramplus bind
 
 on post-fs-data
     # Directories the stock vendor creates under /data, labelled since the
@@ -22,7 +25,7 @@ on post-fs-data
     restorecon_recursive /data/sec
 
 on boot
-    # The stock RAM Plus zram (2 GB, swapon_all at boot_completed) defaults to
+    # The zram swap (6 GB, swapon_all at boot_completed) defaults to
     # lzo-rle. With a 4 GB device under Android 17 + GMS the swap is busy all
     # the time (5 GB swapped in within 18 min of uptime); lz4 decompresses
     # faster and keeps kswapd and page faults cheaper.

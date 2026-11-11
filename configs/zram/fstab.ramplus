@@ -1,0 +1,9 @@
+# Copyright (C) 2026 The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+# Replaces the stock /vendor/etc/fstab.ramplus (bind mount, init.a23.rc),
+# which the stock init.ramplus.rc swaps on at boot_completed. One UI's
+# RAM Plus gives the 4 GB phone 2 GB of zram; Android 17 with GMS runs out
+# of it and lmkd kills apps. 6 GB of lz4 zram (set in init.a23.rc) holds
+# about 1.7 GB of RAM when full at the measured ~3.6x ratio.
+/dev/block/zram0    none    swap    defaults    zramsize=6442450944

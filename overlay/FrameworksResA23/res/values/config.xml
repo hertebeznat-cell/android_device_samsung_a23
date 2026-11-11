@@ -84,8 +84,9 @@
     <!-- Memory: Android 17 defaults to 1024 cached processes and leaves all
          trimming to lmkd. On 3.6 GB with GMS that kept memory PSI near 60%
          ("some" avg10) and lmkd killed eight apps in five seconds. One UI caps
-         hidden apps at 12-20 (ro.slmk.dha_*), which AOSP lmkd ignores. -->
-    <integer name="config_customizedMaxCachedProcesses">24</integer>
+         hidden apps at 12-20 (ro.slmk.dha_*), which AOSP lmkd ignores. 24 with the
+         stock 2 GB zram; 32 since it is 6 GB (configs/zram). -->
+    <integer name="config_customizedMaxCachedProcesses">32</integer>
 
     <!-- Sound dose (CSD), behind Settings > Sound > hearing health: the stock
          Android 11 audio HAL has no ISoundDose, so audioserver computes the
