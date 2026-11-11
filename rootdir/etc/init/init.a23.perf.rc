@@ -10,16 +10,18 @@
 
 on property:init.svc.qcom-post-boot=stopped
     # One UI raises CPU/GPU floors through Samsung's Hyper hints on touch and
-    # launch; the AOSP framework sends none, and opening the app drawer ran
-    # with the GPU at its 320 MHz floor (measured with a 50 ms frequency
-    # sampler). Start the Adreno 610 from 465 MHz; it still power-collapses
-    # when idle, so the floor only applies while it renders.
+    # launch; the AOSP framework sends none, and the GPU idled at its 320 MHz
+    # floor between frames. Opening the notification shade kept the Adreno
+    # 610 72-74 % busy even at 600 MHz (sampled every 50 ms), and frames
+    # spent ~18 ms waiting on buffers/GPU, so start it from 600 MHz. It still
+    # power-collapses when idle (idle_timer 80 ms), so the floor only costs
+    # power while it renders.
     # KGSL clamps its power level to min_pwrlevel; devfreq/min_freq is not
     # honoured by msm-adreno-tz (it read 465 MHz while the GPU ran at 320).
     # Levels: 0 = 1114.8, 1 = 1025, 2 = 785, 3 = 600, 4 = 465, 5 = 320 MHz.
-    write /sys/class/kgsl/kgsl-3d0/min_pwrlevel 4
-    write /sys/class/kgsl/kgsl-3d0/default_pwrlevel 4
-    write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 465000000
+    write /sys/class/kgsl/kgsl-3d0/min_pwrlevel 3
+    write /sys/class/kgsl/kgsl-3d0/default_pwrlevel 3
+    write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 600000000
     # schedutil predicted load, as Qualcomm's post_boot scripts use it: ramp
     # for a task's expected demand instead of waiting for the next window.
     write /sys/devices/system/cpu/cpufreq/policy0/schedutil/pl 1
