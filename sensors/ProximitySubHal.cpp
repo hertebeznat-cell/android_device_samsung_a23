@@ -200,6 +200,9 @@ class ProximitySubHal : public ISensorsSubHal {
 
     const std::string getName() override { return "A23ProximitySubHal"; }
 
+    // Keep the HIDL initialize() overload (final in ISensorsSubHal) visible.
+    using ISensorsSubHal::initialize;
+
     Return<Result> initialize(const sp<IHalProxyCallback>& halProxyCallback) override {
         std::lock_guard<std::mutex> lock(mLock);
         // Called again whenever the framework restarts: start from scratch.
