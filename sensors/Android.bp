@@ -10,6 +10,10 @@ cc_library_shared {
     name: "sensors.a23_proximity",
     device_specific: true,
     srcs: ["ProximitySubHal.cpp"],
+    // The multi-HAL process runs on the Android 11 (VNDK 30) libc++, which
+    // lacks symbols this tree's libc++ headers reference
+    // (std::__libcpp_verbose_abort, ...); dlopen of the sub-HAL failed.
+    stl: "libc++_static",
     header_libs: ["android.hardware.sensors@2.0-multihal.header"],
     shared_libs: [
         "android.hardware.sensors@1.0",

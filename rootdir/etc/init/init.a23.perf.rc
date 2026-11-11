@@ -8,6 +8,16 @@
 # rewrites scaling_governor, which resets every schedutil tunable (pl written
 # at boot_completed was back to 0), and it zeroes the Qualcomm input boost.
 
+on early-boot
+    # GPU floor, 600 MHz (see below). Written before the Qualcomm perf HAL
+    # (class hal, started on boot) runs: it manages these nodes and, when its
+    # last lock on one is released, restores the value it read when the
+    # first lock was taken. Written only after boot, the 600 MHz floor was
+    # back at 320 MHz once the boot-time boost ended.
+    write /sys/class/kgsl/kgsl-3d0/min_pwrlevel 3
+    write /sys/class/kgsl/kgsl-3d0/default_pwrlevel 3
+    write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 600000000
+
 on property:init.svc.qcom-post-boot=stopped
     # One UI raises CPU/GPU floors through Samsung's Hyper hints on touch and
     # launch; the AOSP framework sends none, and the GPU idled at its 320 MHz
