@@ -18,7 +18,7 @@
   <project path="kernel/samsung/a23"
            name="hertebeznat-cell/android_kernel_samsung_a235f"
            remote="a23-github"
-           revision="29f53d6b014da16d792d3dcef8e5fb1dcd62cd24"
+           revision="6d6f3a162ab2c363aa231aecca50945903460019"
            upstream="main" clone-depth="1" />
 
   <!-- VNDK 30 libraries for the Android 11 vendor (dropped from cnb). -->
