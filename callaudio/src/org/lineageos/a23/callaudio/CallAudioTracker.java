@@ -140,6 +140,17 @@ class CallAudioTracker {
         }
     }
 
+    /**
+     * Telecom's view of a new call, which arrives before Telecom switches the
+     * audio mode to MODE_IN_CALL. The per-subscription call state arrives
+     * ~200 ms later: for an outgoing SIM 2 call the HAL had already opened
+     * the SIM 1 voice session (voicemmode1) and the call had no audio.
+     */
+    void onCallSlot(int slot) {
+        Log.i(TAG, "call on slot " + slot);
+        setSlot(slot);
+    }
+
     private void setSlot(int slot) {
         if (slot == mSlot) {
             return;

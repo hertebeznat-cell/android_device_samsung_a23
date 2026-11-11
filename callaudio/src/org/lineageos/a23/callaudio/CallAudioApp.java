@@ -25,4 +25,11 @@ public class CallAudioApp extends Application {
         sTracker = new CallAudioTracker(app);
         sTracker.start();
     }
+
+    /** A call was placed or received on this SIM slot (CallSlotInCallService). */
+    static synchronized void onCallSlot(int slot) {
+        if (sTracker != null) {
+            sTracker.onCallSlot(slot);
+        }
+    }
 }
