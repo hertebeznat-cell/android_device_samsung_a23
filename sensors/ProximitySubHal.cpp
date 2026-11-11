@@ -29,6 +29,13 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <linux/input.h>
+
+// Samsung kernels add this event code (include/uapi/linux/input-event-codes.h);
+// bionic's uapi headers lack it. sec_touchproximity reports the hover
+// level with it (getevent: ABS 003e).
+#ifndef ABS_MT_CUSTOM
+#define ABS_MT_CUSTOM 0x3e
+#endif
 #include <log/log.h>
 #include <poll.h>
 #include <stdio.h>
