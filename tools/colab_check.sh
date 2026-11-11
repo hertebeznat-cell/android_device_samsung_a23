@@ -91,6 +91,7 @@ fail() {
 }
 run() { "$@" >> "$log" 2>&1 || fail; }
 
+mkdir -p "$work"
 cd "$work"
 git config --global user.name a23-colab
 git config --global user.email a23-colab@localhost
